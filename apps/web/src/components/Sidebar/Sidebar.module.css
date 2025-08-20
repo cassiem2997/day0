@@ -1,0 +1,126 @@
+:root {
+  --sb-open: 280px;
+  --sb-closed: 64px;
+  --sb-bg: #ffffff;
+  --sb-border: #eee;
+}
+
+/* ====== 컨테이너 ====== */
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0; /* 왼쪽 붙이기 */
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  background: var(--sb-bg);
+  border-right: 1px solid var(--sb-border);
+  transition: width 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  will-change: width, transform;
+  width: var(--sb-open);
+  padding: 10px;
+}
+
+/* 데스크톱 기본: 폭 전환 */
+.open {
+  width: var(--sb-open);
+}
+.closed {
+  width: var(--sb-closed);
+}
+
+/* 모바일: 슬라이드 트랜지션 (<= 768px) */
+@media (max-width: 768px) {
+  .sidebar {
+    width: var(--sb-open);
+    transform: translateX(-100%);
+  }
+  .open {
+    transform: translateX(0);
+  }
+  .closed {
+    transform: translateX(-100%);
+  }
+  .overlayShow {
+    opacity: 0.4;
+    visibility: visible;
+  }
+}
+
+/* 오버레이 (모바일에서만 보이게) */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 180ms ease, visibility 180ms ease;
+}
+
+/* ====== 토글 버튼 ====== */
+.toggleBtn {
+  align-self: flex-end;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #f9fafb;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.toggleBtn img {
+  width: 18px;
+  height: 18px;
+}
+
+/* ====== 메뉴 ====== */
+.nav {
+  padding: 12px 6px;
+  overflow: hidden;
+}
+
+.nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+.nav a,
+.logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #222;
+  background: transparent;
+  border: 1px solid transparent;
+}
+.nav a:hover,
+.logout:hover {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+}
+.active {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+/* 닫힘 상태에서 텍스트 숨김(아이콘만 쓸 때 대비) */
+.closed .itemText {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+/* 접근성: 애니메이션 최소화 선호시 */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .overlay {
+    transition: none;
+  }
+}
