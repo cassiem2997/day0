@@ -1,5 +1,6 @@
 package com.travel0.day0.community.domain;
 
+import com.travel0.day0.users.domain.University;
 import com.travel0.day0.users.domain.User;
 import jakarta.persistence.*;
 import lombok.*;

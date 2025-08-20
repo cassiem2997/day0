@@ -1,7 +1,9 @@
 package com.travel0.day0.fx.domain;
 
 import com.travel0.day0.users.domain.User;
-import com.travel0.day0.departures.domain.DepartureInfo;
+import com.travel0.day0.users.domain.DepartureInfo;
+import com.travel0.day0.common.enums.FxTransactionStatus;
+import com.travel0.day0.account.domain.AccountTransaction;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.*;

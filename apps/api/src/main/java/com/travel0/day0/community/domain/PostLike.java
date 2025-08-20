@@ -1,8 +1,10 @@
 package com.travel0.day0.community.domain;
 
+import com.travel0.day0.users.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.io.*;
+import java.time.Instant;
 
 @Entity
 @Table(name = "post_like")
