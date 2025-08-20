@@ -1,6 +1,7 @@
 package com.travel0.day0.savings.domain;
 
 import com.travel0.day0.account.domain.AccountTransaction;
+import com.travel0.day0.checklist.domain.UserChecklistItem;
 import com.travel0.day0.common.enums.SavingTxnStatus;
 import com.travel0.day0.common.enums.SavingTxnType;
 import jakarta.persistence.*;
