@@ -1,47 +1,26 @@
-import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import styles from "./Sidebar.module.css";
-
-// 아이콘 (apps/web/src/assets/…)
 import openIcon from "../../assets/openSidebar.svg";
 import closeIcon from "../../assets/closeSidebar.svg";
 
-const LS_KEY = "sidebar:isOpen";
+type SidebarProps = {
+  isOpen: boolean;
+  toggle: () => void;
+};
 
-export default function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);
-
-  useEffect(() => {
-    const saved = localStorage.getItem(LS_KEY);
-    if (saved !== null) setIsOpen(saved === "true");
-  }, []);
-
-  const toggle = () => {
-    setIsOpen((p) => {
-      const v = !p;
-      localStorage.setItem(LS_KEY, String(v));
-      return v;
-    });
-  };
-
+export default function Sidebar({ isOpen, toggle }: SidebarProps) {
   return (
     <>
       {/* 모바일 오버레이 */}
       <div
         className={`${styles.overlay} ${isOpen ? styles.overlayShow : ""}`}
         onClick={toggle}
-        aria-hidden={!isOpen}
       />
       <aside
         className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed}`}
-        aria-expanded={isOpen}
       >
-        <button
-          className={styles.toggleBtn}
-          onClick={toggle}
-          aria-label="사이드바 토글"
-        >
-          <img src={isOpen ? closeIcon : openIcon} alt="" />
+        <button className={styles.toggleBtn} onClick={toggle}>
+          <img src={isOpen ? closeIcon : openIcon} alt="사이드바 토글" />
         </button>
 
         <nav className={styles.nav}>
@@ -49,9 +28,7 @@ export default function Sidebar() {
             <li>
               <NavLink
                 to="/checklist"
-                className={({ isActive }) =>
-                  isActive ? styles.active : undefined
-                }
+                className={({ isActive }) => (isActive ? styles.active : "")}
               >
                 <span className={styles.itemText}>체크리스트</span>
               </NavLink>
@@ -59,9 +36,7 @@ export default function Sidebar() {
             <li>
               <NavLink
                 to="/exchange"
-                className={({ isActive }) =>
-                  isActive ? styles.active : undefined
-                }
+                className={({ isActive }) => (isActive ? styles.active : "")}
               >
                 <span className={styles.itemText}>환전하기</span>
               </NavLink>
@@ -69,9 +44,7 @@ export default function Sidebar() {
             <li>
               <NavLink
                 to="/savings"
-                className={({ isActive }) =>
-                  isActive ? styles.active : undefined
-                }
+                className={({ isActive }) => (isActive ? styles.active : "")}
               >
                 <span className={styles.itemText}>적금가입</span>
               </NavLink>
@@ -79,9 +52,7 @@ export default function Sidebar() {
             <li>
               <NavLink
                 to="/community"
-                className={({ isActive }) =>
-                  isActive ? styles.active : undefined
-                }
+                className={({ isActive }) => (isActive ? styles.active : "")}
               >
                 <span className={styles.itemText}>커뮤니티</span>
               </NavLink>
@@ -89,15 +60,15 @@ export default function Sidebar() {
             <li>
               <NavLink
                 to="/mypage"
-                className={({ isActive }) =>
-                  isActive ? styles.active : undefined
-                }
+                className={({ isActive }) => (isActive ? styles.active : "")}
               >
                 <span className={styles.itemText}>마이페이지</span>
               </NavLink>
             </li>
             <li>
-              <button className={styles.logout}>로그아웃</button>
+              <button className={styles.logout}>
+                <span className={styles.itemText}>로그아웃</span>
+              </button>
             </li>
           </ul>
         </nav>

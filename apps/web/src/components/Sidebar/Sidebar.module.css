@@ -99,6 +99,9 @@
   color: #222;
   background: transparent;
   border: 1px solid transparent;
+  font: inherit; /* 버튼 기본 폰트 제거 */
+  cursor: pointer; /* 버튼도 커서 손가락으로 */
+  width: 100%;
 }
 .nav a:hover,
 .logout:hover {
@@ -110,11 +113,12 @@
   border-color: #c7d2fe;
 }
 
-/* 닫힘 상태에서 텍스트 숨김(아이콘만 쓸 때 대비) */
+/* 닫힘 상태에서 텍스트 숨김 */
 .closed .itemText {
   opacity: 0;
   width: 0;
   overflow: hidden;
+  transition: opacity 150ms ease, width 150ms ease;
 }
 
 /* 접근성: 애니메이션 최소화 선호시 */
