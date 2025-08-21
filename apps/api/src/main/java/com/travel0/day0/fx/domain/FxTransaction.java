@@ -50,10 +50,12 @@ public class FxTransaction {
     private BigDecimal quoteAmount;
 
     @Column(name = "fees", nullable = false, precision = 18, scale = 2)
+    @Builder.Default
     private BigDecimal fees = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
     private FxTransactionStatus status = FxTransactionStatus.RECEIVED;
 
     @Column(name = "requested_at", nullable = false,
