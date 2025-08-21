@@ -1,9 +1,9 @@
-package com.travel0.day0.deparatures.controller;
+package com.travel0.day0.departures.controller;
 
-import com.travel0.day0.deparatures.dto.DepartureCreateRequest;
-import com.travel0.day0.deparatures.dto.DepartureInfoResponse;
-import com.travel0.day0.deparatures.dto.DepartureUpdateRequest;
-import com.travel0.day0.deparatures.service.DepartureService;
+import com.travel0.day0.departures.dto.DepartureCreateRequest;
+import com.travel0.day0.departures.dto.DepartureInfoResponse;
+import com.travel0.day0.departures.dto.DepartureUpdateRequest;
+import com.travel0.day0.departures.service.DepartureService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,7 +1,6 @@
-package com.travel0.day0.deparatures.repository;
+package com.travel0.day0.departures.repository;
 
-import com.travel0.day0.deparatures.domain.DepartureInfo;
-import com.travel0.day0.deparatures.dto.DepartureInfoResponse;
+import com.travel0.day0.departures.domain.DepartureInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

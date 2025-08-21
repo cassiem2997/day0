@@ -1,10 +1,10 @@
-package com.travel0.day0.deparatures.service;
+package com.travel0.day0.departures.service;
 
-import com.travel0.day0.deparatures.domain.DepartureInfo;
-import com.travel0.day0.deparatures.dto.DepartureCreateRequest;
-import com.travel0.day0.deparatures.dto.DepartureInfoResponse;
-import com.travel0.day0.deparatures.dto.DepartureUpdateRequest;
-import com.travel0.day0.deparatures.repository.DepartureInfoRepository;
+import com.travel0.day0.departures.domain.DepartureInfo;
+import com.travel0.day0.departures.dto.DepartureCreateRequest;
+import com.travel0.day0.departures.dto.DepartureInfoResponse;
+import com.travel0.day0.departures.dto.DepartureUpdateRequest;
+import com.travel0.day0.departures.repository.DepartureInfoRepository;
 import com.travel0.day0.users.domain.ProgramType;
 import com.travel0.day0.users.domain.University;
 import com.travel0.day0.users.domain.User;

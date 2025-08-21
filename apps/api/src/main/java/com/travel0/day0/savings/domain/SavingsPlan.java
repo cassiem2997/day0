@@ -2,7 +2,7 @@ package com.travel0.day0.savings.domain;
 
 import com.travel0.day0.common.enums.SavingsFrequency;
 import com.travel0.day0.users.domain.User;
-import com.travel0.day0.deparatures.domain.DepartureInfo;
+import com.travel0.day0.departures.domain.DepartureInfo;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.*;

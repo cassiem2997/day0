@@ -1,4 +1,4 @@
-package com.travel0.day0.deparatures.domain;
+package com.travel0.day0.departures.domain;
 
 import com.travel0.day0.common.enums.DepartureStatus;
 import com.travel0.day0.users.domain.ProgramType;

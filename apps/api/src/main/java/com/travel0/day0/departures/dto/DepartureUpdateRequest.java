@@ -1,4 +1,4 @@
-package com.travel0.day0.deparatures.dto;
+package com.travel0.day0.departures.dto;
 
 import com.travel0.day0.common.enums.DepartureStatus;
 import lombok.AllArgsConstructor;
@@ -12,8 +12,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DepartureCreateRequest {
-    private Long userId;
+public class DepartureUpdateRequest {
     private Long universityId;
     private Long programTypeId;
     private String countryCode;
@@ -21,3 +20,4 @@ public class DepartureCreateRequest {
     private Instant endDate;
     private DepartureStatus status;
 }
+
