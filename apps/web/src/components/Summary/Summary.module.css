@@ -1,0 +1,51 @@
+.card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  flex: none; /* 가로 꽉 안차고 내용 크기만 */
+  min-width: 250px;
+  text-align: center; /* 안에 텍스트 다 가운데 */
+  margin: 0 auto; /* 부모 안에서 가운데 */
+}
+
+.dDay {
+  display: flex;
+  flex-direction: column; /* 세로로 쌓기 */
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.dDay span {
+  font-size: 16px;
+  font-weight: 600;
+  color: #555;
+}
+
+.dDay strong {
+  font-size: 32px;
+  font-weight: 800;
+  color: #4dabf7;
+}
+
+.progressInfo {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.progressBarBackground {
+  width: 100%;
+  height: 10px;
+  background-color: #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background-color: #4dabf7;
+  border-radius: 10px;
+  transition: width 2.5s ease-in-out;
+}
