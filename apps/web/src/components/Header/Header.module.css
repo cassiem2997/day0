@@ -1,23 +1,23 @@
-/* ===== 데스크톱에서만 보이는 헤더 ===== */
+/* ===== 데스크톱 헤더 ===== */
 .header {
   position: sticky;
   top: 0;
   z-index: 50;
   background: #fff;
-  display: flex;
+  display: grid; /* 로고 | NAV | 프로필 */
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 16px;
   padding: 10px 24px;
   border-bottom: 1px solid #dee2e6;
   width: 100%;
   box-sizing: border-box;
 }
 
-/* 로고 */
+/* 브랜드(로고) */
 .brand {
   display: flex;
   align-items: center;
-  min-width: 120px;
+  min-width: 96px;
 }
 .logoLink {
   display: inline-flex;
@@ -28,27 +28,31 @@
   object-fit: contain;
 }
 
-/* 네비게이션 */
+/* NAV: 가운데 띠 안에서 space-between */
 .nav {
-  flex: 1;
+  justify-self: center; /* 헤더 중앙에 배치 */
+  max-width: 760px; /* 탭들이 퍼질 ‘띠’ 너비 */
+  width: 100%;
+  min-width: 0;
   overflow-x: auto;
-  -ms-overflow-style: none; /* IE/Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 .nav::-webkit-scrollbar {
   display: none;
-} /* Chrome/Safari */
+}
 
 .menu {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between; /* 균등 분배 */
+  gap: clamp(10px, 2vw, 22px); /* 폭 좁아지면 자동 축소 */
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-/* 링크 기본/호버/활성 */
+/* 링크 */
 .link {
   display: inline-block;
   padding: 10px 14px;
@@ -67,8 +71,110 @@
   color: #1c7ed6;
 }
 
-/* ===== 반응형: 모바일에서는 헤더 숨김 (사이드바만 사용) ===== */
-@media (max-width: 768px) {
+/* 우측 프로필 */
+.right {
+  position: relative;
+  margin-left: 8px;
+}
+.profileBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.profileBtn:hover {
+  background: #f8f9fa;
+}
+
+.avatarImg {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.avatarFallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e7f5ff, #d0ebff);
+  color: #1c7ed6;
+  font-weight: 800;
+  font-size: 14px;
+}
+.username {
+  color: #343a40;
+  font-weight: 600;
+}
+.caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #868e96;
+  transform: translateY(1px);
+}
+
+.dropdown {
+  position: absolute;
+  top: 46px;
+  right: 0;
+  min-width: 160px;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 6px;
+}
+.dropdownItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: #343a40;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.dropdownItem:hover {
+  background: #f8f9fa;
+}
+
+/* ===== 중간 폭 대응 (잘림 방지) ===== */
+@media (max-width: 1024px) {
+  .logo {
+    width: 96px;
+    height: 64px;
+  } /* 로고 축소 */
+  .nav {
+    max-width: 640px;
+  } /* 띠 너비 축소 */
+}
+@media (max-width: 900px) {
+  .username {
+    display: none;
+  } /* 텍스트 숨김으로 공간 확보 */
+  .profileBtn {
+    padding: 6px;
+    gap: 8px;
+  }
+  .nav {
+    max-width: 560px;
+  }
+}
+
+/* ===== 모바일: 헤더 숨김(사이드바만 사용) ===== */
+@media (max-width: 767px) {
   .header {
     display: none;
   }
