@@ -55,9 +55,8 @@ export default function ChecklistPage() {
   const [tripData] = useState<Data>(DUMMY_DATA);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  const handleDateChange = (date: Date) => setSelectedDate(date);
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+  const handleDateChange = (date: Date) => setSelectedDate(date);
 
   return (
     <div className={styles.container}>
