@@ -34,27 +34,27 @@ const DUMMY_DATA: Data = {
       text: "해외유심 또는 로밍 알아보기",
       completed: true,
     },
-    { id: 5, date: "2026-01-25", text: "국제학생증 발급", completed: false },
+    { id: 5, date: "2026-01-25", text: "국제학생증 발급", completed: true },
     {
       id: 6,
       date: "2025-11-10",
       text: "필요 서류 영문 번역 및 공증",
-      completed: false,
+      completed: true,
     },
     {
       id: 7,
       date: "2026-02-05",
       text: "해외 결제 카드 준비",
-      completed: false,
+      completed: true,
     },
-    { id: 8, date: "2026-02-10", text: "출국 전 OT 참석", completed: false },
+    { id: 8, date: "2026-02-10", text: "출국 전 OT 참석", completed: true },
   ],
 };
 
 export default function ChecklistPage() {
   const [tripData] = useState<Data>(DUMMY_DATA);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const handleDateChange = (date: Date) => setSelectedDate(date);
 
