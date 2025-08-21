@@ -33,7 +33,7 @@ public class SavingTxn {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "txn_type", nullable = false, length = 20)
-    private SavingTxnType txnType = SavingTxnType.REGULAR;
+    private SavingTxnType txnType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_uci_id")
@@ -51,7 +51,7 @@ public class SavingTxn {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private SavingTxnStatus status = SavingTxnStatus.RECEIVED;
+    private SavingTxnStatus status;
 
     @Column(name = "idempotency_key", nullable = false, length = 80, unique = true)
     private String idempotencyKey;
@@ -65,4 +65,35 @@ public class SavingTxn {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "posting_tx_id")
     private AccountTransaction postingTx;
+
+    @PrePersist
+    void prePersist() {
+        if (requestedAt == null) {
+            requestedAt = Instant.now();
+        }
+        if (status == null) {
+            status = SavingTxnStatus.RECEIVED;
+        }
+        if (txnType == null) {
+            txnType = SavingTxnType.REGULAR;
+        }
+    }
+
+
+    public void markProcessing() {
+        this.status = SavingTxnStatus.PROCESSING;
+    }
+
+    public void markSuccess(String externalTxId, AccountTransaction postingTx) {
+        this.status = SavingTxnStatus.SUCCESS;
+        this.externalTxId = externalTxId;
+        this.postingTx = postingTx;
+        this.processedAt = Instant.now();
+        this.failureReason = null;
+    }
+    public void markFailed(String reason) {
+        this.status = SavingTxnStatus.FAILED;
+        this.failureReason = reason;
+        this.processedAt = Instant.now();
+    }
 }
