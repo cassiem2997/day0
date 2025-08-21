@@ -1,25 +1,176 @@
+/* ===== 전체 레이아웃 ===== */
 .container {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  margin-top: 30px;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto; /* 가운데 정렬 */
+  width: 100%;
+  max-width: 1120px;
+  margin: 30px auto 0;
+  box-sizing: border-box;
 }
 
-.calendarWrapper :global(.react-calendar) {
+/* 공통 카드 패널 */
+.panel {
+  width: 100%;
+  background: #fff;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 20px;
-  width: 100%; /* 900px 기준 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
 }
 
-.dailyListWrapper {
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  width: 100%; /* 캘린더랑 똑같이 */
+/* ===== 캘린더 스타일 ===== */
+.calendarPanel :global(.react-calendar) {
+  width: 100%;
+  border: 0;
+  font-family: inherit;
 }
+
+/* 네비게이션/요일 */
+.calendarPanel :global(.react-calendar__navigation) {
+  margin-bottom: 12px;
+}
+.calendarPanel :global(.react-calendar__navigation__label) {
+  font-weight: 700;
+}
+.calendarPanel :global(.react-calendar__month-view__weekdays) {
+  text-transform: none;
+  font-weight: 700;
+  color: #495057;
+}
+
+/* 타일 기본 */
+.calendarPanel :global(.react-calendar__tile) {
+  padding: 10px 6px;
+  height: 48px;
+  position: relative;
+  background: transparent;
+}
+
+/* 오늘: 타일 배경은 투명, 숫자에만 링 */
+.calendarPanel :global(.react-calendar__tile--now) {
+  background: transparent;
+}
+
+/* --- 숫자만 칠해지는 둥근 배지 --- */
+:root {
+  --day-badge: 32px;
+}
+
+.calendarPanel :global(.react-calendar__tile abbr) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--day-badge);
+  height: var(--day-badge);
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* 오늘 링 */
+.calendarPanel :global(.react-calendar__tile--now abbr) {
+  box-shadow: 0 0 0 2px #dee2e6 inset;
+}
+
+/* 출국일(타일 배경 X, 배지에만 표시) */
+.leaveDay {
+  background: transparent !important;
+}
+.leaveDay :global(abbr) {
+  background: #ffecf2;
+  color: #c2255c;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px #ffc9de inset;
+}
+
+/* 선택된 날짜: 숫자 배지만 색 채우기 (가장 우선) */
+.calendarPanel :global(.react-calendar__tile--active) {
+  background: transparent !important;
+}
+.calendarPanel :global(.react-calendar__tile--active abbr) {
+  background: #1971c2 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+/* 타일 추가 컨텐츠 컨테이너 */
+.tileExtras {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 출국 라벨 */
+.departureLabel {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 11px;
+  padding: 2px 6px;
+  background: #ffdde7;
+  color: #c2255c;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+/* 할 일 dot */
+.dot {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #339af0;
+}
+
+/* ===== 체크리스트 카드 ===== */
+.dailyHeader {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.checklistItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px dashed #f1f3f5;
+}
+.checklistItem:last-child {
+  border-bottom: none;
+}
+
+.itemText {
+  font-size: 15px;
+}
+
+.noItems {
+  color: #868e96;
+  padding: 6px 0 2px 0;
+  font-size: 14px;
+}
+
+/* ===== hover/focus 전부 끄기 (타일 + 네비게이션) ===== */
+.calendarPanel :global(.react-calendar__tile:enabled:hover),
+.calendarPanel :global(.react-calendar__tile:enabled:focus) {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.calendarPanel :global(.react-calendar__navigation button:enabled:hover),
+.calendarPanel :global(.react-calendar__navigation button:enabled:focus) {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+
