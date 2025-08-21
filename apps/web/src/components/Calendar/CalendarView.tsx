@@ -90,7 +90,7 @@ export default function CalendarView({
         <Calendar
           onChange={(value) => onDateChange(value as Date)}
           value={selectedDate}
-          formatDay={(locale, date) => date.getDate().toString()}
+          formatDay={(_, date) => date.getDate().toString()}
           tileClassName={tileClassName}
           tileContent={tileContent}
         />

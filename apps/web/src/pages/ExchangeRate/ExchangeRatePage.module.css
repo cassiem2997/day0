@@ -1,0 +1,32 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 10px 40px;
+  border-bottom: 1px solid #dee2e6;
+  width: 100%;
+  box-sizing: border-box;
+  transition: margin-left 0.2s ease;
+}
+
+/* 사이드바 열렸을 때 로고가 오른쪽으로 밀림 */
+.withSidebar {
+  margin-left: 280px;
+}
+
+/* 사이드바 닫혔을 때 로고는 조금만 밀림 */
+.noSidebar {
+  margin-left: 64px;
+}
