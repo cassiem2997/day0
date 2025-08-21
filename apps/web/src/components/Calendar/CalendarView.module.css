@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 30px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto; /* 가운데 정렬 */
+}
+
+.calendarWrapper :global(.react-calendar) {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%; /* 900px 기준 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.dailyListWrapper {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%; /* 캘린더랑 똑같이 */
+}
