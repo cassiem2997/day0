@@ -2,10 +2,7 @@ package com.travel0.day0.users.domain;
 
 import com.travel0.day0.common.enums.Gender;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -17,7 +14,9 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
@@ -31,6 +30,9 @@ public class User {
     @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
 
+    @Column(name = "password", nullable = false)
+    private String password;
+
     @Column(name = "nickname", nullable = false, length = 50)
     private String nickname;
 
@@ -39,12 +41,13 @@ public class User {
     private Gender gender;
 
     @Column(name = "birth")
-    private Instant birth;
+    private LocalDate birth;
 
     @Column(name = "profile_image", length = 500)
     private String profileImage;
 
     @Column(name = "mileage", nullable = false)
+    @Builder.Default
     private Long mileage = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY)
