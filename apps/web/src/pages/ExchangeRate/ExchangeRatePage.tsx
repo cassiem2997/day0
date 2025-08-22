@@ -110,7 +110,7 @@ export default function ExchangeRatePage() {
         {isMobile ? null : <Header></Header>}
 
         <div className={styles.pageContent}>
-          <h2 className={styles.title}>EXCHANGE</h2>
+          <h2 className={styles.title}>환율</h2>
 
           {/* 그래프 (더미) */}
           <section className={styles.rateBox}>
