@@ -1,5 +1,5 @@
-# main.py - AI 추천 전용 FastAPI (통합 완성 버전)
-# DB 스키마 호환성 + 메모리 캐싱 + is_fixed 필드 활용
+# main.py - AI 추천 전용 FastAPI (메모리 캐시 적용)
+# Spring Boot에서 체크리스트 기본 생성 담당, FastAPI는 AI 추천만
 
 from dotenv import load_dotenv
 from urllib.parse import urlparse
@@ -13,8 +13,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import os
 import re
-import decimal  
 import hashlib
+import json
 
 load_dotenv()
 
@@ -119,7 +119,7 @@ def clear_cache_pattern(pattern: str):
     print(f"🧹 캐시 삭제: {len(keys_to_delete)}개 항목")
 
 # =============================================================================
-# 데이터 모델 (DB 스키마 호환성 반영)
+# 데이터 모델 (단순화된 버전)
 # =============================================================================
 
 class ChecklistItem(BaseModel):
@@ -128,7 +128,6 @@ class ChecklistItem(BaseModel):
     description: Optional[str] = ""
     tag: str = "NONE"
     status: str = "TODO"
-    is_fixed: Optional[bool] = False  # 날짜 고정 여부 (D-30 등)
 
 class MissingItemsRequest(BaseModel):
     """누락 항목 추천 요청"""
@@ -171,7 +170,6 @@ class PriorityItem(BaseModel):
     ai_priority: int
     urgency_score: float
     reorder_reason: str
-    is_fixed: bool = False  # 날짜 고정 여부 포함
 
 class PriorityReorderResponse(BaseModel):
     """우선순위 재정렬 응답"""
@@ -181,7 +179,7 @@ class PriorityReorderResponse(BaseModel):
     reorder_summary: str
 
 # =============================================================================
-# 의미적 유사성 기반 중복 제거 로직 
+# 의미적 유사성 기반 중복 제거 로직 (기존 코드 재사용)
 # =============================================================================
 
 def extract_keywords(text):
@@ -269,13 +267,11 @@ def get_popularity_stats(country_code: str, program_type_id: int):
         conn.close()
 
 # =============================================================================
-# AI 추천 로직 (is_fixed 활용 강화)
+# AI 추천 로직
 # =============================================================================
 
 def find_missing_items(existing_items: List[dict], popularity_data: List[dict]) -> List[dict]:
-    """누락된 항목 찾기 - is_fixed 우선 고려"""
-    
-    # 기존 항목들의 제목 세트
+    """누락된 항목 찾기"""
     existing_titles = {item['title'].lower() for item in existing_items}
     
     missing_items = []
@@ -300,30 +296,26 @@ def find_missing_items(existing_items: List[dict], popularity_data: List[dict]) 
                 break
         
         if not is_already_exists:
-            # Decimal을 float로 안전하게 변환
-            popularity_rate = float(pop_item['popularity_rate']) if isinstance(pop_item['popularity_rate'], decimal.Decimal) else pop_item['popularity_rate']
-            priority_score = float(pop_item['priority_score']) if isinstance(pop_item['priority_score'], decimal.Decimal) else pop_item['priority_score']
-            
             # 누락 이유 판단
-            if popularity_rate > 0.9:
-                reason = f"필수 항목: {popularity_rate*100:.0f}%가 준비"
-            elif priority_score <= 2:
+            if pop_item['popularity_rate'] > 0.9:
+                reason = f"필수 항목: {pop_item['popularity_rate']*100:.0f}%가 준비"
+            elif pop_item['priority_score'] <= 2:
                 reason = "높은 우선순위 항목"
-            elif popularity_rate > 0.8:
-                reason = f"인기 항목: {popularity_rate*100:.0f}%가 준비"
+            elif pop_item['popularity_rate'] > 0.8:
+                reason = f"인기 항목: {pop_item['popularity_rate']*100:.0f}%가 준비"
             else:
                 reason = "추천 항목"
             
             # 신뢰도 점수 계산
-            confidence = popularity_rate * 0.7 + (1 - priority_score/10) * 0.3
+            confidence = pop_item['popularity_rate'] * 0.7 + (1 - pop_item['priority_score']/10) * 0.3
             
             missing_items.append({
                 'item_title': pop_item['item_title'],
                 'item_description': pop_item['item_description'],
                 'item_tag': pop_item['item_tag'],
-                'popularity_rate': popularity_rate,
+                'popularity_rate': pop_item['popularity_rate'],
                 'avg_offset_days': pop_item['avg_offset_days'],
-                'priority_score': priority_score,
+                'priority_score': pop_item['priority_score'],
                 'missing_reason': reason,
                 'confidence_score': confidence
             })
@@ -333,7 +325,7 @@ def find_missing_items(existing_items: List[dict], popularity_data: List[dict]) 
     return missing_items[:5]  # 상위 5개만
 
 def calculate_priority_scores(items: List[dict], departure_date: str, popularity_data: List[dict]) -> List[dict]:
-    """우선순위 점수 재계산 - is_fixed 필드 활용"""
+    """우선순위 점수 재계산"""
     departure_dt = datetime.strptime(departure_date, "%Y-%m-%d")
     days_until = (departure_dt - datetime.now()).days
     
@@ -344,34 +336,23 @@ def calculate_priority_scores(items: List[dict], departure_date: str, popularity
     
     for i, item in enumerate(items):
         original_priority = i + 1
-        is_fixed = item.get('is_fixed', False)
         
         # 인기 통계에서 해당 항목 찾기
         stat = popularity_dict.get(item['title'])
         
         if stat:
-            # Decimal을 float로 안전하게 변환
-            popularity_rate = float(stat['popularity_rate']) if isinstance(stat['popularity_rate'], decimal.Decimal) else stat['popularity_rate']
-            
             # 긴급도 계산
             recommended_prep_day = abs(stat['avg_offset_days'])
             urgency_score = min(1.0, recommended_prep_day / max(1, days_until)) if days_until <= recommended_prep_day else 0.3
             
-            # is_fixed 항목에 대한 가중치 추가
-            fixed_bonus = 0.2 if is_fixed else 0.0
-            
-            # AI 우선순위 계산 (인기도 + 긴급도 + 고정 보너스)
-            ai_priority_score = popularity_rate * 0.5 + urgency_score * 0.3 + fixed_bonus
+            # AI 우선순위 계산 (인기도 + 긴급도)
+            ai_priority_score = stat['popularity_rate'] * 0.6 + urgency_score * 0.4
             
             # 재정렬 이유
-            if is_fixed and urgency_score > 0.5:
-                reason = f"📅 고정 일정: D{stat['avg_offset_days']} 준비 필수"
-            elif urgency_score > 0.7:
+            if urgency_score > 0.7:
                 reason = f"⚠️ 긴급: 출국까지 {days_until}일만 남음"
-            elif popularity_rate > 0.9:
-                reason = f"🔥 필수: {popularity_rate*100:.0f}%가 준비"
-            elif is_fixed:
-                reason = f"📌 날짜 고정 항목: D{stat['avg_offset_days']} 권장"
+            elif stat['popularity_rate'] > 0.9:
+                reason = f"🔥 필수: {stat['popularity_rate']*100:.0f}%가 준비"
             elif urgency_score > 0.5:
                 reason = f"⏰ 서둘러야 함: D{stat['avg_offset_days']} 권장"
             else:
@@ -379,13 +360,8 @@ def calculate_priority_scores(items: List[dict], departure_date: str, popularity
         else:
             # 통계가 없는 항목은 기본값
             urgency_score = 0.5
-            fixed_bonus = 0.1 if is_fixed else 0.0
-            ai_priority_score = 0.5 + fixed_bonus
-            
-            if is_fixed:
-                reason = "📌 날짜 고정 항목"
-            else:
-                reason = "📝 일반 항목"
+            ai_priority_score = 0.5
+            reason = "📝 일반 항목"
         
         reordered_items.append({
             'title': item['title'],
@@ -394,11 +370,10 @@ def calculate_priority_scores(items: List[dict], departure_date: str, popularity
             'original_priority': original_priority,
             'ai_priority_score': ai_priority_score,
             'urgency_score': urgency_score,
-            'reorder_reason': reason,
-            'is_fixed': is_fixed
+            'reorder_reason': reason
         })
     
-    # AI 우선순위 점수로 정렬 (is_fixed 항목이 자연스럽게 상위로)
+    # AI 우선순위 점수로 정렬
     reordered_items.sort(key=lambda x: x['ai_priority_score'], reverse=True)
     
     # 새로운 순서 번호 부여
@@ -433,14 +408,14 @@ async def health_check():
 @app.post("/ai/recommendations/missing-items", response_model=MissingItemsResponse)
 async def recommend_missing_items(request: MissingItemsRequest):
     """
-    누락 항목 추천 API (캐시 적용 + DB 호환성)
+    누락 항목 추천 API (캐시 적용)
     
     Spring Boot에서 현재 체크리스트를 보내주면
     인기 통계 기반으로 누락된 항목들을 찾아서 추천
     """
     try:
         # 캐시 키 생성 (기존 항목 해시 포함)
-        existing_items_dict = [item.model_dump() for item in request.existing_items]
+        existing_items_dict = [item.dict() for item in request.existing_items]
         items_hash = hash_items(existing_items_dict)
         cache_key = get_cache_key("missing", request.country_code, request.program_type_id, items_hash)
         
@@ -488,7 +463,7 @@ async def recommend_missing_items(request: MissingItemsRequest):
         )
         
         # 캐시에 저장
-        save_to_cache(cache_key, result.model_dump())
+        save_to_cache(cache_key, result.dict())
         
         return result
         
@@ -498,14 +473,14 @@ async def recommend_missing_items(request: MissingItemsRequest):
 @app.post("/ai/recommendations/priority-reorder", response_model=PriorityReorderResponse)
 async def reorder_priority(request: PriorityReorderRequest):
     """
-    우선순위 재정렬 API (캐시 적용 + is_fixed 활용)
+    우선순위 재정렬 API (캐시 적용)
     
-    현재 체크리스트의 항목들을 인기도와 긴급도, is_fixed 기반으로
+    현재 체크리스트의 항목들을 인기도와 긴급도 기반으로
     우선순위를 재정렬해서 추천
     """
     try:
         # 캐시 키 생성 (현재 항목 해시 + 출국날짜 포함)
-        current_items_dict = [item.model_dump() for item in request.current_items]
+        current_items_dict = [item.dict() for item in request.current_items]
         items_hash = hash_items(current_items_dict)
         departure_hash = hashlib.md5(request.departure_date.encode()).hexdigest()[:6]
         cache_key = get_cache_key("reorder", request.country_code, request.program_type_id, f"{items_hash}_{departure_hash}")
@@ -525,7 +500,7 @@ async def reorder_priority(request: PriorityReorderRequest):
         # 인기 통계 데이터 조회
         popularity_data = get_popularity_stats(request.country_code, request.program_type_id)
         
-        # 우선순위 재계산 (is_fixed 고려)
+        # 우선순위 재계산
         reordered_items_data = calculate_priority_scores(current_items_dict, request.departure_date, popularity_data)
         
         # 응답 데이터 생성
@@ -537,20 +512,18 @@ async def reorder_priority(request: PriorityReorderRequest):
                 original_priority=item['original_priority'],
                 ai_priority=item['ai_priority'],
                 urgency_score=item['urgency_score'],
-                reorder_reason=item['reorder_reason'],
-                is_fixed=item['is_fixed']
+                reorder_reason=item['reorder_reason']
             )
             for item in reordered_items_data
         ]
         
         # 요약 메시지
-        fixed_count = sum(1 for item in reordered_items if item.is_fixed)
         if days_until <= 7:
-            summary = f"⚠️ 출국 {days_until}일 전! 고정 일정 {fixed_count}개 우선 처리"
+            summary = f"⚠️ 출국 {days_until}일 전! 긴급 준비 필요"
         elif days_until <= 30:
-            summary = f"📋 출국 {days_until}일 전, 고정 항목 {fixed_count}개 먼저 확인"
+            summary = f"📋 출국 {days_until}일 전, 중요 항목 확인"
         else:
-            summary = f"📅 출국 {days_until}일 전, 여유롭게 준비 (고정 항목 {fixed_count}개)"
+            summary = f"📅 출국 {days_until}일 전, 여유롭게 준비"
         
         result = PriorityReorderResponse(
             reordered_items=reordered_items,
@@ -560,7 +533,7 @@ async def reorder_priority(request: PriorityReorderRequest):
         )
         
         # 캐시에 저장
-        save_to_cache(cache_key, result.model_dump())
+        save_to_cache(cache_key, result.dict())
         
         return result
         
