@@ -5,8 +5,8 @@ import styles from "./Header.module.css";
 type User = { name: string; avatarUrl?: string };
 
 const NAV = [
-  { label: "체크리스트", href: "/checklist" },
-  { label: "환전하기", href: "/exchange" },
+  { label: "체크리스트", href: "/checklists" },
+  { label: "환전하기", href: "/fx" },
   { label: "적금", href: "/savings" },
   { label: "커뮤니티", href: "/community" },
   { label: "마이페이지", href: "/profile" },
