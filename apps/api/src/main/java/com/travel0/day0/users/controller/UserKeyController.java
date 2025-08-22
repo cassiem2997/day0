@@ -3,6 +3,7 @@ package com.travel0.day0.users.controller;
 import com.travel0.day0.finopenapi.config.FinOpenApiProperties;
 import com.travel0.day0.users.service.UserKeyService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,6 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
+@Tag(name = "[관리자] 사용자", description = "사용자 공통 API")
 @RequiredArgsConstructor
 public class UserKeyController {
 

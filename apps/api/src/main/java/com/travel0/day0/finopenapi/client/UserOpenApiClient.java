@@ -20,7 +20,7 @@ public class UserOpenApiClient {
         MemberReq body = new MemberReq(apiKey, userId);
 
         return finWebClient.post()
-                .uri("/ssafy/api/v1/member/")
+                .uri("/ssafy/api/v1/" + props.getMember())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(body)
@@ -37,7 +37,7 @@ public class UserOpenApiClient {
         MemberReq body = new MemberReq(apiKey, userId);
 
         return finWebClient.post()
-                .uri("/ssafy/api/v1/member/search")
+                .uri("/ssafy/api/v1/" + props.getMemberSearch())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(body)
