@@ -26,6 +26,7 @@ CREATE TABLE users (
   birth          DATE NULL,                              
   profile_image  VARCHAR(500) NULL,
   mileage        BIGINT NOT NULL DEFAULT 0 CHECK (mileage >= 0),
+  user_key VARCHAR(64) UNIQUE,
 
   home_university_id BIGINT NULL,
   dest_university_id BIGINT NULL,
@@ -52,8 +53,8 @@ CREATE TABLE departure_info (
   university_id    BIGINT NULL,                           -- 목적지 대학
   program_type_id  BIGINT NULL,
   country_code     CHAR(2) NOT NULL,
-  start_date       TIMESTAMP(3) NOT NULL,          
-  end_date         TIMESTAMP(3) NULL,                 
+  start_date       TIMESTAMP(3) NOT NULL,
+  end_date         TIMESTAMP(3) NULL,
   status           ENUM('PLANNED','ONGOING','COMPLETED','CANCELED') NOT NULL DEFAULT 'PLANNED',
   created_at       TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -69,7 +70,7 @@ CREATE TABLE departure_info (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- =========================================================
--- 0-2) 사용자 입출금 
+-- 0-2) 사용자 입출금
 -- =========================================================
 
 -- 사용자 계좌
@@ -86,7 +87,7 @@ CREATE TABLE user_account (
   UNIQUE KEY uq_user_type_ccy (user_id, account_type, currency)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 계좌 거래 
+-- 계좌 거래
 CREATE TABLE account_transaction (
   tx_id           BIGINT PRIMARY KEY AUTO_INCREMENT,
   account_id      BIGINT NOT NULL,
@@ -145,7 +146,7 @@ CREATE TABLE user_checklist (
   template_id       BIGINT NULL,                            -- 어떤 템플릿 기반인지
   title             VARCHAR(150) NOT NULL,
   visibility      ENUM('PUBLIC','PRIVATE','UNLISTED') NOT NULL DEFAULT 'PUBLIC',
-  
+
   created_at        TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
   CONSTRAINT fk_ucl_user   FOREIGN KEY (user_id)      REFERENCES users(user_id)               ON DELETE CASCADE,
@@ -156,7 +157,7 @@ CREATE TABLE user_checklist (
   INDEX idx_ucl_user_dep (user_id, departure_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 사용자 체크리스트 항목 
+-- 사용자 체크리스트 항목
 CREATE TABLE user_checklist_item (
   uci_id            BIGINT PRIMARY KEY AUTO_INCREMENT,
   user_checklist_id BIGINT NOT NULL,
@@ -186,52 +187,52 @@ CREATE TABLE user_behavior_analytics (
     behavior_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     departure_id BIGINT NOT NULL,
-    
+
     -- 간단한 통계
     total_items INT NOT NULL DEFAULT 0,
     completed_items INT NOT NULL DEFAULT 0,
     completion_rate DECIMAL(5,4) NOT NULL DEFAULT 0.0000,
-    
+
     -- 행동 패턴 분류
     behavior_type ENUM('EARLY_BIRD','STEADY','LAST_MINUTE','INACTIVE') DEFAULT 'STEADY',
-    
+
     created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3),
     updated_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-    
+
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (departure_id) REFERENCES departure_info(departure_id) ON DELETE CASCADE,
-    
+
     UNIQUE KEY uq_user_departure (user_id, departure_id),
     INDEX idx_behavior_type (behavior_type, completion_rate)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ai 추천 결과 
+-- ai 추천 결과
 CREATE TABLE ai_recommendations (
     rec_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     user_checklist_id BIGINT NOT NULL,
-    
+
     -- 추천 항목 정보
     recommended_item_title VARCHAR(150) NOT NULL,
     recommended_item_description TEXT NULL,
     recommended_tag ENUM('NONE','SAVING','EXCHANGE','INSURANCE','DOCUMENT','ETC') DEFAULT 'NONE',
-    recommended_offset_days INT NULL,        
-    recommended_amount DECIMAL(18,2) NULL,   
-    
+    recommended_offset_days INT NULL,
+    recommended_amount DECIMAL(18,2) NULL,
+
     -- AI 분석 결과
-    confidence_score DECIMAL(5,4) NOT NULL,  
-    reason_text VARCHAR(200) NULL,           
-    
+    confidence_score DECIMAL(5,4) NOT NULL,
+    reason_text VARCHAR(200) NULL,
+
     -- 사용자 반응
     is_applied BOOLEAN DEFAULT FALSE,
     is_dismissed BOOLEAN DEFAULT FALSE,
     applied_at TIMESTAMP(3) NULL,
-    
+
     created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3),
-    
+
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (user_checklist_id) REFERENCES user_checklist(user_checklist_id) ON DELETE CASCADE,
-    
+
     INDEX idx_user_recommendations (user_id, created_at),
     INDEX idx_checklist_recommendations (user_checklist_id, created_at),
     INDEX idx_applied (is_applied, confidence_score)
@@ -246,14 +247,14 @@ CREATE TABLE item_popularity_stats (
     item_title VARCHAR(150) NOT NULL,
     item_description TEXT NULL,
     item_tag ENUM('NONE','SAVING','EXCHANGE','INSURANCE','DOCUMENT','ETC') DEFAULT 'NONE',
-    
+
     -- 수기 입력 통계 데이터
     popularity_rate DECIMAL(5,4) NOT NULL,      -- 0.85 = 85%가 준비
     avg_offset_days INT NOT NULL,               -- -30 = 보통 D-30에 준비
     priority_score INT NOT NULL DEFAULT 5,     -- 1(높음) ~ 10(낮음)
-    
+
     created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3),
-    
+
     FOREIGN KEY (program_type_id) REFERENCES program_type(program_type_id) ON DELETE CASCADE,
     INDEX idx_country_program (country_code, program_type_id, popularity_rate DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -286,7 +287,7 @@ CREATE TABLE savings_plan (
   CONSTRAINT fk_plan_dep  FOREIGN KEY (departure_id) REFERENCES departure_info(departure_id) ON DELETE SET NULL,
 
   INDEX idx_plan_user_active (user_id, active),
-  INDEX idx_plan_dep        (departure_id),
+  INDEX idx_plan_dep        (departure_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 정기 납입 예정표(대외 연동/재시도 필요시 사용)
