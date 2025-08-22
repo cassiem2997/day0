@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar";
+import Header from "../../components/Header/Header";
 import Summary from "../../components/Summary/Summary";
 import CalendarView from "../../components/Calendar/CalendarView";
 import TipCard from "../../components/TipCard/TipCard";
@@ -9,7 +10,7 @@ type ChecklistItem = {
   id: number;
   text: string;
   completed: boolean;
-  date: string;
+  date: string; // YYYY-MM-DD
 };
 
 type Data = {
@@ -34,43 +35,79 @@ const DUMMY_DATA: Data = {
       text: "해외유심 또는 로밍 알아보기",
       completed: true,
     },
-    { id: 5, date: "2026-01-25", text: "국제학생증 발급", completed: true },
+    { id: 5, date: "2026-01-25", text: "국제학생증 발급", completed: false },
     {
       id: 6,
       date: "2025-11-10",
       text: "필요 서류 영문 번역 및 공증",
-      completed: true,
+      completed: false,
     },
     {
       id: 7,
       date: "2026-02-05",
       text: "해외 결제 카드 준비",
-      completed: true,
+      completed: false,
     },
-    { id: 8, date: "2026-02-10", text: "출국 전 OT 참석", completed: true },
+    { id: 8, date: "2026-02-10", text: "출국 전 OT 참석", completed: false },
   ],
 };
+
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < breakpoint;
+  });
+
+  useEffect(
+    function () {
+      function onResize() {
+        setIsMobile(window.innerWidth < breakpoint);
+      }
+      window.addEventListener("resize", onResize);
+      return () => window.removeEventListener("resize", onResize);
+    },
+    [breakpoint]
+  );
+
+  return isMobile;
+}
 
 export default function ChecklistPage() {
   const [tripData] = useState<Data>(DUMMY_DATA);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-  const handleDateChange = (date: Date) => setSelectedDate(date);
+
+  const isMobile = useIsMobile(768);
+
+  function handleDateChange(date: Date) {
+    setSelectedDate(date);
+  }
+  function toggleSidebar() {
+    setIsSidebarOpen((prev) => !prev);
+  }
 
   return (
     <div className={styles.container}>
-      <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />
+      {/* 모바일에서만 사이드바 사용 */}
+      {isMobile ? (
+        <>
+          <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar}></Sidebar>
+          <button
+            type="button"
+            className={styles.mobileHamburger}
+            onClick={toggleSidebar}
+            aria-label="메뉴 열기"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </>
+      ) : null}
 
       <main className={styles.main}>
-        {/* 사이드바 상태에 따라 margin-left 적용 */}
-        <header
-          className={`${styles.header} ${
-            isSidebarOpen ? styles.withSidebar : styles.noSidebar
-          }`}
-        >
-          <img src="/logo.svg" alt="logo" width={120} height={80} />
-        </header>
+        {/* 데스크톱에서만 헤더 사용 */}
+        {isMobile ? null : <Header></Header>}
 
         <div className={styles.pageContent}>
           <h2 className={styles.title}>CHECKLIST</h2>
@@ -79,8 +116,8 @@ export default function ChecklistPage() {
             <Summary
               leaveDate={tripData.leaveDate}
               items={tripData.checklistItems}
-            />
-            <TipCard />
+            ></Summary>
+            <TipCard></TipCard>
           </div>
 
           <CalendarView
@@ -88,7 +125,7 @@ export default function ChecklistPage() {
             selectedDate={selectedDate}
             onDateChange={handleDateChange}
             leaveDate={tripData.leaveDate}
-          />
+          ></CalendarView>
         </div>
       </main>
     </div>
