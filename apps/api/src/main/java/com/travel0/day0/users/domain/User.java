@@ -62,4 +62,7 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @Column(name = "user_key",unique = true, length = 64)
+    private String userKey;
 }
