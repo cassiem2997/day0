@@ -1,25 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar";
+import Header from "../../components/Header/Header";
 import styles from "./ExchangeRatePage.module.css";
 import dummyRate from "../../assets/dummyRate.png";
 
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < breakpoint;
+  });
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [breakpoint]);
+
+  return isMobile;
+}
+
 export default function ExchangeRatePage() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // 반응형 제어
+  const isMobile = useIsMobile(768);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
-  // 더미 환율, 나중에 연결해서 불러오기
+  // 더미 환율 (연동 예정)
   const BANK_NAME = "신한은행";
   const RATE = 1398.0;
 
   const [usdInput, setUsdInput] = useState("1");
   const [krwInput, setKrwInput] = useState(String(Math.round(1 * RATE)));
 
-  // 숫자 입력할 때 01 이런 식으로 안나오게끔 (여기서부터)
+  // ===== 입력 정규화 =====
   const sanitizeUsd = (s: string) => {
-    s = s.replace(/[^\d.]/g, ""); // 숫자/점만
-    if (s.startsWith(".")) s = "0" + s; // ".5" -> "0.5"
+    s = s.replace(/[^\d.]/g, "");
+    if (s.startsWith(".")) s = "0" + s;
 
-    // 점 하나만 허용
     const firstDot = s.indexOf(".");
     if (firstDot !== -1) {
       const head = s.slice(0, firstDot);
@@ -27,13 +44,11 @@ export default function ExchangeRatePage() {
       s = head + "." + tail;
     }
 
-    // 정수부 선행 0 제거 (단, "0." 허용)
     if (!s.startsWith("0.")) {
       s = s.replace(/^0+(?=\d)/, "");
       if (s === "") s = "0";
     }
 
-    // 소수부 2자리 제한
     if (s.includes(".")) {
       const [i, f] = s.split(".");
       s = i + "." + f.slice(0, 2);
@@ -42,8 +57,8 @@ export default function ExchangeRatePage() {
   };
 
   const sanitizeKrw = (s: string) => {
-    s = s.replace(/[^\d]/g, ""); // 숫자만
-    s = s.replace(/^0+(?=\d)/, ""); // 선행 0 제거
+    s = s.replace(/[^\d]/g, "");
+    s = s.replace(/^0+(?=\d)/, "");
     if (s === "") s = "0";
     return s;
   };
@@ -51,7 +66,6 @@ export default function ExchangeRatePage() {
   const onUsdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const s = sanitizeUsd(e.target.value);
     setUsdInput(s);
-
     const v = parseFloat(s) || 0;
     setKrwInput(String(Math.round(v * RATE)));
   };
@@ -59,9 +73,8 @@ export default function ExchangeRatePage() {
   const onKrwChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const s = sanitizeKrw(e.target.value);
     setKrwInput(s);
-
     const v = parseInt(s || "0", 10) || 0;
-    const usd = Math.round((v / RATE) * 100) / 100; // 소수 2자리
+    const usd = Math.round((v / RATE) * 100) / 100;
     setUsdInput(usd.toString());
   };
 
@@ -72,83 +85,95 @@ export default function ExchangeRatePage() {
 
   const usdNum = parseFloat(usdInput) || 0;
   const krwNum = parseInt(krwInput || "0", 10) || 0;
-  // 숫자 입력할 때 01 이런 식으로 안나오게끔 (여기까지)
 
   return (
     <div className={styles.container}>
-      <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />
+      {/* 모바일 전용: 사이드바 오버레이 + 햄버거 */}
+      {isMobile ? (
+        <>
+          <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar}></Sidebar>
+          <button
+            type="button"
+            className={styles.mobileHamburger}
+            onClick={toggleSidebar}
+            aria-label="메뉴 열기"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </>
+      ) : null}
+
       <main className={styles.main}>
-        <header
-          className={`${styles.header} ${
-            isSidebarOpen ? styles.withSidebar : styles.noSidebar
-          }`}
-        >
-          {/* 로고는 나중에 */}
-          <img src="/logo.svg" alt="logo" width={120} height={80} />
-        </header>
+        {/* 데스크톱 전용 헤더 */}
+        {isMobile ? null : <Header></Header>}
 
-        {/* 그래프 더미 */}
-        <section className={styles.rateBox}>
-          <img src={dummyRate} alt="환율" className={styles.rateImage} />
-        </section>
+        <div className={styles.pageContent}>
+          <h2 className={styles.title}>EXCHANGE</h2>
 
-        {/* 환전 관련 */}
-        <section className={styles.convertCard}>
-          <div className={styles.pillRow}>
-            <span className={styles.bankPill}>{BANK_NAME}</span>
-          </div>
+          {/* 그래프 (더미) */}
+          <section className={styles.rateBox}>
+            <img src={dummyRate} alt="환율" className={styles.rateImage} />
+          </section>
 
-          <div className={styles.row}>
-            <div className={styles.leftCol}>
-              <div className={styles.country}>미국</div>
-              <div className={styles.code}>USD</div>
+          {/* 환전 카드 */}
+          <section className={styles.convertCard}>
+            <div className={styles.pillRow}>
+              <span className={styles.bankPill}>{BANK_NAME}</span>
             </div>
-            <div className={styles.rightCol}>
-              <input
-                type="text"
-                inputMode="decimal"
-                value={usdInput}
-                onChange={onUsdChange}
-                className={styles.amountInput}
-                aria-label="달러 금액"
-              />
-              <div className={styles.subLabel}>{fmtUSD(usdNum)}달러</div>
-            </div>
-          </div>
 
-          <div className={styles.equalDivider}>
-            <span>=</span>
-          </div>
-
-          <div className={styles.row}>
-            <div className={styles.leftCol}>
-              <div className={styles.country}>대한민국</div>
-              <div className={styles.code}>KRW</div>
+            <div className={styles.row}>
+              <div className={styles.leftCol}>
+                <div className={styles.country}>미국</div>
+                <div className={styles.code}>USD</div>
+              </div>
+              <div className={styles.rightCol}>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={usdInput}
+                  onChange={onUsdChange}
+                  className={styles.amountInput}
+                  aria-label="달러 금액"
+                />
+                <div className={styles.subLabel}>{fmtUSD(usdNum)}달러</div>
+              </div>
             </div>
-            <div className={styles.rightCol}>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={krwInput}
-                onChange={onKrwChange}
-                className={styles.amountInput}
-                aria-label="원화 금액"
-              />
-              <div className={styles.subLabel}>{fmtKRW(krwNum)}원</div>
-            </div>
-          </div>
 
-          <div className={styles.ctaRow}>
-            <p className={styles.guide}>
-              {/* 멘트 굳이? */}
-              환전 신청은 신한은행에서 진행됩니다. 지금 미리 환전해 두면 출국
-              당일의 수수료 부담을 줄일 수 있습니다.
-            </p>
-            <button className={styles.applyBtn} type="button">
-              환전 신청
-            </button>
-          </div>
-        </section>
+            <div className={styles.equalDivider}>
+              <span>=</span>
+            </div>
+
+            <div className={styles.row}>
+              <div className={styles.leftCol}>
+                <div className={styles.country}>대한민국</div>
+                <div className={styles.code}>KRW</div>
+              </div>
+              <div className={styles.rightCol}>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={krwInput}
+                  onChange={onKrwChange}
+                  className={styles.amountInput}
+                  aria-label="원화 금액"
+                />
+                <div className={styles.subLabel}>{fmtKRW(krwNum)}원</div>
+              </div>
+            </div>
+
+            <div className={styles.ctaRow}>
+              <p className={styles.guide}>
+                환전 신청은 신한은행에서 진행됩니다. 미리 환전하면 출국 당일의
+                수수료 부담을 줄일 수 있습니다.
+              </p>
+              <button className={styles.applyBtn} type="button">
+                환전 신청
+              </button>
+            </div>
+          </section>
+        </div>
       </main>
     </div>
   );

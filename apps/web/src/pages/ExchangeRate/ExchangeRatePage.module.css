@@ -1,36 +1,67 @@
-/* ===== 레이아웃 ===== */
+/* ===== 레이아웃 공통 ===== */
 .container {
   display: flex;
+  flex-direction: row;
   min-height: 100vh;
   background: #f8fafb;
 }
 
 .main {
   flex: 1;
-  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
-/* 헤더 (기존 유지) */
-.header {
+/* 페이지 컨테이너: 폭 통일 */
+.pageContent {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px 40px;
+  box-sizing: border-box;
+}
+
+.title {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 12px;
+  font-size: 28px;
+  font-weight: 800;
+  color: #343a40;
+}
+
+/* ===== 모바일 전용 햄버거 ===== */
+.mobileHamburger {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 60;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  background: #fff;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 0 20px 0;
-  margin-bottom: 16px;
-  border-bottom: 1px solid #eef1f4;
+  justify-content: center;
+  gap: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
-.withSidebar {
-  margin-left: 280px;
+.mobileHamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #212529;
+}
+@media (min-width: 768px) {
+  .mobileHamburger {
+    display: none;
+  }
 }
 
-/* 사이드바 닫혔을 때 로고는 조금만 밀림 */
-.noSidebar {
-  margin-left: 64px;
-}
-
-/* ===== 환율 그래프 더미 박스 ===== */
+/* ===== 그래프 박스 ===== */
 .rateBox {
-  max-width: 1200px;
   margin: 0 auto 16px auto;
   background: #fff;
   border: 1px solid #e0e6ec;
@@ -39,7 +70,6 @@
   padding: 12px;
   box-sizing: border-box;
 }
-
 .rateImage {
   display: block;
   width: 100%;
@@ -50,9 +80,8 @@
   background: #f9fbff;
 }
 
-/* ===== 간단 환전 카드 ===== */
+/* ===== 환전 카드 ===== */
 .convertCard {
-  max-width: 1200px;
   margin: 0 auto;
   background: #fff;
   border: 1px solid #e0e6ec;
@@ -62,7 +91,6 @@
   box-sizing: border-box;
 }
 
-/* 상단 은행 고정 배지 */
 .pillRow {
   display: flex;
   align-items: center;
@@ -129,8 +157,6 @@
   -webkit-appearance: none;
   margin: 0;
 }
-
-
 .subLabel {
   min-width: 90px;
   text-align: right;
@@ -195,4 +221,41 @@
 }
 .applyBtn:hover {
   filter: brightness(0.95);
+}
+
+/* ===== 반응형 보완 ===== */
+@media (max-width: 1024px) {
+  .leftCol {
+    width: 200px;
+  }
+}
+@media (max-width: 768px) {
+  .pageContent {
+    padding: 0 16px 24px;
+  }
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .leftCol {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #eef1f4;
+  }
+  .rightCol {
+    justify-content: space-between;
+  }
+  .amountInput {
+    width: 100%;
+    text-align: right;
+  }
+  .ctaRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .applyBtn {
+    width: 100%;
+  }
 }
