@@ -5,20 +5,19 @@
   height: 100vh;
   min-height: 760px;
   overflow: hidden;
-  background: #cfe4ff; /* 로딩 중 배경 */
+  background: #cfe4ff;
 }
 
+/* 배경 */
 .bg {
-  object-fit: cover;
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
-
-/* 화면이 피그마 비율(1440:1028)보다 가로로 긴 경우 → 잘림 방지 */
 @media (min-aspect-ratio: 1440/1028) {
   .bg {
     object-fit: contain;
-    background-color: #cfe4ff; /* 빈공간 보이면 하늘색으로 채움 */
+    background: #cfe4ff;
   }
 }
 
@@ -49,22 +48,47 @@
   }
 }
 
-/* 캐릭터: 제자리 앞걸음 + 두리번 */
-.walker {
+/* ======================
+   캐릭터: 역동적 페이스
+   - walkerStage : 중앙 정렬 고정
+   - walkerRig   : 좌↔우 미니 이동 + 살짝 줌/바운스 + 기울기
+   - walker      : 양발 프레임 토글
+   ====================== */
+
+.walkerStage {
   position: absolute;
-  bottom: 6vh;
   left: 50%;
+  bottom: 6.2vh; /* 필요시 5.5~8vh 사이로 조절 */
   transform: translateX(-50%);
-  height: 15vh;
   z-index: 3;
   pointer-events: none;
-  animation: bobAndGlance 1.6s ease-in-out infinite;
 }
+
+.walkerRig {
+  position: relative;
+  /* 좌↔우 미니 이동 + 약간의 전후감(스케일) + 바운스/기울기 */
+  animation: pace 3.4s ease-in-out infinite, tilt 3.4s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* 실제 이미지 두 장을 같은 자리에 겹침 */
+.walker {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  height: 15vh;
+  pointer-events: none;
+  /* 가벼운 바운스(발 디딜 때) */
+  animation: bob 1.6s ease-in-out infinite;
+}
+
+/* 프레임 토글 (발 교대) */
 .walkLeft {
-  animation: stepLeft 0.8s steps(1) infinite;
+  animation: stepLeft 0.8s steps(1) infinite, bob 1.6s ease-in-out infinite;
 }
 .walkRight {
-  animation: stepRight 0.8s steps(1) infinite;
+  animation: stepRight 0.8s steps(1) infinite, bob 1.6s ease-in-out infinite;
 }
 
 @keyframes stepLeft {
@@ -88,21 +112,60 @@
   }
 }
 
-@keyframes bobAndGlance {
+/* 미니 이동 + 전후감 */
+@keyframes pace {
   0% {
-    transform: translateX(-50%) translateY(0) rotate(0);
+    transform: translateX(0) translateY(0) scale(1);
   }
-  20% {
-    transform: translateX(-50%) translateY(-3px) rotate(2.5deg);
+  25% {
+    transform: translateX(-1.1vw) translateY(-3px) scale(1.02);
   }
   50% {
-    transform: translateX(-50%) translateY(-6px) rotate(0);
+    transform: translateX(0) translateY(-1px) scale(1.01);
   }
-  80% {
-    transform: translateX(-50%) translateY(-3px) rotate(-2.5deg);
+  75% {
+    transform: translateX(1.1vw) translateY(-3px) scale(1.02);
   }
   100% {
-    transform: translateX(-50%) translateY(0) rotate(0);
+    transform: translateX(0) translateY(0) scale(1);
+  }
+}
+
+/* 고개 살짝 좌↔우 (리그 전체에 가벼운 회전) */
+@keyframes tilt {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(2.2deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-2.2deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* 발 디딜 때의 바운스(이미지 레벨) */
+@keyframes bob {
+  0% {
+    transform: translateX(-50%) translateY(0);
+  }
+  20% {
+    transform: translateX(-50%) translateY(-3px);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-6px);
+  }
+  80% {
+    transform: translateX(-50%) translateY(-3px);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0);
   }
 }
 
@@ -131,10 +194,11 @@
   opacity: 0.92;
 }
 
+/* 모션 줄이기 */
 @media (prefers-reduced-motion: reduce) {
   .cloud,
-  .walker {
+  .walker,
+  .walkerRig {
     animation: none !important;
   }
 }
-

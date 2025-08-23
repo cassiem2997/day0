@@ -54,18 +54,22 @@
 /* 캐릭터: 제자리 앞걸음 */
 .walkerWrap {
   position: absolute;
-  bottom: 6vh;
   left: 50%;
+  bottom: 8vh; /* 필요시 6~10vh에서 조절 */
   transform: translateX(-50%);
-  z-index: 3;
+  z-index: 5; /* 배경 위 보장 */
   pointer-events: none;
   animation: bobAndGlance 1.6s ease-in-out infinite;
+  /* height 지정은 선택 (없어도 됨) */
+  /* height: 16vh; */
 }
+
 .walker {
-  height: 15vh;
   position: absolute;
   left: 50%;
+  bottom: 0; /* ⬅️ 핵심: 랩퍼의 '바닥'에 붙임 */
   transform: translateX(-50%);
+  height: 15vh;
   pointer-events: none;
 }
 .walkLeft {
