@@ -24,10 +24,10 @@
   overflow: hidden;
   width: 1100px; /* 웹 뷰 기준 */
   max-width: 100%;
-  min-height: 600px; /* 약간 여유 */
+  min-height: 600px;
 }
 
-/* 공통 폼 패널 (좌/우 파란 영역) */
+/* 공통 폼 패널 */
 .form-container {
   position: absolute;
   top: 0;
@@ -60,7 +60,7 @@ form {
   width: 100%;
   max-width: 520px;
   display: grid;
-  gap: 16px;
+  gap: 16px; /* 입력창 사이 간격 */
   padding: 0 32px;
 }
 
@@ -70,7 +70,7 @@ form {
   border: none;
   border-radius: 14px;
   padding: 0 18px;
-  background: #cfd3dc; /* 회색 스켈레톤 톤 */
+  background: #cfd3dc;
   color: #111;
 }
 .input::placeholder {
@@ -88,7 +88,7 @@ form {
   cursor: pointer;
 }
 
-/* 위치(원본 로직) */
+/* 위치 */
 .sign-in-container {
   left: 0;
   width: 50%;
@@ -123,7 +123,7 @@ form {
   }
 }
 
-/* 오버레이 (흰 카피 영역) */
+/* 오버레이 */
 .overlay-container {
   position: absolute;
   top: 0;
@@ -182,7 +182,7 @@ form {
 /* 카피/버튼 */
 .headline {
   font-weight: 800;
-  font-size: 56px; /* 웹뷰 고정 (반응형은 나중에) */
+  font-size: 56px;
   letter-spacing: 0.3px;
   margin: 0 0 16px;
 }
@@ -213,7 +213,7 @@ form {
   margin: 8px 0 20px;
 }
 .mascotImg {
-  width: 340px; /* SVG/PNG 공통 제어 */
-  max-width: 90%;
+  width: 340px;
+  max-width: 40%;
   height: auto;
 }

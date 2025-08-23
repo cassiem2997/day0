@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styles from "./LoginPage.module.css";
 import Character from "../../assets/character.svg"; // PNG로 바꿔도 동일하게 사용 가능
+import Swal from "sweetalert2";
 
 export default function LoginPage() {
   // false: 로그인 화면, true: 회원가입 화면
@@ -11,6 +12,14 @@ export default function LoginPage() {
     e.preventDefault();
     // TODO: 로그인 API 연동
     console.log("로그인 요청");
+
+    Swal.fire({
+      title: "로그인 성공!",
+      text: "환영합니다!",
+      icon: "success",
+      confirmButtonText: "확인",
+      confirmButtonColor: "#a8d5ff",
+    });
   };
 
   // 회원가입 제출 -> 성공 가정 후 로그인 화면으로 슬라이드 복귀
@@ -18,6 +27,17 @@ export default function LoginPage() {
     e.preventDefault();
     // TODO: 회원가입 API 연동
     console.log("회원가입 요청");
+
+    // 성공 모달
+    Swal.fire({
+      title: "회원가입 성공!",
+      html: "로그인 후 <b style='color:green;'>서비스</b>를 이용해주세요.",
+      icon: "success",
+      confirmButtonText: "확인",
+      confirmButtonColor: "#a8d5ff",
+      background: "#f9f9f9",
+    });
+
     // 성공 시 슬라이드 복귀
     setRightPanel(false);
   };
