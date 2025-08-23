@@ -140,41 +140,55 @@
 
 /* 활성화(play) 동안 계속 반복 */
 .play .plane {
-  /* 하나의 이징만 사용해서 천천히 가속→감속 (Material 기본 커브) */
-  animation: planeTakeoffSmooth 4.8s cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+  animation: planeTakeoffSmooth 4.8s linear infinite both;
 }
 
-/* taxi → rotate(노즈업) → climb → 화면 끝까지 → 마지막에만 fadeout */
+/* 2) 이륙 키프레임: X는 시간 비례(등속), Y/회전/스케일만 단계적으로 */
 @keyframes planeTakeoffSmooth {
+  /* t=0% → X=0 */
   0% {
     transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
     opacity: 0;
   }
 
-  /* 살짝 늦게 등장 */
-  10% {
+  /* t=8% → X≈-0.88*8 = -7vw (등장) */
+  8% {
+    transform: translate3d(-7vw, 0, 0) rotate(0deg) scale(1);
     opacity: 1;
   }
 
-  /* 택싱 (직선) */
+  /* 택싱 유지 — t=45% → X≈-39.6vw ≈ -40vw */
   45% {
-    transform: translate3d(-20vw, 0, 0) rotate(0deg) scale(1);
+    transform: translate3d(-40vw, 0, 0) rotate(0deg) scale(1);
     opacity: 1;
   }
 
-  /* 로테이트(노즈업) 시작 */
+  /* 노즈업 전환을 부드럽게: 50/55/60%로 세분화 */
+  50% {
+    transform: translate3d(-44vw, -3vh, 0) rotate(3deg) scale(1.01);
+  }
+  55% {
+    transform: translate3d(-48.5vw, -5vh, 0) rotate(5deg) scale(1.02);
+  }
+  /* t=60% → X≈-52.8vw ≈ -53vw */
   60% {
-    transform: translate3d(-30vw, -7vh, 0) rotate(7deg) scale(1.03);
-    opacity: 1;
+    transform: translate3d(-53vw, -7vh, 0) rotate(7deg) scale(1.03);
   }
 
-  /* 클라임(상승) — 멀어지며 약간 커짐(원근감) */
+  /* 상승 유지 — 중간 점 추가로 꺾임 최소화 */
+  70% {
+    transform: translate3d(-61.5vw, -16vh, 0) rotate(8deg) scale(1.07);
+  }
+  /* t=80% → X≈-70.4vw ≈ -70.5vw */
   80% {
-    transform: translate3d(-60vw, -24vh, 0) rotate(9deg) scale(1.1);
+    transform: translate3d(-70.5vw, -24vh, 0) rotate(9deg) scale(1.1);
+  }
+  95% {
+    transform: translate3d(-88vw, -40vh, 0) rotate(10deg) scale(1.14);
     opacity: 1;
   }
 
-  /* 화면 오른쪽 바깥까지 비행 + 마지막에만 페이드 */
+  /* 마지막에만 페이드아웃 */
   100% {
     transform: translate3d(-88vw, -40vh, 0) rotate(10deg) scale(1.14);
     opacity: 0;
