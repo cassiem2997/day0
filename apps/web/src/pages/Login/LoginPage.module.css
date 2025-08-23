@@ -1,0 +1,219 @@
+@import url("https://fonts.googleapis.com/css?family=Montserrat:400,700,800");
+
+* {
+  box-sizing: border-box;
+}
+
+.page {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f4f7;
+  padding: 24px;
+  font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial,
+    sans-serif;
+}
+
+/* 컨테이너(슬라이드 구조 유지) */
+.container {
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  width: 1100px; /* 웹 뷰 기준 */
+  max-width: 100%;
+  min-height: 600px; /* 약간 여유 */
+}
+
+/* 공통 폼 패널 (좌/우 파란 영역) */
+.form-container {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: all 0.6s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bluePanel {
+  background: #a8d5ff;
+}
+
+form {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.panelTitle {
+  font-weight: 800;
+  font-size: 40px;
+  margin: 0 0 8px;
+  color: #111;
+}
+
+.form {
+  width: 100%;
+  max-width: 520px;
+  display: grid;
+  gap: 16px;
+  padding: 0 32px;
+}
+
+.input {
+  width: 100%;
+  height: 56px;
+  border: none;
+  border-radius: 14px;
+  padding: 0 18px;
+  background: #cfd3dc; /* 회색 스켈레톤 톤 */
+  color: #111;
+}
+.input::placeholder {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.cta {
+  height: 56px;
+  border: none;
+  border-radius: 28px;
+  background: #b2b2b2;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+}
+
+/* 위치(원본 로직) */
+.sign-in-container {
+  left: 0;
+  width: 50%;
+  z-index: 2;
+}
+.container.right-panel-active .sign-in-container {
+  transform: translateX(100%);
+}
+
+.sign-up-container {
+  left: 0;
+  width: 50%;
+  opacity: 0;
+  z-index: 1;
+}
+.container.right-panel-active .sign-up-container {
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 5;
+  animation: show 0.6s;
+}
+@keyframes show {
+  0%,
+  49.99% {
+    opacity: 0;
+    z-index: 1;
+  }
+  50%,
+  100% {
+    opacity: 1;
+    z-index: 5;
+  }
+}
+
+/* 오버레이 (흰 카피 영역) */
+.overlay-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
+}
+.container.right-panel-active .overlay-container {
+  transform: translateX(-100%);
+}
+
+.overlay {
+  background: #fff;
+  color: #111;
+  position: relative;
+  left: -100%;
+  height: 100%;
+  width: 200%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+.container.right-panel-active .overlay {
+  transform: translateX(50%);
+}
+
+.overlay-panel {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 40px;
+  text-align: center;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.overlay-left {
+  transform: translateX(-20%);
+}
+.container.right-panel-active .overlay-left {
+  transform: translateX(0);
+}
+.overlay-right {
+  right: 0;
+}
+
+/* 카피/버튼 */
+.headline {
+  font-weight: 800;
+  font-size: 56px; /* 웹뷰 고정 (반응형은 나중에) */
+  letter-spacing: 0.3px;
+  margin: 0 0 16px;
+}
+.subcopy {
+  margin: 0 0 24px;
+  color: #222;
+  line-height: 1.7;
+  font-size: 20px;
+}
+.ghost {
+  height: 44px;
+  padding: 0 24px;
+  border-radius: 22px;
+  background: #e6e9f2;
+  color: #111;
+  border: 1px solid #cfd5e6;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+}
+
+/* 캐릭터 */
+.mascotBox {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0 20px;
+}
+.mascotImg {
+  width: 340px; /* SVG/PNG 공통 제어 */
+  max-width: 90%;
+  height: auto;
+}
