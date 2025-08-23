@@ -52,6 +52,7 @@ form {
 }
 
 .panelTitle {
+  font-family: "SBAggroB";
   font-weight: 800;
   font-size: 40px;
   margin: 0 0 8px;
@@ -183,8 +184,7 @@ form {
 
 /* 카피/버튼 */
 .headline {
-  font-family: "SBAggroB";
-  letter-spacing: -2px;
+  font-family: "Mungyeong-Gamhong-Apple";
   font-weight: 800;
   font-size: 50px;
   margin: 0 0 16px;
