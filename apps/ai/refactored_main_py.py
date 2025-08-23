@@ -1,5 +1,61 @@
-# main.py - AI 추천 전용 FastAPI (메모리 캐시 적용)
-# Spring Boot에서 체크리스트 기본 생성 담당, FastAPI는 AI 추천만
+def find_missing_items(existing_items: List[dict], popularity_data: List[dict]) -> List[dict]:
+    """누락된 항목 찾기 - 고급 AI 분석 적용"""
+    
+    # 고급 AI 엔진 초기화
+    ai_engine = AdvancedAIEngine()
+    
+    # 사용자 행동 패턴 분석
+    user_behavior = ai_engine.analyze_user_behavior(existing_items)
+    print(f"🧠 사용자 행동 분석: 완료율 {user_behavior['completion_rate']:.2f}, 계획성 {user_behavior['planning_score']:.2f}")
+    
+    # 사용자 벡터 생성
+    user_vector = ai_engine.create_user_vector(existing_items, user_behavior)
+    
+    # 사용자 유형 예측
+    user_type, type_name, confidence = ai_engine.predict_user_type(user_vector)
+    print(f"🎯 사용자 유형: {type_name} (신뢰도: {confidence:.2f})")
+    
+    # 기존 항목들의 제목 세트
+    existing_titles = {item['title'].lower() for item in existing_items}
+    
+    # 후보 항목 필터링
+    candidate_items = []
+    for pop_item in popularity_data:
+        item_title = pop_item['item_title'].lower()
+        
+        # 1. 정확한 제목 매칭으로 이미 있는지 확인
+        if item_title in existing_titles:
+            continue
+            
+        # 2. 의미적 유사성으로 이미 있는지 확인
+        is_already_exists = False
+        for existing_item in existing_items:
+            if is_semantically_similar(
+                existing_item['title'],
+                existing_item.get('description', ''),
+                pop_item['item_title'],
+                pop_item.get('item_description', ''),
+                threshold=0.7
+            ):
+                is_already_exists = True
+                break
+        
+        if not is_already_exists:
+            candidate_items.append(pop_item)
+    
+    # 고급 점수 계산
+    enhanced_items = ai_engine.calculate_advanced_scores(candidate_items, user_type, user_vector)
+    
+    # 상위 5개 선택하여 최종 형태로 변환
+    missing_items = []
+    for item in enhanced_items[:5]:
+        # Decimal을 float로 안전하게 변환
+        popularity_rate = float(item['popularity_rate']) if isinstance(item['popularity_rate'], decimal.Decimal) else item['popularity_rate']
+        priority_score = float(item['priority_score']) if isinstance(item['priority_score'], decimal.Decimal) else item['priority_score']
+        
+        missing_items.append({
+            'item_title': item['item_title'],# main.py - AI 추천 전용 FastAPI (최종 고도화 버전)
+# DB 스키마 호환성 + 메모리 캐싱 + is_fixed 필드 활용 + 고급 ML 기능
 
 from dotenv import load_dotenv
 from urllib.parse import urlparse
@@ -10,11 +66,14 @@ from typing import List, Optional, Dict, Any
 import mysql.connector
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import PCA, LatentDirichletAllocation
+from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import StandardScaler
 import os
 import re
+import decimal  
 import hashlib
-import json
 
 load_dotenv()
 
@@ -119,7 +178,7 @@ def clear_cache_pattern(pattern: str):
     print(f"🧹 캐시 삭제: {len(keys_to_delete)}개 항목")
 
 # =============================================================================
-# 데이터 모델 (단순화된 버전)
+# 데이터 모델 (DB 스키마 호환성 반영)
 # =============================================================================
 
 class ChecklistItem(BaseModel):
@@ -128,6 +187,7 @@ class ChecklistItem(BaseModel):
     description: Optional[str] = ""
     tag: str = "NONE"
     status: str = "TODO"
+    is_fixed: Optional[bool] = False  # 날짜 고정 여부 (D-30 등)
 
 class MissingItemsRequest(BaseModel):
     """누락 항목 추천 요청"""
@@ -170,6 +230,7 @@ class PriorityItem(BaseModel):
     ai_priority: int
     urgency_score: float
     reorder_reason: str
+    is_fixed: bool = False  # 날짜 고정 여부 포함
 
 class PriorityReorderResponse(BaseModel):
     """우선순위 재정렬 응답"""
@@ -179,7 +240,7 @@ class PriorityReorderResponse(BaseModel):
     reorder_summary: str
 
 # =============================================================================
-# 의미적 유사성 기반 중복 제거 로직 (기존 코드 재사용)
+# 의미적 유사성 기반 중복 제거 로직 
 # =============================================================================
 
 def extract_keywords(text):
@@ -267,11 +328,156 @@ def get_popularity_stats(country_code: str, program_type_id: int):
         conn.close()
 
 # =============================================================================
-# AI 추천 로직
+# 고급 AI 추천 클래스들 (새로 추가)
 # =============================================================================
 
+class AdvancedAIEngine:
+    """고도화된 AI 추천 엔진"""
+    
+    def __init__(self):
+        self.user_type_labels = {
+            0: "완벽주의자",
+            1: "계획형", 
+            2: "막판스파트",
+            3: "신중형",
+            4: "실용주의자"
+        }
+        
+    def analyze_user_behavior(self, existing_items: List[dict]) -> Dict[str, float]:
+        """사용자 행동 패턴 분석"""
+        
+        if not existing_items:
+            return {
+                'completion_rate': 0.5,
+                'document_focus': 0.3,
+                'financial_focus': 0.3,
+                'insurance_focus': 0.2,
+                'planning_score': 0.5
+            }
+        
+        total_items = len(existing_items)
+        completed_items = sum(1 for item in existing_items if item.get('status') == 'DONE')
+        
+        # 태그별 비율 계산
+        tag_counts = {}
+        for item in existing_items:
+            tag = item.get('tag', 'ETC')
+            tag_counts[tag] = tag_counts.get(tag, 0) + 1
+        
+        return {
+            'completion_rate': completed_items / total_items if total_items > 0 else 0.5,
+            'document_focus': tag_counts.get('DOCUMENT', 0) / total_items if total_items > 0 else 0.3,
+            'financial_focus': tag_counts.get('EXCHANGE', 0) / total_items if total_items > 0 else 0.3,
+            'insurance_focus': tag_counts.get('INSURANCE', 0) / total_items if total_items > 0 else 0.2,
+            'planning_score': min(1.0, total_items / 10.0)  # 항목 많을수록 계획적
+        }
+    
+    def create_user_vector(self, items: List[dict], behavior: Dict[str, float]) -> np.ndarray:
+        """사용자 특성 벡터 생성"""
+        
+        # 텍스트 특성 (간단한 TF-IDF)
+        texts = [f"{item['title']} {item.get('description', '')}" for item in items]
+        if texts:
+            vectorizer = TfidfVectorizer(max_features=10, stop_words='english')
+            try:
+                tfidf_matrix = vectorizer.fit_transform(texts)
+                text_features = tfidf_matrix.mean(axis=0).A1
+            except:
+                text_features = np.zeros(10)
+        else:
+            text_features = np.zeros(10)
+        
+        # 행동 특성
+        behavior_features = np.array([
+            behavior['completion_rate'],
+            behavior['document_focus'],
+            behavior['financial_focus'],
+            behavior['insurance_focus'],
+            behavior['planning_score']
+        ])
+        
+        # 벡터 결합
+        if len(text_features) < 10:
+            text_features = np.pad(text_features, (0, 10 - len(text_features)))
+        
+        return np.concatenate([text_features[:10], behavior_features])
+    
+    def predict_user_type(self, user_vector: np.ndarray) -> tuple:
+        """사용자 유형 예측 (간단한 규칙 기반)"""
+        
+        completion_rate = user_vector[10]
+        document_focus = user_vector[11]
+        planning_score = user_vector[14]
+        
+        # 간단한 규칙 기반 분류
+        if completion_rate > 0.8 and document_focus > 0.5:
+            return 0, "완벽주의자", 0.9
+        elif planning_score > 0.7:
+            return 1, "계획형", 0.8
+        elif completion_rate < 0.3:
+            return 2, "막판스파트", 0.7
+        elif document_focus > 0.4:
+            return 3, "신중형", 0.8
+        else:
+            return 4, "실용주의자", 0.6
+    
+    def calculate_advanced_scores(self, 
+                                 candidate_items: List[dict], 
+                                 user_type: int,
+                                 user_vector: np.ndarray) -> List[dict]:
+        """고급 점수 계산"""
+        
+        # 유형별 가중치
+        type_weights = {
+            0: {'DOCUMENT': 0.3, 'INSURANCE': 0.2, 'ETC': 0.1},  # 완벽주의자
+            1: {'DOCUMENT': 0.2, 'INSURANCE': 0.15, 'EXCHANGE': 0.15},  # 계획형
+            2: {'EXCHANGE': 0.25, 'ETC': 0.2, 'DOCUMENT': 0.1},  # 막판스파트
+            3: {'INSURANCE': 0.3, 'DOCUMENT': 0.25, 'ETC': 0.1},  # 신중형
+            4: {'EXCHANGE': 0.2, 'ETC': 0.15, 'DOCUMENT': 0.1}   # 실용주의자
+        }
+        
+        weights = type_weights.get(user_type, type_weights[1])
+        
+        enhanced_items = []
+        for item in candidate_items:
+            # 기본 점수
+            base_score = float(item['popularity_rate']) if isinstance(item['popularity_rate'], decimal.Decimal) else item['popularity_rate']
+            
+            # 유형별 보너스
+            type_bonus = weights.get(item['item_tag'], 0.0)
+            
+            # 우선순위 보너스
+            priority_bonus = (1.0 - float(item['priority_score']) / 10.0) * 0.2
+            
+            # 최종 점수
+            final_score = base_score * 0.5 + type_bonus + priority_bonus
+            
+            # 추천 이유 생성
+            if type_bonus > 0.15:
+                reason = f"🎯 {self.user_type_labels[user_type]} 유형에게 추천"
+            elif base_score > 0.9:
+                reason = f"🔥 필수: {base_score*100:.0f}%가 준비"
+            elif priority_bonus > 0.15:
+                reason = "⭐ 높은 우선순위 항목"
+            else:
+                reason = "📊 일반 추천"
+            
+            enhanced_items.append({
+                **item,
+                'ai_advanced_score': final_score,
+                'user_type': self.user_type_labels[user_type],
+                'type_bonus': type_bonus,
+                'recommendation_reason': reason
+            })
+        
+        # 고급 점수로 정렬
+        enhanced_items.sort(key=lambda x: x['ai_advanced_score'], reverse=True)
+        return enhanced_items
+
 def find_missing_items(existing_items: List[dict], popularity_data: List[dict]) -> List[dict]:
-    """누락된 항목 찾기"""
+    """누락된 항목 찾기 - is_fixed 우선 고려"""
+    
+    # 기존 항목들의 제목 세트
     existing_titles = {item['title'].lower() for item in existing_items}
     
     missing_items = []
@@ -295,39 +501,33 @@ def find_missing_items(existing_items: List[dict], popularity_data: List[dict]) 
                 is_already_exists = True
                 break
         
-        if not is_already_exists:
-            # 누락 이유 판단
-            if pop_item['popularity_rate'] > 0.9:
-                reason = f"필수 항목: {pop_item['popularity_rate']*100:.0f}%가 준비"
-            elif pop_item['priority_score'] <= 2:
-                reason = "높은 우선순위 항목"
-            elif pop_item['popularity_rate'] > 0.8:
-                reason = f"인기 항목: {pop_item['popularity_rate']*100:.0f}%가 준비"
-            else:
-                reason = "추천 항목"
-            
-            # 신뢰도 점수 계산
-            confidence = pop_item['popularity_rate'] * 0.7 + (1 - pop_item['priority_score']/10) * 0.3
-            
-            missing_items.append({
-                'item_title': pop_item['item_title'],
-                'item_description': pop_item['item_description'],
-                'item_tag': pop_item['item_tag'],
-                'popularity_rate': pop_item['popularity_rate'],
-                'avg_offset_days': pop_item['avg_offset_days'],
-                'priority_score': pop_item['priority_score'],
-                'missing_reason': reason,
-                'confidence_score': confidence
-            })
+        missing_items.append({
+            'item_title': item['item_title'],
+            'item_description': item['item_description'],
+            'item_tag': item['item_tag'],
+            'popularity_rate': popularity_rate,
+            'avg_offset_days': item['avg_offset_days'],
+            'priority_score': priority_score,
+            'missing_reason': item['recommendation_reason'],
+            'confidence_score': item['ai_advanced_score']
+        })
     
-    # 신뢰도 순으로 정렬
-    missing_items.sort(key=lambda x: x['confidence_score'], reverse=True)
-    return missing_items[:5]  # 상위 5개만
+    return missing_items
 
 def calculate_priority_scores(items: List[dict], departure_date: str, popularity_data: List[dict]) -> List[dict]:
-    """우선순위 점수 재계산"""
+    """우선순위 점수 재계산 - 고급 AI 분석 적용"""
     departure_dt = datetime.strptime(departure_date, "%Y-%m-%d")
     days_until = (departure_dt - datetime.now()).days
+    
+    # 고급 AI 엔진 초기화
+    ai_engine = AdvancedAIEngine()
+    
+    # 사용자 행동 패턴 분석
+    user_behavior = ai_engine.analyze_user_behavior(items)
+    user_vector = ai_engine.create_user_vector(items, user_behavior)
+    user_type, type_name, confidence = ai_engine.predict_user_type(user_vector)
+    
+    print(f"🎯 우선순위 재정렬 - 사용자 유형: {type_name}")
     
     # 인기 통계를 빠른 조회를 위해 딕셔너리로 변환
     popularity_dict = {stat['item_title']: stat for stat in popularity_data}
@@ -336,32 +536,67 @@ def calculate_priority_scores(items: List[dict], departure_date: str, popularity
     
     for i, item in enumerate(items):
         original_priority = i + 1
+        is_fixed = item.get('is_fixed', False)
         
         # 인기 통계에서 해당 항목 찾기
         stat = popularity_dict.get(item['title'])
         
         if stat:
+            # Decimal을 float로 안전하게 변환
+            popularity_rate = float(stat['popularity_rate']) if isinstance(stat['popularity_rate'], decimal.Decimal) else stat['popularity_rate']
+            priority_score = float(stat['priority_score']) if isinstance(stat['priority_score'], decimal.Decimal) else stat['priority_score']
+            
             # 긴급도 계산
             recommended_prep_day = abs(stat['avg_offset_days'])
             urgency_score = min(1.0, recommended_prep_day / max(1, days_until)) if days_until <= recommended_prep_day else 0.3
             
-            # AI 우선순위 계산 (인기도 + 긴급도)
-            ai_priority_score = stat['popularity_rate'] * 0.6 + urgency_score * 0.4
+            # 사용자 유형별 가중치
+            type_weights = {
+                0: {'DOCUMENT': 0.3, 'INSURANCE': 0.2},  # 완벽주의자
+                1: {'DOCUMENT': 0.2, 'EXCHANGE': 0.15},  # 계획형
+                2: {'EXCHANGE': 0.25, 'ETC': 0.2},       # 막판스파트
+                3: {'INSURANCE': 0.3, 'DOCUMENT': 0.25}, # 신중형
+                4: {'EXCHANGE': 0.2, 'ETC': 0.15}        # 실용주의자
+            }
             
-            # 재정렬 이유
-            if urgency_score > 0.7:
+            type_bonus = type_weights.get(user_type, {}).get(item.get('tag', 'ETC'), 0.0)
+            
+            # is_fixed 항목에 대한 가중치 추가
+            fixed_bonus = 0.2 if is_fixed else 0.0
+            
+            # AI 우선순위 계산 (더 정교한 공식)
+            ai_priority_score = (
+                popularity_rate * 0.4 +  # 인기도
+                urgency_score * 0.3 +    # 긴급도
+                type_bonus +             # 유형별 가중치
+                fixed_bonus +            # 고정 일정 보너스
+                (1 - priority_score/10) * 0.1  # 우선순위 점수
+            )
+            
+            # 재정렬 이유 (더 구체적)
+            if is_fixed and urgency_score > 0.5:
+                reason = f"📅 {type_name} - 고정 일정: D{stat['avg_offset_days']} 필수"
+            elif type_bonus > 0.15:
+                reason = f"🎯 {type_name} 유형 맞춤 항목"
+            elif urgency_score > 0.7:
                 reason = f"⚠️ 긴급: 출국까지 {days_until}일만 남음"
-            elif stat['popularity_rate'] > 0.9:
-                reason = f"🔥 필수: {stat['popularity_rate']*100:.0f}%가 준비"
-            elif urgency_score > 0.5:
-                reason = f"⏰ 서둘러야 함: D{stat['avg_offset_days']} 권장"
+            elif popularity_rate > 0.9:
+                reason = f"🔥 필수: {popularity_rate*100:.0f}%가 준비"
+            elif is_fixed:
+                reason = f"📌 날짜 고정 항목: D{stat['avg_offset_days']} 권장"
             else:
-                reason = "📝 일반 항목"
+                reason = f"📝 {type_name} 유형 일반 항목"
+                
         else:
             # 통계가 없는 항목은 기본값
             urgency_score = 0.5
-            ai_priority_score = 0.5
-            reason = "📝 일반 항목"
+            fixed_bonus = 0.1 if is_fixed else 0.0
+            ai_priority_score = 0.5 + fixed_bonus
+            
+            if is_fixed:
+                reason = f"📌 {type_name} - 날짜 고정 항목"
+            else:
+                reason = f"📝 {type_name} - 일반 항목"
         
         reordered_items.append({
             'title': item['title'],
@@ -370,10 +605,12 @@ def calculate_priority_scores(items: List[dict], departure_date: str, popularity
             'original_priority': original_priority,
             'ai_priority_score': ai_priority_score,
             'urgency_score': urgency_score,
-            'reorder_reason': reason
+            'reorder_reason': reason,
+            'is_fixed': is_fixed,
+            'user_type': type_name
         })
     
-    # AI 우선순위 점수로 정렬
+    # AI 우선순위 점수로 정렬 (is_fixed + 유형 고려가 자연스럽게 반영됨)
     reordered_items.sort(key=lambda x: x['ai_priority_score'], reverse=True)
     
     # 새로운 순서 번호 부여
@@ -408,14 +645,14 @@ async def health_check():
 @app.post("/ai/recommendations/missing-items", response_model=MissingItemsResponse)
 async def recommend_missing_items(request: MissingItemsRequest):
     """
-    누락 항목 추천 API (캐시 적용)
+    누락 항목 추천 API (캐시 적용 + DB 호환성)
     
     Spring Boot에서 현재 체크리스트를 보내주면
     인기 통계 기반으로 누락된 항목들을 찾아서 추천
     """
     try:
         # 캐시 키 생성 (기존 항목 해시 포함)
-        existing_items_dict = [item.dict() for item in request.existing_items]
+        existing_items_dict = [item.model_dump() for item in request.existing_items]
         items_hash = hash_items(existing_items_dict)
         cache_key = get_cache_key("missing", request.country_code, request.program_type_id, items_hash)
         
@@ -463,7 +700,7 @@ async def recommend_missing_items(request: MissingItemsRequest):
         )
         
         # 캐시에 저장
-        save_to_cache(cache_key, result.dict())
+        save_to_cache(cache_key, result.model_dump())
         
         return result
         
@@ -473,14 +710,14 @@ async def recommend_missing_items(request: MissingItemsRequest):
 @app.post("/ai/recommendations/priority-reorder", response_model=PriorityReorderResponse)
 async def reorder_priority(request: PriorityReorderRequest):
     """
-    우선순위 재정렬 API (캐시 적용)
+    우선순위 재정렬 API (캐시 적용 + is_fixed 활용)
     
-    현재 체크리스트의 항목들을 인기도와 긴급도 기반으로
+    현재 체크리스트의 항목들을 인기도와 긴급도, is_fixed 기반으로
     우선순위를 재정렬해서 추천
     """
     try:
         # 캐시 키 생성 (현재 항목 해시 + 출국날짜 포함)
-        current_items_dict = [item.dict() for item in request.current_items]
+        current_items_dict = [item.model_dump() for item in request.current_items]
         items_hash = hash_items(current_items_dict)
         departure_hash = hashlib.md5(request.departure_date.encode()).hexdigest()[:6]
         cache_key = get_cache_key("reorder", request.country_code, request.program_type_id, f"{items_hash}_{departure_hash}")
@@ -500,7 +737,7 @@ async def reorder_priority(request: PriorityReorderRequest):
         # 인기 통계 데이터 조회
         popularity_data = get_popularity_stats(request.country_code, request.program_type_id)
         
-        # 우선순위 재계산
+        # 우선순위 재계산 (is_fixed 고려)
         reordered_items_data = calculate_priority_scores(current_items_dict, request.departure_date, popularity_data)
         
         # 응답 데이터 생성
@@ -512,18 +749,25 @@ async def reorder_priority(request: PriorityReorderRequest):
                 original_priority=item['original_priority'],
                 ai_priority=item['ai_priority'],
                 urgency_score=item['urgency_score'],
-                reorder_reason=item['reorder_reason']
+                reorder_reason=item['reorder_reason'],
+                is_fixed=item['is_fixed']
             )
             for item in reordered_items_data
         ]
         
         # 요약 메시지
+        fixed_count = sum(1 for item in reordered_items if item.is_fixed)
+        ai_engine = AdvancedAIEngine()
+        sample_behavior = ai_engine.analyze_user_behavior([item.model_dump() for item in request.current_items])
+        sample_vector = ai_engine.create_user_vector([item.model_dump() for item in request.current_items], sample_behavior)
+        user_type, type_name, confidence = ai_engine.predict_user_type(sample_vector)
+        
         if days_until <= 7:
-            summary = f"⚠️ 출국 {days_until}일 전! 긴급 준비 필요"
+            summary = f"⚠️ 출국 {days_until}일 전! {type_name} 유형 - 고정 일정 {fixed_count}개 우선 처리"
         elif days_until <= 30:
-            summary = f"📋 출국 {days_until}일 전, 중요 항목 확인"
+            summary = f"📋 출국 {days_until}일 전, {type_name} 유형 - 고정 항목 {fixed_count}개 먼저 확인"
         else:
-            summary = f"📅 출국 {days_until}일 전, 여유롭게 준비"
+            summary = f"📅 출국 {days_until}일 전, {type_name} 유형 - 여유롭게 준비 (고정 항목 {fixed_count}개)"
         
         result = PriorityReorderResponse(
             reordered_items=reordered_items,
@@ -533,7 +777,7 @@ async def reorder_priority(request: PriorityReorderRequest):
         )
         
         # 캐시에 저장
-        save_to_cache(cache_key, result.dict())
+        save_to_cache(cache_key, result.model_dump())
         
         return result
         

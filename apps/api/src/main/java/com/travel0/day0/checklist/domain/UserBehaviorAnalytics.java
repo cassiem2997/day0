@@ -25,7 +25,7 @@ import java.time.Instant;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class UserBehaviorAnalytic {
+public class UserBehaviorAnalytics {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
