@@ -84,7 +84,7 @@ export default function LoginPage() {
 
     await Swal.fire({
       title: "회원가입 완료!",
-      html: "이제 <b>로그인</b> 후 Day0를 이용해주세요.",
+      html: "Day0과 함께 떠나영~",
       icon: "success",
       confirmButtonText: "확인",
       confirmButtonColor: "#a8d5ff",

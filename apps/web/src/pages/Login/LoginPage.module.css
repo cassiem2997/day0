@@ -250,10 +250,14 @@ form {
 /* select도 input과 동일한 룩으로 맞추기 */
 select.input {
   background-color: #f1f2f3; /* .input과 동일 */
-  line-height: 56px; 
+  line-height: 56px;
   cursor: pointer;
 }
 
 input[type="date"].input {
   line-height: 56px;
+}
+
+.page {
+  background: linear-gradient(to bottom, #a8d5ff 0%, #f9f9f9 100%);
 }
