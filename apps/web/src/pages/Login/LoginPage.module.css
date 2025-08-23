@@ -24,10 +24,10 @@
   overflow: hidden;
   width: 1100px; /* 웹 뷰 기준 */
   max-width: 100%;
-  min-height: 600px; /* 약간 여유 */
+  min-height: 600px;
 }
 
-/* 공통 폼 패널 (좌/우 파란 영역) */
+/* 공통 폼 패널 */
 .form-container {
   position: absolute;
   top: 0;
@@ -46,10 +46,13 @@ form {
   width: 100%;
   height: 100%;
   display: grid;
-  place-items: center;
+  justify-items: center;
+  align-content: center;
+  row-gap: 30px;
 }
 
 .panelTitle {
+  font-family: "SBAggroB";
   font-weight: 800;
   font-size: 40px;
   margin: 0 0 8px;
@@ -60,7 +63,7 @@ form {
   width: 100%;
   max-width: 520px;
   display: grid;
-  gap: 16px;
+  gap: 16px; /* 입력창 사이 간격 */
   padding: 0 32px;
 }
 
@@ -70,7 +73,7 @@ form {
   border: none;
   border-radius: 14px;
   padding: 0 18px;
-  background: #cfd3dc; /* 회색 스켈레톤 톤 */
+  background: #f1f2f3;
   color: #111;
 }
 .input::placeholder {
@@ -81,14 +84,14 @@ form {
   height: 56px;
   border: none;
   border-radius: 28px;
-  background: #b2b2b2;
-  color: #fff;
+  background: #f1f2f3;
+  color: "black";
   font-weight: 800;
   letter-spacing: 0.3px;
   cursor: pointer;
 }
 
-/* 위치(원본 로직) */
+/* 위치 */
 .sign-in-container {
   left: 0;
   width: 50%;
@@ -123,7 +126,7 @@ form {
   }
 }
 
-/* 오버레이 (흰 카피 영역) */
+/* 오버레이 */
 .overlay-container {
   position: absolute;
   top: 0;
@@ -181,12 +184,19 @@ form {
 
 /* 카피/버튼 */
 .headline {
+  font-family: "Mungyeong-Gamhong-Apple";
   font-weight: 800;
-  font-size: 56px; /* 웹뷰 고정 (반응형은 나중에) */
-  letter-spacing: 0.3px;
+  font-size: 50px;
   margin: 0 0 16px;
 }
+
+.zero {
+  color: tomato;
+  font-size: 64px;
+}
 .subcopy {
+  font-family: "ONE-Mobile-POP";
+
   margin: 0 0 24px;
   color: #222;
   line-height: 1.7;
@@ -213,7 +223,41 @@ form {
   margin: 8px 0 20px;
 }
 .mascotImg {
-  width: 340px; /* SVG/PNG 공통 제어 */
-  max-width: 90%;
+  width: 340px;
+  max-width: 40%;
   height: auto;
+}
+
+/* 제목만 살짝 아래로 내릴 때 사용하는 보조 클래스 */
+.mtTight {
+  margin-top: 12px; /* 필요 시 숫자만 조절 */
+}
+
+/* 성별 + 생년월일 2열 */
+.inline2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* 모바일/좁은 폭에서는 1열로 */
+@media (max-width: 560px) {
+  .inline2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* select도 input과 동일한 룩으로 맞추기 */
+select.input {
+  background-color: #f1f2f3; /* .input과 동일 */
+  line-height: 56px;
+  cursor: pointer;
+}
+
+input[type="date"].input {
+  line-height: 56px;
+}
+
+.page {
+  background: linear-gradient(to bottom, #a8d5ff 0%, #f9f9f9 100%);
 }
