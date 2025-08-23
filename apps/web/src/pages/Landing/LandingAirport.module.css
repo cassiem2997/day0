@@ -1,0 +1,189 @@
+/* 무대 */
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #cfe4ff;
+  overflow: hidden;
+}
+
+/* 배경 1장 */
+.bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  z-index: 1;
+  pointer-events: none;
+}
+@media (min-aspect-ratio: 1440/1028) {
+  .bg {
+    object-fit: contain;
+  }
+}
+
+/* 구름 */
+.cloud {
+  position: absolute;
+  top: 12vh;
+  width: 22vw;
+  opacity: 0.95;
+  z-index: 2;
+  animation: cloudFloat 12s ease-in-out infinite;
+}
+.cloudA {
+  left: 8vw;
+}
+.cloudB {
+  right: 10vw;
+  animation-delay: 3s;
+}
+
+@keyframes cloudFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* 캐릭터: 제자리 앞걸음 */
+.walkerWrap {
+  position: absolute;
+  bottom: 6vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  pointer-events: none;
+  animation: bobAndGlance 1.6s ease-in-out infinite;
+}
+.walker {
+  height: 15vh;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.walkLeft {
+  animation: stepLeft 0.8s steps(1) infinite;
+}
+.walkRight {
+  animation: stepRight 0.8s steps(1) infinite;
+}
+
+@keyframes stepLeft {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes stepRight {
+  0%,
+  50% {
+    opacity: 0;
+  }
+  51%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes bobAndGlance {
+  0% {
+    transform: translateX(-50%) translateY(0) rotate(0);
+  }
+  20% {
+    transform: translateX(-50%) translateY(-3px) rotate(2.5deg);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-6px) rotate(0);
+  }
+  80% {
+    transform: translateX(-50%) translateY(-3px) rotate(-2.5deg);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) rotate(0);
+  }
+}
+
+/* 기본 상태: 숨김 */
+.plane {
+  position: absolute;
+  bottom: 22vh; /* 시작 Y (필요시 미세조정) */
+  left: 68vw; /* 시작 X */
+  width: 24vw;
+  z-index: 4;
+  pointer-events: none;
+
+  /* 뒤바퀴 근처를 회전축으로 → 노즈가 자연스럽게 들림 */
+  transform-origin: 40% 75%;
+
+  opacity: 0;
+  animation: none;
+
+  /* 부드러운 합성용 */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+}
+
+/* 활성화(play) 동안 계속 반복 */
+.play .plane {
+  /* 하나의 이징만 사용해서 천천히 가속→감속 (Material 기본 커브) */
+  animation: planeTakeoffSmooth 4.8s cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+}
+
+/* taxi → rotate(노즈업) → climb → 화면 끝까지 → 마지막에만 fadeout */
+@keyframes planeTakeoffSmooth {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+
+  /* 살짝 늦게 등장 */
+  10% {
+    opacity: 1;
+  }
+
+  /* 택싱 (직선) */
+  45% {
+    transform: translate3d(-20vw, 0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+
+  /* 로테이트(노즈업) 시작 */
+  60% {
+    transform: translate3d(-30vw, -7vh, 0) rotate(7deg) scale(1.03);
+    opacity: 1;
+  }
+
+  /* 클라임(상승) — 멀어지며 약간 커짐(원근감) */
+  80% {
+    transform: translate3d(-60vw, -24vh, 0) rotate(9deg) scale(1.1);
+    opacity: 1;
+  }
+
+  /* 화면 오른쪽 바깥까지 비행 + 마지막에만 페이드 */
+  100% {
+    transform: translate3d(-88vw, -40vh, 0) rotate(10deg) scale(1.14);
+    opacity: 0;
+  }
+}
+/* 모션 줄이기 */
+@media (prefers-reduced-motion: reduce) {
+  .cloud,
+  .walkerWrap {
+    animation: none !important;
+  }
+  .play .plane {
+    animation: none !important;
+    opacity: 1;
+  }
+}
