@@ -46,7 +46,9 @@ form {
   width: 100%;
   height: 100%;
   display: grid;
-  place-items: center;
+  justify-items: center;
+  align-content: center;
+  row-gap: 30px;
 }
 
 .panelTitle {
@@ -70,7 +72,7 @@ form {
   border: none;
   border-radius: 14px;
   padding: 0 18px;
-  background: #cfd3dc;
+  background: #f1f2f3;
   color: #111;
 }
 .input::placeholder {
@@ -81,8 +83,8 @@ form {
   height: 56px;
   border: none;
   border-radius: 28px;
-  background: #b2b2b2;
-  color: #fff;
+  background: #f1f2f3;
+  color: "black";
   font-weight: 800;
   letter-spacing: 0.3px;
   cursor: pointer;
@@ -181,12 +183,20 @@ form {
 
 /* 카피/버튼 */
 .headline {
+  font-family: "SBAggroB";
+  letter-spacing: -2px;
   font-weight: 800;
-  font-size: 56px;
-  letter-spacing: 0.3px;
+  font-size: 50px;
   margin: 0 0 16px;
 }
+
+.zero {
+  color: tomato;
+  font-size: 64px;
+}
 .subcopy {
+  font-family: "ONE-Mobile-POP";
+
   margin: 0 0 24px;
   color: #222;
   line-height: 1.7;

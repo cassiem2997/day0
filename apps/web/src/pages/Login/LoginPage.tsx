@@ -111,7 +111,9 @@ export default function LoginPage() {
             <div
               className={`${styles["overlay-panel"]} ${styles["overlay-left"]}`}
             >
-              <h3 className={styles.headline}>Let’s Day O</h3>
+              <h3 className={styles.headline}>
+                Let’s Day <span className={styles.zero}>0</span>
+              </h3>
               <p className={styles.subcopy}>
                 데이영에서
                 <br />
@@ -132,7 +134,7 @@ export default function LoginPage() {
                 onClick={() => setRightPanel(false)}
                 aria-label="로그인 화면으로"
               >
-                sign in
+                SIGN IN
               </button>
             </div>
 
@@ -140,7 +142,9 @@ export default function LoginPage() {
             <div
               className={`${styles["overlay-panel"]} ${styles["overlay-right"]}`}
             >
-              <h3 className={styles.headline}>Let’s Day O</h3>
+              <h3 className={styles.headline}>
+                Let’s Day <span className={styles.zero}>0</span>
+              </h3>
               <p className={styles.subcopy}>
                 데이영에서
                 <br />
@@ -153,7 +157,7 @@ export default function LoginPage() {
                 onClick={() => setRightPanel(true)}
                 aria-label="회원가입 화면으로"
               >
-                sign up
+                SIGN UP
               </button>
             </div>
           </div>
