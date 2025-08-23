@@ -227,3 +227,33 @@ form {
   max-width: 40%;
   height: auto;
 }
+
+/* 제목만 살짝 아래로 내릴 때 사용하는 보조 클래스 */
+.mtTight {
+  margin-top: 12px; /* 필요 시 숫자만 조절 */
+}
+
+/* 성별 + 생년월일 2열 */
+.inline2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* 모바일/좁은 폭에서는 1열로 */
+@media (max-width: 560px) {
+  .inline2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* select도 input과 동일한 룩으로 맞추기 */
+select.input {
+  background-color: #f1f2f3; /* .input과 동일 */
+  line-height: 56px; 
+  cursor: pointer;
+}
+
+input[type="date"].input {
+  line-height: 56px;
+}
