@@ -1,176 +1,109 @@
-/* 무대 전체: 데스크톱 우선, 이후 미디어쿼리로 축소 예정 */
+/* 무대 */
 .stage {
   position: relative;
   width: 100%;
   height: 100vh;
   min-height: 760px;
   overflow: hidden;
-  background: #cfe4ff; /* 하늘색 기본 */
+  background: #cfe4ff; /* 로딩 중 배경 */
 }
 
-/* 하늘 기본(그라데이션 살짝) */
-.sky {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(#bcd9ff 0%, #cfe4ff 50%, #d8ebff 100%);
-  z-index: 0;
+.bg {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
 }
 
-/* 잔디(맨 아래) */
-.ground {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 28vh;
-  background: #a7c78b;
-  z-index: 2;
-}
-
-/* 타이틀 */
-.header {
-  position: absolute;
-  top: 9vh;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 14vh;
-  z-index: 3;
-  pointer-events: none;
-}
-
-/* 학교 */
-.school {
-  position: absolute;
-  left: 50%;
-  bottom: 28vh; /* 잔디 위 */
-  transform: translateX(-50%);
-  height: 40vh;
-  z-index: 3;
-}
-
-/* 나무 */
-.tree {
-  position: absolute;
-  bottom: 29vh;
-  z-index: 3;
-  transform-origin: bottom center;
-  animation: treeSway 6s ease-in-out infinite;
-}
-.leftTree {
-  left: 3vw;
-  height: 28vh;
-}
-.rightTree {
-  right: 3vw;
-  height: 28vh;
-}
-
-@keyframes treeSway {
-  0%,
-  100% {
-    transform: rotate(0deg);
+/* 화면이 피그마 비율(1440:1028)보다 가로로 긴 경우 → 잘림 방지 */
+@media (min-aspect-ratio: 1440/1028) {
+  .bg {
+    object-fit: contain;
+    background-color: #cfe4ff; /* 빈공간 보이면 하늘색으로 채움 */
   }
-  50% {
-    transform: rotate(1.2deg);
-  }
-}
-
-/* 도로 */
-.road {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  height: 45vh; /* 아래에서 위로 뻗게 */
-  z-index: 1; /* 학교(3)보다 아래, 잔디(2)와 구름(1) 사이 */
-  pointer-events: none;
 }
 
 /* 구름 */
 .cloud {
   position: absolute;
-  top: 18vh;
-  width: 36vw;
+  top: 12vh;
+  width: 22vw;
   opacity: 0.95;
-  z-index: 1;
+  z-index: 2;
   animation: cloudFloat 12s ease-in-out infinite;
 }
 .cloudA {
-  left: -8vw;
+  left: 8vw;
 }
 .cloudB {
-  right: -8vw;
+  right: 10vw;
   animation-delay: 3s;
 }
 
 @keyframes cloudFloat {
   0%,
   100% {
-    transform: translateY(0px);
+    transform: translateY(0);
   }
   50% {
     transform: translateY(-6px);
   }
 }
 
-/* 캐릭터: 좌→우로 보이는 프레임 전환 */
+/* 캐릭터: 제자리 앞걸음 + 두리번 */
 .walker {
   position: absolute;
-  bottom: 8vh;
-  height: 14vh;
-  z-index: 4;
+  bottom: 6vh;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 15vh;
+  z-index: 3;
   pointer-events: none;
+  animation: bobAndGlance 1.6s ease-in-out infinite;
 }
-
 .walkLeft {
-  left: calc(50% - 7vh);
-  opacity: 0;
+  animation: stepLeft 0.8s steps(1) infinite;
 }
 .walkRight {
-  left: calc(50% - 7vh);
-  opacity: 0;
+  animation: stepRight 0.8s steps(1) infinite;
 }
 
-/* 단순 루프: 왼쪽 향했다가 오른쪽 향했다가 교대 */
-@keyframes walkCycleLeft {
-  0% {
-    transform: translateX(-42vw);
-    opacity: 1;
-  }
-  45% {
-    transform: translateX(0);
-    opacity: 1;
-  }
+@keyframes stepLeft {
+  0%,
   50% {
-    opacity: 0;
-  } /* 프레임 교체 */
+    opacity: 1;
+  }
+  51%,
   100% {
     opacity: 0;
   }
 }
-@keyframes walkCycleRight {
-  0% {
-    opacity: 0;
-  }
+@keyframes stepRight {
+  0%,
   50% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  95% {
-    transform: translateX(42vw);
-    opacity: 1;
-  }
-  100% {
     opacity: 0;
+  }
+  51%,
+  100% {
+    opacity: 1;
   }
 }
 
-/* 애니메이션 부여 */
-.walkLeft {
-  animation: walkCycleLeft 10s linear infinite;
-}
-.walkRight {
-  animation: walkCycleRight 10s linear infinite;
+@keyframes bobAndGlance {
+  0% {
+    transform: translateX(-50%) translateY(0) rotate(0);
+  }
+  20% {
+    transform: translateX(-50%) translateY(-3px) rotate(2.5deg);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-6px) rotate(0);
+  }
+  80% {
+    transform: translateX(-50%) translateY(-3px) rotate(-2.5deg);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) rotate(0);
+  }
 }
 
 /* CTA */
@@ -181,7 +114,7 @@
   right: 0;
   display: grid;
   place-items: center;
-  z-index: 5;
+  z-index: 4;
 }
 .cta {
   display: inline-block;
@@ -191,7 +124,6 @@
   border-radius: 12px;
   text-decoration: none;
   font-weight: 700;
-  letter-spacing: 0.2px;
   transition: transform 0.15s ease, opacity 0.2s ease;
 }
 .cta:hover {
@@ -199,11 +131,10 @@
   opacity: 0.92;
 }
 
-/* 모션 줄이기 선호 시 애니메이션 억제 */
 @media (prefers-reduced-motion: reduce) {
   .cloud,
-  .tree,
   .walker {
     animation: none !important;
   }
 }
+
