@@ -7,6 +7,7 @@ import com.travel0.day0.users.domain.University;
 import com.travel0.day0.users.domain.User;
 import com.travel0.day0.users.repository.UniversityRepository;
 import com.travel0.day0.users.repository.UserRepository;
+import com.travel0.day0.users.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,21 +15,28 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class AuthService {
     private final UserRepository userRepo;
+    private final FileService fileService;
     private final UniversityRepository universityRepo;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
 
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request, MultipartFile profileImage) {
         if (userRepo.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+        }
+
+        if(profileImage != null && !profileImage.isEmpty()){
+            String imageUrl = fileService.saveProfileImage(profileImage);
+            request.setProfileImage(imageUrl);
         }
 
         University homeUniv = universityRepo.findById(request.getHomeUniversityId())

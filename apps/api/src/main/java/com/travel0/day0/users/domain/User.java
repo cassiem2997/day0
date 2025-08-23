@@ -1,5 +1,6 @@
 package com.travel0.day0.users.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.travel0.day0.common.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
@@ -52,10 +53,12 @@ public class User {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "home_university_id", foreignKey = @ForeignKey(name = "fk_user_home"))
+    @JsonIgnore
     private University homeUniversity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dest_university_id", foreignKey = @ForeignKey(name = "fk_user_dest"))
+    @JsonIgnore
     private University destUniversity;
 
     @CreationTimestamp

@@ -10,6 +10,7 @@ import com.travel0.day0.finopenapi.config.FinOpenApiProperties;
 import com.travel0.day0.users.domain.User;
 import com.travel0.day0.users.service.UserKeyService;
 import com.travel0.day0.users.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/auth")
@@ -37,9 +39,12 @@ public class AuthController {
      * 회원가입
      */
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
+    @Operation(summary = "회원가입")
+    public ResponseEntity<AuthResponse> register(
+            @RequestPart("user") RegisterRequest request,
+            @RequestPart(value = "profileImage", required = false)MultipartFile profileImage) {
         try {
-            AuthResponse response = authService.register(request);
+            AuthResponse response = authService.register(request, profileImage);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
@@ -51,6 +56,7 @@ public class AuthController {
      * 로그인
      */
     @PostMapping("/login")
+    @Operation(summary = "로그인")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request,
                                               HttpServletResponse response) {
         try {
@@ -86,6 +92,7 @@ public class AuthController {
      * 로그아웃
      */
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃")
     public ResponseEntity<AuthResponse> logout(Authentication authentication,
                                                HttpServletResponse response) {
         if (authentication != null) {
@@ -103,6 +110,7 @@ public class AuthController {
      * 토큰 갱신
      */
     @PostMapping("/refresh")
+    @Operation(summary = "토큰 갱신")
     public ResponseEntity<AuthResponse> refresh(HttpServletRequest request,
                                                 HttpServletResponse response) {
         try {
@@ -128,6 +136,7 @@ public class AuthController {
      * 현재 사용자 정보
      */
     @GetMapping("/me")
+    @Operation(summary = "현재 사용자 정보")
     public ResponseEntity<AuthResponse> getCurrentUser(@AuthenticationPrincipal PrincipalDetails userDetails) {
         if (userDetails != null) {
             String email = userDetails.getUsername();
