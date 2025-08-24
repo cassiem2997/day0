@@ -66,8 +66,12 @@ export default function CommunityBoard() {
         />
       </figure>
 
-      {/* 필터 칩 */}
-      <div className={styles.boardFilterBar} role="tablist" aria-label="게시글 분류">
+      {/* 필터 칩 + 글쓰기 버튼 */}
+      <div
+        className={styles.boardFilterBar}
+        role="tablist"
+        aria-label="게시글 분류"
+      >
         {[
           { key: "ALL", label: "전체" },
           { key: "CHECKLIST", label: "체크리스트" },
@@ -78,12 +82,19 @@ export default function CommunityBoard() {
             type="button"
             role="tab"
             aria-selected={cat === (c.key as BoardCategory)}
-            className={`${styles.chip} ${cat === (c.key as BoardCategory) ? styles.chipActive : ""}`}
+            className={`${styles.chip} ${
+              cat === (c.key as BoardCategory) ? styles.chipActive : ""
+            }`}
             onClick={() => setCat(c.key as BoardCategory)}
           >
             {c.label}
           </button>
         ))}
+
+        <div className={styles.spacer} />
+        <Link to="/community/write" className={styles.writeBtn}>
+          글쓰기
+        </Link>
       </div>
 
       {/* 리스트 */}
@@ -92,7 +103,9 @@ export default function CommunityBoard() {
           <li key={p.id} className={styles.boardRow}>
             {/* 왼쪽 내용 */}
             <div className={styles.rowLeft}>
-              {p.badge ? <div className={styles.rowBadge}>{p.badge}</div> : null}
+              {p.badge ? (
+                <div className={styles.rowBadge}>{p.badge}</div>
+              ) : null}
               <h3 className={styles.rowTitle}>
                 <Link to={`/community/${p.id}`} className={styles.titleLink}>
                   {p.title}
@@ -125,6 +138,15 @@ export default function CommunityBoard() {
           </li>
         ))}
       </ul>
+
+      {/* 모바일 플로팅 작성 버튼 */}
+      <Link
+        to="/community/write"
+        className={styles.fabWrite}
+        aria-label="글쓰기"
+      >
+        +
+      </Link>
     </div>
   );
 }
