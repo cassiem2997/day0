@@ -9,6 +9,7 @@ import LoginPage from "./pages/Login/LoginPage";
 import LandingPage from "./pages/Landing/LandingPage";
 import SavingsPage from "./pages/Savings/SavingsPage";
 
+
 // 간단 보호 라우트 (토큰 유무로 판별 예시)
 // children 타입을 ReactElement로!
 function ProtectedRoute({ children }: { children: ReactElement }) {
@@ -53,6 +54,19 @@ export default function App() {
           }
         />
 
+        {/* 추가된 헤더 메뉴 라우트 */}
+     
+        <Route
+          path="/community"
+          element={
+            <ProtectedRoute>
+              <CommunityPage />
+            </ProtectedRoute>
+          }
+        />
+       
+
+        {/* 와일드카드 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

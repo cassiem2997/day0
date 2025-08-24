@@ -110,7 +110,6 @@ export default function ChecklistPage() {
         {isMobile ? null : <Header></Header>}
 
         <div className={styles.pageContent}>
-          <h2 className={styles.title}>CHECKLIST</h2>
 
           <div className={styles.dashboardContainer}>
             <Summary

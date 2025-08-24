@@ -1,4 +1,6 @@
+// src/pages/Login/LoginPage.tsx
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; 
 import styles from "./LoginPage.module.css";
 import Character from "../../assets/character.svg";
 import Swal from "sweetalert2";
@@ -6,6 +8,9 @@ import Swal from "sweetalert2";
 type Gender = "" | "MALE" | "FEMALE";
 
 export default function LoginPage() {
+  // 라우팅 훅
+  const navigate = useNavigate();
+
   // 슬라이드 상태: false = 로그인, true = 회원가입
   const [rightPanel, setRightPanel] = useState(false);
 
@@ -31,16 +36,19 @@ export default function LoginPage() {
   const handleSignInSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: 로그인 API
-    // await api.post('/auth/login', { email, password });
+    // TODO: 로그인 API 연동 전 임시 처리
+    localStorage.setItem("accessToken", "demo-token"); // ★ 추가
 
-    Swal.fire({
+    await Swal.fire({
       title: "로그인 성공!",
       text: "환영합니다.",
       icon: "success",
       confirmButtonText: "확인",
       confirmButtonColor: "#a8d5ff",
     });
+
+    // 체크리스트로 이동 (뒤로가기 시 로그인으로 안돌아오게 replace)
+    navigate("/checklist", { replace: true }); // ★ 추가
   };
 
   // 회원가입 제출
@@ -68,19 +76,6 @@ export default function LoginPage() {
         confirmButtonColor: "#a8d5ff",
       });
     }
-
-    // // 서버에 보낼 payload 예시
-    // const payload = {
-    //   name: signUp.name,
-    //   nickname: signUp.nickname,
-    //   gender: signUp.gender || null, // ENUM NULL 허용
-    //   birth: signUp.birth || null, // DATE NULL 허용
-    //   email: signUp.email,
-    //   password: signUp.password,
-    // };
-
-    // TODO: 회원가입 API
-    // await api.post('/users', payload);
 
     await Swal.fire({
       title: "회원가입 완료!",
