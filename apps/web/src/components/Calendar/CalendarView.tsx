@@ -24,9 +24,6 @@ const toLocalDateString = (date: Date) => {
   return `${y}-${m}-${d}`;
 };
 
-// YYYY. M. D
-const formatKDate = (d: Date) =>
-  `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}`;
 
 export default function CalendarView({
   items,
@@ -34,12 +31,6 @@ export default function CalendarView({
   onDateChange,
   leaveDate,
 }: CalendarViewProps) {
-  // 선택된 날짜의 투두
-  const dailyItems = useMemo(() => {
-    const key = toLocalDateString(selectedDate);
-    return items.filter((it) => it.date === key);
-  }, [items, selectedDate]);
-
   // 할 일 있는 날짜 집합
   const itemDateSet = useMemo(() => {
     const s = new Set<string>();
@@ -97,26 +88,6 @@ export default function CalendarView({
           locale="ko-KR"
           selectRange={false}
         />
-      </div>
-
-      {/* 체크리스트 카드 */}
-      <div className={`${styles.panel} ${styles.listPanel}`}>
-        <h3 className={styles.dailyHeader}>
-          {formatKDate(selectedDate)} 체크리스트
-        </h3>
-
-        {dailyItems.length > 0 ? (
-          <ul className={styles.checklist}>
-            {dailyItems.map((item) => (
-              <li key={item.id} className={styles.checklistItem}>
-                <input type="checkbox" checked={item.completed} readOnly />
-                <span className={styles.itemText}>{item.text}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className={styles.noItems}>예정된 할 일이 없습니다.</div>
-        )}
       </div>
     </div>
   );
