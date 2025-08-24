@@ -11,11 +11,15 @@ import com.travel0.day0.users.domain.User;
 import com.travel0.day0.users.service.UserKeyService;
 import com.travel0.day0.users.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -39,10 +43,22 @@ public class AuthController {
      * 회원가입
      */
     @PostMapping("/register")
-    @Operation(summary = "회원가입")
+    @Operation(
+            summary = "회원가입",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            schema = @Schema(implementation = RegisterMultipartDoc.class),
+                            encoding = {
+                                    @Encoding(name = "user", contentType = MediaType.APPLICATION_JSON_VALUE)
+                            }
+                    )
+            )
+    )
     public ResponseEntity<AuthResponse> register(
             @RequestPart("user") RegisterRequest request,
-            @RequestPart(value = "profileImage", required = false)MultipartFile profileImage) {
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         try {
             AuthResponse response = authService.register(request, profileImage);
             return ResponseEntity.ok(response);
@@ -192,5 +208,14 @@ public class AuthController {
             }
         }
         return null;
+    }
+
+    /** 문서용 스키마: Swagger UI 표시 용 */
+    class RegisterMultipartDoc {
+        @Schema(description = "회원가입 본문(JSON 객체)", implementation = RegisterRequest.class)
+        public RegisterRequest user;
+
+        @Schema(description = "프로필 이미지 파일", type = "string", format = "binary")
+        public MultipartFile profileImage;
     }
 }

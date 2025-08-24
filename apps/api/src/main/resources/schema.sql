@@ -26,7 +26,7 @@ CREATE TABLE users (
   birth          DATE NULL,                              
   profile_image  VARCHAR(500) NULL,
   mileage        BIGINT NOT NULL DEFAULT 0 CHECK (mileage >= 0),
-  user_key VARCHAR(64) UNIQUE,
+  user_key       VARCHAR(64) UNIQUE,
 
   home_university_id BIGINT NULL,
   dest_university_id BIGINT NULL,

@@ -28,7 +28,7 @@ public class UserKeyController {
     }
 
     // 관리자만 호출
-    @PostMapping("/{userId}/user-key:search-external")
+    @GetMapping("/{userId}/user-key:search-external")
     @Operation(summary = "user-key 조회")
     public Map<String, String> searchUserKey(@PathVariable Long userId) {
         String apiKey = finOpenApiProperties.getApiKey();
