@@ -54,7 +54,7 @@
   color: #111;
 }
 .pillActive {
-  background: #5a5df6; /* 보라/블루 */
+  background: #4758FC; /* 보라/블루 */
   color: #fff;
 }
 .pill:hover {
@@ -89,7 +89,7 @@
   padding: 10px 26px;
   border: 6px solid #121212;
   border-radius: 999px;
-  background: #4758FC;
+  background: #4758fc;
   color: #fff;
   font-weight: 900;
   font-size: clamp(20px, 3.4vw, 44px);
@@ -188,7 +188,7 @@
   padding: 8px 18px;
   border: 6px solid #121212;
   border-radius: 999px;
-  background: #5a5df6;
+  background: #4758FC;
   color: #fff;
   font-weight: 900;
   cursor: pointer;
@@ -273,5 +273,167 @@
     justify-content: center;
     gap: 12px;
     margin-right: 0;
+  }
+}
+.boardRoot {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 상단 히어로 섹션 */
+.boardHero {
+  margin: 8px 0 16px;
+}
+
+.boardHeroImg {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #cfe1ff;
+  border: 3px solid #121212;
+  border-radius: 12px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.22);
+}
+/* ===== Board: 필터 + 리스트 ===== */
+.boardRoot {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 필터 칩 바 */
+.boardFilterBar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 8px 2px 6px;
+}
+.chip {
+  padding: 8px 16px;
+  border: 4px solid #121212;
+  border-radius: 999px;
+  background: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  line-height: 1;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+}
+.chipActive {
+  background: #4758FC;
+  color: #fff;
+}
+
+/* 리스트 컨테이너 */
+.boardList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* 한 행(카드) */
+.boardRow {
+  display: grid;
+  grid-template-columns: 1fr 260px; /* 왼쪽 내용 / 오른쪽 썸네일 */
+  gap: 18px;
+  background: #fff;
+  border: 6px solid #121212;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.16);
+}
+
+.rowLeft {
+  min-width: 0;
+}
+
+/* 배지 */
+.rowBadge {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 4px solid #121212;
+  border-radius: 999px;
+  background: #4758FC;
+  color: #fff;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+/* 제목 (진하게, 약간 윤곽선) */
+.rowTitle {
+  margin: 4px 0 8px 0;
+  font-weight: 900;
+  font-size: clamp(22px, 3.4vw, 34px);
+  color: #111;
+
+}
+
+/* 본문 스니펫 (줄바꿈 유지) */
+.rowSnippet {
+  margin: 6px 0 12px 0;
+  font-family: inherit;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  color: #222;
+}
+
+/* 메타 라인 */
+.rowMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: #2b3035;
+  font-weight: 700;
+}
+.metaAuthor {
+  font-weight: 900;
+}
+.metaDot {
+  margin: 0 2px;
+  opacity: 0.6;
+}
+.metaSep {
+  flex: 0 0 1px;
+  height: 14px;
+  background: #e5e7eb;
+  margin: 0 6px 0 2px;
+}
+
+/* 썸네일 */
+.rowRight {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.thumbImg {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 4px solid #121212;
+  border-radius: 12px;
+}
+.thumbPlaceholder {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* 정사각형 */
+  background: #cfe1ff;
+  border: 4px solid #121212;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+}
+
+/* 반응형: 모바일에서는 썸네일 아래로 */
+@media (max-width: 860px) {
+  .boardRow {
+    grid-template-columns: 1fr;
+  }
+  .rowRight {
+    order: 2;
   }
 }
