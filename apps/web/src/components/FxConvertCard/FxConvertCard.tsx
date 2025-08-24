@@ -7,10 +7,26 @@ export default function FxConvertCard({ rate = 1398 }: { rate?: number }) {
   const [usdInput, setUsdInput] = useState("1");
   const [krwInput, setKrwInput] = useState(String(Math.round(1 * rate)));
 
+  // 유틸
+  const stripCommas = (s: string) => s.replace(/,/g, "");
+
+  /** "1234.5" -> "1,234.5" (소수부/마침표 유지) */
+  const formatUSDString = (s: string) => {
+    const hasDot = s.includes(".");
+    const [i, f = ""] = s.split(".");
+    const intFmt = (parseInt(i || "0", 10) || 0).toLocaleString("en-US");
+    return hasDot ? `${intFmt}.${f}` : intFmt;
+  };
+
+  /** "1234567" -> "1,234,567" */
+  const formatKRWString = (s: string) =>
+    (parseInt(s || "0", 10) || 0).toLocaleString("ko-KR");
+
   // ===== 입력 정규화 =====
   const sanitizeUsd = (s: string) => {
     s = s.replace(/[^\d.]/g, "");
     if (s.startsWith(".")) s = "0" + s;
+
     const firstDot = s.indexOf(".");
     if (firstDot !== -1) {
       const head = s.slice(0, firstDot);
@@ -36,18 +52,27 @@ export default function FxConvertCard({ rate = 1398 }: { rate?: number }) {
   };
 
   const onUsdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const s = sanitizeUsd(e.target.value);
-    setUsdInput(s);
+    const raw = stripCommas(e.target.value);
+    const s = sanitizeUsd(raw);
+    setUsdInput(formatUSDString(s));
+
     const v = parseFloat(s) || 0;
-    setKrwInput(String(Math.round(v * rate)));
+    setKrwInput(formatKRWString(String(Math.round(v * rate))));
   };
 
   const onKrwChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const s = sanitizeKrw(e.target.value);
-    setKrwInput(s);
+    const raw = stripCommas(e.target.value);
+    const s = sanitizeKrw(raw);
+    setKrwInput(formatKRWString(s));
+
     const v = parseInt(s || "0", 10) || 0;
-    const usd = Math.round((v / rate) * 100) / 100;
-    setUsdInput(usd.toString());
+    const usdNum = Math.round((v / rate) * 100) / 100; // 숫자값
+    // "1" / "1.2" / "1.23" (불필요한 0 제거)
+    const usdStr = usdNum
+      .toFixed(2)
+      .replace(/\.00$/, "")
+      .replace(/(\.\d)0$/, "$1");
+    setUsdInput(formatUSDString(usdStr));
   };
 
   const fmtKRW = (n: number) =>
@@ -55,8 +80,8 @@ export default function FxConvertCard({ rate = 1398 }: { rate?: number }) {
   const fmtUSD = (n: number) =>
     n.toLocaleString("en-US", { maximumFractionDigits: 2 });
 
-  const usdNum = parseFloat(usdInput) || 0;
-  const krwNum = parseInt(krwInput || "0", 10) || 0;
+  const usdNum = parseFloat(stripCommas(usdInput)) || 0;
+  const krwNum = parseInt(stripCommas(krwInput) || "0", 10) || 0;
 
   const onApply = async () => {
     await Swal.fire({
@@ -70,9 +95,8 @@ export default function FxConvertCard({ rate = 1398 }: { rate?: number }) {
   };
 
   return (
-    // 더 다양하게 
     <section className={styles.convertCard}>
-      {/* 1행: USD */}
+      {/* USD */}
       <div className={styles.row}>
         <span className={styles.ccyPill}>USD</span>
         <div className={styles.inputBox}>
@@ -89,7 +113,7 @@ export default function FxConvertCard({ rate = 1398 }: { rate?: number }) {
 
       <hr className={styles.hr} />
 
-      {/* 2행: KRW */}
+      {/* KRW */}
       <div className={styles.row}>
         <span className={styles.ccyPill}>KRW</span>
         <div className={styles.inputBox}>
