@@ -1,0 +1,116 @@
+.convertCard {
+  margin: 14px auto 0 auto;
+  max-width: 920px;
+  background: #eef5ff;
+  border: 4px solid #1f1f1f;
+  border-radius: 14px;
+  padding: 18px 18px 20px 18px;
+  box-sizing: border-box;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+}
+
+/* 장식 구름 제거 (이전 ::before / ::after 삭제) */
+
+/* 행 */
+.row {
+  font-family: "EF_jejudoldam";
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ccyPill {
+  min-width: 98px;
+  padding: 10px 16px;
+  background: #fff;
+  border: 4px solid #1f1f1f;
+  border-radius: 18px;
+  font-weight: 900;
+  font-size: 20px;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.inputBox {
+  flex: 1;
+  background: #ffffff;
+  border: 4px solid #1f1f1f;
+  border-radius: 18px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* 우측 정렬(보조 라벨 제거됨) */
+}
+
+.amountInput {
+  font-family: "EF_jejudoldam";
+  width: 100%;
+  text-align: right;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-weight: 900;
+  font-size: 28px;
+  letter-spacing: 1px;
+  color: #4758fc;
+}
+.amountInput::-webkit-outer-spin-button,
+.amountInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* 보조 라벨 제거됨 (.subLabel 삭제) */
+
+.hr {
+  margin: 14px 6px;
+  border: 0;
+  height: 2px;
+  background: #e8edf3;
+}
+
+/* CTA */
+.ctaWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.applyBtn {
+  font-family: "EF_jejudoldam";
+
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 3px solid #1f1f1f;
+  background: #fff;
+  font-weight: 900;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #1f1f1f;
+}
+.applyBtn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #1f1f1f;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .convertCard {
+    padding: 14px;
+    border-width: 3px;
+  }
+  .ccyPill {
+    min-width: 84px;
+    padding: 8px 12px;
+    font-size: 18px;
+    border-width: 3px;
+  }
+  .inputBox {
+    border-width: 3px;
+  }
+  .amountInput {
+    font-size: 22px;
+  }
+}
