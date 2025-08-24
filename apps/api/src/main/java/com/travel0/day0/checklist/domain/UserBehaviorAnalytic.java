@@ -1,7 +1,7 @@
 package com.travel0.day0.checklist.domain;
 
 import com.travel0.day0.common.enums.BehaviorType;
-import com.travel0.day0.users.domain.DepartureInfo;
+import com.travel0.day0.departures.domain.DepartureInfo;
 import com.travel0.day0.users.domain.User;
 import jakarta.persistence.*;
 import lombok.*;

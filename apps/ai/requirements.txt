@@ -1,0 +1,40 @@
+# FastAPI 및 웹 프레임워크
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# 데이터베이스
+mysql-connector-python==8.2.0
+SQLAlchemy==2.0.23  # ORM (선택사항)
+
+# AI/ML 라이브러리
+scikit-learn==1.3.2
+numpy==1.25.2
+pandas==2.1.4
+
+# 텍스트 처리
+nltk==3.8.1  # 선택사항: 고급 텍스트 전처리용
+
+# HTTP 클라이언트 (백엔드 연동)
+httpx==0.25.2
+requests==2.31.0
+
+# 환경 설정
+python-dotenv==1.0.0
+
+# 로깅 및 모니터링
+loguru==0.7.2  # 선택사항: 더 나은 로깅
+
+# 개발/테스트용
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# 타입 힌팅 (Python 3.8 이하용)
+typing-extensions==4.8.0
+
+# 보안
+python-multipart==0.0.6  # 파일 업로드 지원
+python-jose[cryptography]==3.3.0  # JWT 토큰 (필요시)
+
+# 성능 최적화 (선택사항)
+orjson==3.9.10  # 더 빠른 JSON 직렬화

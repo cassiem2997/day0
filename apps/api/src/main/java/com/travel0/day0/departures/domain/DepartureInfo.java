@@ -1,6 +1,9 @@
-package com.travel0.day0.users.domain;
+package com.travel0.day0.departures.domain;
 
 import com.travel0.day0.common.enums.DepartureStatus;
+import com.travel0.day0.users.domain.ProgramType;
+import com.travel0.day0.users.domain.University;
+import com.travel0.day0.users.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
