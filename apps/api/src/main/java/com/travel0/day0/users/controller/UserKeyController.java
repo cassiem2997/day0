@@ -20,7 +20,7 @@ public class UserKeyController {
 
     // 관리자만 호출
     @PostMapping("/{userId}/user-key:save-external")
-    @Operation(description = "user-key 발급")
+    @Operation(summary = "user-key 발급", description = "회원가입 시 발급")
     public Map<String, String> saveUserKey(@PathVariable Long userId) {
         String apiKey = finOpenApiProperties.getApiKey();
         String userKey = userKeyService.saveUserKey(userId, apiKey);
@@ -29,7 +29,7 @@ public class UserKeyController {
 
     // 관리자만 호출
     @PostMapping("/{userId}/user-key:search-external")
-    @Operation(description = "user-key 조회")
+    @Operation(summary = "user-key 조회")
     public Map<String, String> searchUserKey(@PathVariable Long userId) {
         String apiKey = finOpenApiProperties.getApiKey();
         String userKey = userKeyService.searchUserKey(userId, apiKey);

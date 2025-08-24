@@ -22,13 +22,13 @@ public class BankController {
 
     private final BankService service;
 
-    @Operation(description = "은행코드 조회")
+    @Operation(summary = "은행코드 조회")
     @GetMapping("/codes")
     public List<BankCode> inquireBankCodes() {
         return service.getBankCodes();
     }
 
-    @Operation(description = "은행별 수시입출금 상품 등록")
+    @Operation(summary = "은행별 수시입출금 상품 등록")
     @PostMapping(value = "/demand-deposit", consumes = MediaType.APPLICATION_JSON_VALUE)
     public DemandDepositDtos.CreateDemandDepositRes create(@RequestBody CreateReq req) {
         log.info("REQ -> bankCode={}, accountName={}, accountDescription={}",

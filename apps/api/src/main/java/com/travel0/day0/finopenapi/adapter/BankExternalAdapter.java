@@ -27,7 +27,7 @@ public class BankExternalAdapter implements BankExternalPort {
     @Override
     public DemandDepositDtos.CreateDemandDepositRes registerProduct(String bankCode, String name, String desc) {
         var res = client.createDepositProduct(bankCode, name, desc);
-        if (res == null || res.getREC() == null || res.getREC().isEmpty()) {
+        if (res == null || res.getREC() == null) {
             throw new IllegalStateException("FINOPENAPI_DEMAND_DEPOSIT_EMPTY");
         }
         return res;

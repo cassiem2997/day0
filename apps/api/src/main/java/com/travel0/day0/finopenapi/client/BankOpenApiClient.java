@@ -83,10 +83,10 @@ public class BankOpenApiClient {
                 .block();
     }
 
-    /** 예금상품 등록 */
+    /** 상품 등록 */
     public CreateDemandDepositRes createDepositProduct(String bankCode, String accountName, String accountDescription) {
         final String code = props.getCreateDemandDeposit();
-        final String path = "/ssafy/api/v1/edu/deposit/" + code;
+        final String path = "/ssafy/api/v1/edu/demandDeposit/" + code;
 
         var header = headers.build(code, code);
         DemandDepositDtos.CreateDemandDepositReq body =

@@ -49,7 +49,7 @@ public class HeaderFactory {
     }
 
     /** userKey가 필요한 API용 */
-    public CommonHeader.Req buildWithUserKey(String apiName, String apiServiceCode, String userKey) {
+    public CommonHeader.Req build(String apiName, String apiServiceCode, String userKey) {
         CommonHeader.Req req = build(apiName, apiServiceCode);
         req.setUserKey(userKey);
         return req;
