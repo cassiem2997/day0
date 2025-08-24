@@ -1,29 +1,241 @@
-/* src/pages/Community/CommunityPage.module.css */
-
-/* ===== 레이아웃 최소 골격 ===== */
+/* ===== 레이아웃 ===== */
 .container {
   display: flex;
   flex-direction: row;
   min-height: 100vh;
-  background: #f8f9fa;
+  background: #f1f7fb;
 }
-
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
   width: 100%;
 }
-
 .pageContent {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 0 40px 40px;
+  padding: 0 40px 48px;
   box-sizing: border-box;
 }
 
-/* ===== 모바일 햄버거 (모바일에서만 표시) ===== */
+/* ===== 타이틀 ===== */
+.communityTitle {
+  margin: 20px 0 12px 0;
+  font-size: clamp(36px, 6vw, 50px);
+  font-weight: 900;
+  line-height: 1.05;
+  color: #111;
+  letter-spacing: 4px;
+  text-align: left;
+  font-family: "Mungyeong-Gamhong-Apple";
+}
+
+/* ===== 박스 바깥 우측 상단 탭: Mission/Details처럼 ===== */
+.pillTabs {
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 6px 6px 10px;
+}
+.pill {
+  font-family: "Mungyeong-Gamhong-Apple";
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 4px solid #121212;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+.pillIdle {
+  background: #fff;
+  color: #111;
+}
+.pillActive {
+  background: #5a5df6; /* 보라/블루 */
+  color: #fff;
+}
+.pill:hover {
+  transform: translateY(-1px);
+}
+.pill:active {
+  transform: translateY(0);
+}
+
+/* ===== Best 전용 큰 파란 박스 ===== */
+.panelFrame {
+  position: relative;
+  border: 6px solid #121212;
+  border-radius: 14px;
+  background: #cfe1ff;
+  padding: 26px 20px 28px;
+  overflow: hidden;
+  min-height: 380px;
+}
+
+/* 박스 안 장식 행 */
+.decorRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(20px, 5vw, 52px);
+  margin: 4px 0 16px;
+}
+.decorPill {
+  font-family: "Mungyeong-Gamhong-Apple";
+  position: relative;
+  padding: 10px 26px;
+  border: 6px solid #121212;
+  border-radius: 999px;
+  background: #4758FC;
+  color: #fff;
+  font-weight: 900;
+  font-size: clamp(20px, 3.4vw, 44px);
+  -webkit-text-fill-color: #fff;
+  -webkit-text-stroke: 2px #121212;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* 위쪽 줄 + 고리 */
+.decorPill::before {
+  content: "";
+  position: absolute;
+  top: -28px; /* 줄 길이 */
+  left: 50%;
+  width: 4px;
+  height: 28px;
+  background: #121212;
+  transform: translateX(-50%);
+}
+.decorPill::after {
+  content: "";
+  position: absolute;
+  top: -36px; /* 고리 위치 */
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  border: 4px solid #121212;
+  border-radius: 50%;
+  background: #fff;
+  transform: translateX(-50%);
+}
+
+/* 내부 콘텐츠 박스 */
+.innerBox {
+  position: relative;
+  background: #d6e5ff;
+  border: 6px solid #121212;
+  border-radius: 10px;
+  padding: 18px;
+  margin: 10px 8px 0;
+}
+
+/* Board 탭일 때는 별도 레이아웃(박스 없음) */
+.boardWrap {
+  margin-top: 12px;
+}
+
+/* 구름 (assets/clouds.svg) */
+.cloud {
+  position: absolute;
+  bottom: 8px;
+  width: clamp(140px, 18vw, 220px);
+  height: clamp(70px, 9vw, 100px);
+  background: url("../../assets/clouds.svg") no-repeat center / contain;
+  pointer-events: none;
+  opacity: 0.95;
+}
+.cloudLeft {
+  left: -16px;
+}
+.cloudRight {
+  right: -16px;
+}
+
+/* ===== 리스트 공통 (Best/Board 내부) ===== */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.postCard {
+  position: relative;
+  background: #ffffff;
+  border: 6px solid #121212;
+  border-radius: 12px;
+  padding: 18px 18px 16px;
+}
+.postHead {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+.postTitle {
+  margin: 0;
+  line-height: 1.1;
+  font-weight: 900;
+  font-size: clamp(20px, 3.2vw, 40px);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  -webkit-text-stroke: 8px #121212;
+  paint-order: stroke fill;
+  font-family: "EF_jejudoldam";
+}
+.saveBtn {
+  padding: 8px 18px;
+  border: 6px solid #121212;
+  border-radius: 999px;
+  background: #5a5df6;
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+}
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  font-weight: 800;
+}
+.badgeCheck {
+  width: 28px;
+  height: 28px;
+  border: 4px solid #121212;
+  border-radius: 8px;
+  background: #34c759;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  line-height: 1;
+}
+.star {
+  font-weight: 900;
+  font-size: 18px;
+  margin-left: 6px;
+}
+.countText {
+  font-size: 18px;
+}
+.slash {
+  margin: 0 8px;
+  font-weight: 900;
+}
+.by {
+  margin-left: auto;
+  opacity: 0.8;
+}
+.author {
+  font-weight: 900;
+}
+
+/* 모바일 햄버거 */
 .mobileHamburger {
   position: fixed;
   top: 12px;
@@ -46,15 +258,20 @@
   height: 2px;
   background: #212529;
 }
-
 @media (min-width: 768px) {
   .mobileHamburger {
     display: none;
   }
 }
 
+/* 작은 화면 보정 */
 @media (max-width: 768px) {
   .pageContent {
     padding: 0 16px 24px;
+  }
+  .pillTabs {
+    justify-content: center;
+    gap: 12px;
+    margin-right: 0;
   }
 }
