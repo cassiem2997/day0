@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import styles from "./CommunityPage.module.css";
 import communitySvg from "../../assets/community.svg";
 
@@ -11,11 +12,11 @@ type Post = {
   title: string;
   snippet: string;
   author: string;
-  createdAgo: string; 
+  createdAgo: string;
   views: number;
   comments: number;
   likes: number;
-  thumbnail?: string | null; 
+  thumbnail?: string | null;
 };
 
 // 더미 데이터
@@ -31,7 +32,6 @@ const POSTS: Post[] = [
     views: 1,
     comments: 1,
     likes: 1,
-    // thumbnail: "/sample/dorm.jpg",
   },
   {
     id: 2,
@@ -44,7 +44,6 @@ const POSTS: Post[] = [
     views: 73,
     comments: 2,
     likes: 5,
-    // thumbnail: "/sample/exchange-usd.jpg",
   },
 ];
 
@@ -58,6 +57,7 @@ export default function CommunityBoard() {
 
   return (
     <div className={styles.boardRoot}>
+      {/* 상단 히어로 이미지 */}
       <figure className={styles.boardHero} aria-label="Community board hero">
         <img
           src={communitySvg}
@@ -67,11 +67,7 @@ export default function CommunityBoard() {
       </figure>
 
       {/* 필터 칩 */}
-      <div
-        className={styles.boardFilterBar}
-        role="tablist"
-        aria-label="게시글 분류"
-      >
+      <div className={styles.boardFilterBar} role="tablist" aria-label="게시글 분류">
         {[
           { key: "ALL", label: "전체" },
           { key: "CHECKLIST", label: "체크리스트" },
@@ -82,9 +78,7 @@ export default function CommunityBoard() {
             type="button"
             role="tab"
             aria-selected={cat === (c.key as BoardCategory)}
-            className={`${styles.chip} ${
-              cat === (c.key as BoardCategory) ? styles.chipActive : ""
-            }`}
+            className={`${styles.chip} ${cat === (c.key as BoardCategory) ? styles.chipActive : ""}`}
             onClick={() => setCat(c.key as BoardCategory)}
           >
             {c.label}
@@ -92,12 +86,18 @@ export default function CommunityBoard() {
         ))}
       </div>
 
+      {/* 리스트 */}
       <ul className={styles.boardList}>
         {filtered.map((p) => (
           <li key={p.id} className={styles.boardRow}>
+            {/* 왼쪽 내용 */}
             <div className={styles.rowLeft}>
-              <div className={styles.rowBadge}>{p.badge}</div>
-              <h3 className={styles.rowTitle}>{p.title}</h3>
+              {p.badge ? <div className={styles.rowBadge}>{p.badge}</div> : null}
+              <h3 className={styles.rowTitle}>
+                <Link to={`/community/${p.id}`} className={styles.titleLink}>
+                  {p.title}
+                </Link>
+              </h3>
 
               <pre className={styles.rowSnippet}>{p.snippet}</pre>
 
@@ -114,6 +114,7 @@ export default function CommunityBoard() {
               </div>
             </div>
 
+            {/* 오른쪽 썸네일/자리표시자 */}
             <div className={styles.rowRight}>
               {p.thumbnail ? (
                 <img src={p.thumbnail} alt="" className={styles.thumbImg} />

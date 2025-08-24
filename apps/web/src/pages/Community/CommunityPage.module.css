@@ -31,7 +31,7 @@
   font-family: "Mungyeong-Gamhong-Apple";
 }
 
-/* ===== 박스 바깥 우측 상단 탭: Mission/Details처럼 ===== */
+/* ===== 박스 바깥 우측 상단 탭 (pill) ===== */
 .pillTabs {
   display: flex;
   gap: 14px;
@@ -40,10 +40,10 @@
   margin: 6px 6px 10px;
 }
 .pill {
-  font-family: "Mungyeong-Gamhong-Apple";
   padding: 10px 22px;
   border-radius: 999px;
   border: 4px solid #121212;
+  font-weight: 900;
   line-height: 1;
   cursor: pointer;
   box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
@@ -54,7 +54,7 @@
   color: #111;
 }
 .pillActive {
-  background: #4758FC; /* 보라/블루 */
+  background: #5a5df6;
   color: #fff;
 }
 .pill:hover {
@@ -75,34 +75,34 @@
   min-height: 380px;
 }
 
-/* 박스 안 장식 행 */
+/* 박스 안 장식 행 (매달린 느낌) */
 .decorRow {
+  font-family: "Mungyeong-Gamhong-Apple";
   display: flex;
   justify-content: center;
   align-items: center;
   gap: clamp(20px, 5vw, 52px);
   margin: 4px 0 16px;
+
 }
 .decorPill {
-  font-family: "Mungyeong-Gamhong-Apple";
   position: relative;
   padding: 10px 26px;
   border: 6px solid #121212;
   border-radius: 999px;
-  background: #4758fc;
+  background: #5a5df6;
   color: #fff;
   font-weight: 900;
   font-size: clamp(20px, 3.4vw, 44px);
   -webkit-text-fill-color: #fff;
-  -webkit-text-stroke: 2px #121212;
+  -webkit-text-stroke: 3px #121212;
   box-shadow: 0 8px 0 rgba(0, 0, 0, 0.25);
 }
-
-/* 위쪽 줄 + 고리 */
+/* 줄 + 고리 */
 .decorPill::before {
   content: "";
   position: absolute;
-  top: -28px; /* 줄 길이 */
+  top: -28px;
   left: 50%;
   width: 4px;
   height: 28px;
@@ -112,7 +112,7 @@
 .decorPill::after {
   content: "";
   position: absolute;
-  top: -36px; /* 고리 위치 */
+  top: -36px;
   left: 50%;
   width: 14px;
   height: 14px;
@@ -154,7 +154,7 @@
   right: -16px;
 }
 
-/* ===== 리스트 공통 (Best/Board 내부) ===== */
+/* ===== Best 리스트 공통 ===== */
 .stack {
   display: flex;
   flex-direction: column;
@@ -180,7 +180,7 @@
   font-size: clamp(20px, 3.2vw, 40px);
   color: #fff;
   -webkit-text-fill-color: #fff;
-  -webkit-text-stroke: 8px #121212;
+  -webkit-text-stroke: 6px #121212; /* 굵은 윤곽선 */
   paint-order: stroke fill;
   font-family: "EF_jejudoldam";
 }
@@ -188,7 +188,7 @@
   padding: 8px 18px;
   border: 6px solid #121212;
   border-radius: 999px;
-  background: #4758FC;
+  background: #5a5df6;
   color: #fff;
   font-weight: 900;
   cursor: pointer;
@@ -234,72 +234,33 @@
 .author {
   font-weight: 900;
 }
-
-/* 모바일 햄버거 */
-.mobileHamburger {
-  position: fixed;
-  top: 12px;
-  left: 12px;
-  z-index: 60;
-  width: 44px;
-  height: 44px;
-  border: 1px solid #dee2e6;
-  border-radius: 10px;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-.mobileHamburger span {
-  display: block;
-  width: 20px;
-  height: 2px;
-  background: #212529;
-}
-@media (min-width: 768px) {
-  .mobileHamburger {
-    display: none;
-  }
+.rowDivider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -18px;
+  height: 6px;
+  background: #121212;
+  border-radius: 3px;
 }
 
-/* 작은 화면 보정 */
-@media (max-width: 768px) {
-  .pageContent {
-    padding: 0 16px 24px;
-  }
-  .pillTabs {
-    justify-content: center;
-    gap: 12px;
-    margin-right: 0;
-  }
-}
+/* ===== Board: 히어로 + 필터 + 리스트 ===== */
 .boardRoot {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-
-/* 상단 히어로 섹션 */
 .boardHero {
   margin: 8px 0 16px;
 }
-
 .boardHeroImg {
   width: 100%;
   height: auto;
   display: block;
   background: #cfe1ff;
-  border: 3px solid #121212;
+  border: 6px solid #121212;
   border-radius: 12px;
   box-shadow: 0 8px 0 rgba(0, 0, 0, 0.22);
-}
-/* ===== Board: 필터 + 리스트 ===== */
-.boardRoot {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }
 
 /* 필터 칩 바 */
@@ -320,7 +281,7 @@
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
 }
 .chipActive {
-  background: #4758FC;
+  background: #5a5df6;
   color: #fff;
 }
 
@@ -345,33 +306,25 @@
   padding: 22px;
   box-shadow: 0 8px 0 rgba(0, 0, 0, 0.16);
 }
-
 .rowLeft {
   min-width: 0;
 }
-
-/* 배지 */
 .rowBadge {
   display: inline-block;
   padding: 6px 12px;
   border: 4px solid #121212;
   border-radius: 999px;
-  background: #4758FC;
+  background: #5a5df6;
   color: #fff;
   font-weight: 900;
   margin-bottom: 8px;
 }
-
-/* 제목 (진하게, 약간 윤곽선) */
 .rowTitle {
   margin: 4px 0 8px 0;
   font-weight: 900;
   font-size: clamp(22px, 3.4vw, 34px);
-  color: #111;
-
+ 
 }
-
-/* 본문 스니펫 (줄바꿈 유지) */
 .rowSnippet {
   margin: 6px 0 12px 0;
   font-family: inherit;
@@ -379,8 +332,6 @@
   line-height: 1.6;
   color: #222;
 }
-
-/* 메타 라인 */
 .rowMeta {
   display: flex;
   flex-wrap: wrap;
@@ -418,7 +369,7 @@
 }
 .thumbPlaceholder {
   width: 100%;
-  aspect-ratio: 1 / 1; /* 정사각형 */
+  aspect-ratio: 1 / 1;
   background: #cfe1ff;
   border: 4px solid #121212;
   border-radius: 12px;
@@ -428,7 +379,59 @@
   font-weight: 900;
 }
 
-/* 반응형: 모바일에서는 썸네일 아래로 */
+/* ===== 제목 링크 리셋 (보라색/밑줄 방지) ===== */
+.titleLink,
+.titleLink:link,
+.titleLink:visited,
+.titleLink:hover,
+.titleLink:active,
+.titleLink:focus {
+  color: inherit;
+  text-decoration: none;
+  display: inline-block;
+}
+/* Best/Board 제목의 채움/윤곽선 유지 */
+.postTitle .titleLink,
+.rowTitle .titleLink {
+  -webkit-text-fill-color: inherit; /* 부모의 채움색 따라감 */
+  -webkit-text-stroke: inherit; /* 부모의 윤곽선 굵기/색 따라감 */
+}
+/* 접근성: 키보드 포커스 링 */
+.titleLink:focus-visible {
+  outline: 3px solid #5a5df6;
+  outline-offset: 2px;
+}
+
+/* 모바일 햄버거 */
+.mobileHamburger {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 60;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.mobileHamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #212529;
+}
+@media (min-width: 768px) {
+  .mobileHamburger {
+    display: none;
+  }
+}
+
+/* 작은 화면 보정 */
 @media (max-width: 860px) {
   .boardRow {
     grid-template-columns: 1fr;
@@ -437,3 +440,14 @@
     order: 2;
   }
 }
+@media (max-width: 768px) {
+  .pageContent {
+    padding: 0 16px 24px;
+  }
+  .pillTabs {
+    justify-content: center;
+    gap: 12px;
+    margin-right: 0;
+  }
+}
+

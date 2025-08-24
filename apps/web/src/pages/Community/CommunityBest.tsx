@@ -1,8 +1,18 @@
+import { Link } from "react-router-dom";
 import styles from "./CommunityPage.module.css";
 
+type BestItem = {
+  id: number;
+  title: string;
+  done: number;
+  total: number;
+  star: number;
+  author: string;
+};
+
 export default function CommunityBest() {
-  // 더미 2개 (피그마 느낌만 잡아둠)
-  const items = [
+  // 더미 데이터 (연동 시 교체)
+  const items: BestItem[] = [
     {
       id: 1,
       title: "런던 3개월 어학연수 (맥시멀리스트)",
@@ -26,30 +36,28 @@ export default function CommunityBest() {
       {items.map((it, idx) => (
         <article key={it.id} className={styles.postCard}>
           <header className={styles.postHead}>
-            <h2 className={styles.postTitle}>{it.title}</h2>
-            <button type="button" className={styles.saveBtn}>
-              save
-            </button>
+            <h2 className={styles.postTitle}>
+              <Link to={`/community/${it.id}`} className={styles.titleLink}>
+                {it.title}
+              </Link>
+            </h2>
+            <button type="button" className={styles.saveBtn}>save</button>
           </header>
 
           <div className={styles.metaRow}>
-            <span className={styles.badgeCheck} aria-hidden="true">
-              ✓
-            </span>
+            <span className={styles.badgeCheck} aria-hidden="true">✓</span>
             <span className={styles.countText}>
               {it.done} <span className={styles.slash}>/</span> {it.total}
             </span>
 
-            <span className={styles.star} aria-hidden="true">
-              ★
-            </span>
+            <span className={styles.star} aria-hidden="true">★</span>
             <span className={styles.countText}>{it.star}</span>
 
             <span className={styles.by}>by</span>
             <span className={styles.author}>{it.author}</span>
           </div>
 
-          {idx === 0 ? <div className={styles.rowDivider}></div> : null}
+          {idx === 0 ? <div className={styles.rowDivider} /> : null}
         </article>
       ))}
     </div>
