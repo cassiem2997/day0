@@ -6,8 +6,9 @@ import ChecklistStats, {
 } from "../../components/ChecklistStats/ChecklistStats";
 import TipCard from "../../components/TipCard/TipCard";
 import CalendarView from "../../components/Calendar/CalendarView";
-import styles from "./ChecklistPage.module.css";
 import DayPanel from "../../components/Calendar/DayPanel";
+import styles from "./ChecklistPage.module.css";
+
 import { pickRandomTipAny } from "../../utils/tipSelector";
 import type { Tip } from "../../data/tips";
 
@@ -30,9 +31,9 @@ export default function ChecklistPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((p) => !p);
 
-  // 출국일 & 체크리스트 더미 (연동 전)
+  // 출국일 & 체크리스트 (더미 데이터 → state)
   const leaveDate = "2026-02-20";
-  const items: ChecklistItem[] = [
+  const initialItems: ChecklistItem[] = [
     {
       id: 1,
       date: "2025-08-20",
@@ -62,6 +63,16 @@ export default function ChecklistPage() {
     },
     { id: 8, date: "2026-02-10", text: "출국 전 OT 참석", completed: false },
   ];
+  const [items, setItems] = useState<ChecklistItem[]>(initialItems);
+
+  // 체크 토글
+  function toggleItem(id: number) {
+    setItems((prev) =>
+      prev.map((it) =>
+        it.id === id ? { ...it, completed: !it.completed } : it
+      )
+    );
+  }
 
   // 랜덤 팁
   const [tip, setTip] = useState<Tip | null>(null);
@@ -131,11 +142,12 @@ export default function ChecklistPage() {
             </div>
           </section>
 
-          {/* Calendar */}
+          {/* Calendar + DayPanel */}
           <section
             className={styles.calendarSection}
             aria-labelledby="calendar-title"
           >
+              
             <CalendarView
               items={items}
               selectedDate={selectedDate}
@@ -143,7 +155,11 @@ export default function ChecklistPage() {
               leaveDate={leaveDate}
             />
             <div style={{ marginTop: 16 }}>
-              <DayPanel date={selectedDate} items={items} />
+              <DayPanel
+                date={selectedDate}
+                items={items}
+                onToggle={toggleItem}
+              />
             </div>
           </section>
         </div>
