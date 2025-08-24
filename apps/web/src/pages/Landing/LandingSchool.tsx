@@ -32,7 +32,11 @@ export default function LandingSchool({ isActive = false }: Props) {
           />
         </div>
       </div>
-
+      <div className={styles.ctaWrap}>
+        <a className={styles.cta} href="/login">
+          시작하기
+        </a>
+      </div>
     </section>
   );
 }
