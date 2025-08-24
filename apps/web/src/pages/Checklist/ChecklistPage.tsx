@@ -1,26 +1,38 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
-import Summary from "../../components/Summary/Summary";
-import CalendarView from "../../components/Calendar/CalendarView";
+import ChecklistStats, {
+  type ChecklistItem,
+} from "../../components/ChecklistStats/ChecklistStats";
 import TipCard from "../../components/TipCard/TipCard";
+import CalendarView from "../../components/Calendar/CalendarView";
 import styles from "./ChecklistPage.module.css";
+import DayPanel from "../../components/Calendar/DayPanel";
+import { pickRandomTipAny } from "../../utils/tipSelector";
+import type { Tip } from "../../data/tips";
 
-type ChecklistItem = {
-  id: number;
-  text: string;
-  completed: boolean;
-  date: string; // YYYY-MM-DD
-};
+/* 반응형 판별 훅 */
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < breakpoint;
+  });
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [breakpoint]);
+  return isMobile;
+}
 
-type Data = {
-  leaveDate: string;
-  checklistItems: ChecklistItem[];
-};
+export default function ChecklistPage() {
+  const isMobile = useIsMobile(768);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const toggleSidebar = () => setIsSidebarOpen((p) => !p);
 
-const DUMMY_DATA: Data = {
-  leaveDate: "2026-02-20",
-  checklistItems: [
+  // 출국일 & 체크리스트 더미 (연동 전)
+  const leaveDate = "2026-02-20";
+  const items: ChecklistItem[] = [
     {
       id: 1,
       date: "2025-08-20",
@@ -32,7 +44,7 @@ const DUMMY_DATA: Data = {
     {
       id: 4,
       date: "2026-01-20",
-      text: "해외유심 또는 로밍 알아보기",
+      text: "해외유심/로밍 알아보기",
       completed: true,
     },
     { id: 5, date: "2026-01-25", text: "국제학생증 발급", completed: false },
@@ -49,49 +61,23 @@ const DUMMY_DATA: Data = {
       completed: false,
     },
     { id: 8, date: "2026-02-10", text: "출국 전 OT 참석", completed: false },
-  ],
-};
+  ];
 
-function useIsMobile(breakpoint = 768) {
-  const [isMobile, setIsMobile] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return window.innerWidth < breakpoint;
-  });
+  // 랜덤 팁
+  const [tip, setTip] = useState<Tip | null>(null);
+  useEffect(() => {
+    setTip(pickRandomTipAny());
+  }, []);
 
-  useEffect(
-    function () {
-      function onResize() {
-        setIsMobile(window.innerWidth < breakpoint);
-      }
-      window.addEventListener("resize", onResize);
-      return () => window.removeEventListener("resize", onResize);
-    },
-    [breakpoint]
-  );
-
-  return isMobile;
-}
-
-export default function ChecklistPage() {
-  const [tripData] = useState<Data>(DUMMY_DATA);
+  // 캘린더 상태
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const isMobile = useIsMobile(768);
-
-  function handleDateChange(date: Date) {
-    setSelectedDate(date);
-  }
-  function toggleSidebar() {
-    setIsSidebarOpen((prev) => !prev);
-  }
+  const handleDateChange = (d: Date) => setSelectedDate(d);
 
   return (
     <div className={styles.container}>
-      {/* 모바일에서만 사이드바 사용 */}
       {isMobile ? (
         <>
-          <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar}></Sidebar>
+          <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />
           <button
             type="button"
             className={styles.mobileHamburger}
@@ -106,26 +92,60 @@ export default function ChecklistPage() {
       ) : null}
 
       <main className={styles.main}>
-        {/* 데스크톱에서만 헤더 사용 */}
-        {isMobile ? null : <Header></Header>}
+        {isMobile ? null : <Header />}
 
         <div className={styles.pageContent}>
-          <h2 className={styles.title}>CHECKLIST</h2>
+          <header className={styles.heroWrap} aria-labelledby="hero-title">
+            <h1 id="hero-title" className={styles.hero}>
+              CHECKLISTS
+            </h1>
+          </header>
 
-          <div className={styles.dashboardContainer}>
-            <Summary
-              leaveDate={tripData.leaveDate}
-              items={tripData.checklistItems}
-            ></Summary>
-            <TipCard></TipCard>
+          {/* D-day / 진행도 */}
+          <div style={{ marginTop: 12, marginBottom: 24 }}>
+            <ChecklistStats
+              leaveDate={leaveDate}
+              items={items}
+              cloudVars={{
+                ["--cloud-tr-top"]: "28%",
+                ["--cloud-tr-right"]: "14%",
+                ["--cloud-tr-w"]: "110px",
+                ["--cloud-br-bottom"]: "8px",
+                ["--cloud-br-right"]: "16px",
+                ["--cloud-br-w"]: "120px",
+                ["--cloud-bl-bottom"]: "10px",
+                ["--cloud-bl-left"]: "22%",
+                ["--cloud-bl-w"]: "160px",
+              }}
+            />
           </div>
 
-          <CalendarView
-            items={tripData.checklistItems}
-            selectedDate={selectedDate}
-            onDateChange={handleDateChange}
-            leaveDate={tripData.leaveDate}
-          ></CalendarView>
+          {/* Today’s Tip */}
+          <section className={styles.section} aria-labelledby="tip-title">
+            <p className={styles.kicker}>오늘의 팁</p>
+            <h2 id="tip-title" className={styles.sectionTitle}>
+              Today’s Tip
+            </h2>
+            <div className={styles.tipCardWrap}>
+              <TipCard message={tip ? tip.text : "팁을 불러오는 중입니다."} />
+            </div>
+          </section>
+
+          {/* Calendar */}
+          <section
+            className={styles.calendarSection}
+            aria-labelledby="calendar-title"
+          >
+            <CalendarView
+              items={items}
+              selectedDate={selectedDate}
+              onDateChange={handleDateChange}
+              leaveDate={leaveDate}
+            />
+            <div style={{ marginTop: 16 }}>
+              <DayPanel date={selectedDate} items={items} />
+            </div>
+          </section>
         </div>
       </main>
     </div>

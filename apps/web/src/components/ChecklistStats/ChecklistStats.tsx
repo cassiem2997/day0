@@ -5,9 +5,9 @@ import clouds from "../../assets/clouds.svg";
 /** 진행도 계산에 쓰는 최소 타입 */
 export type ChecklistItem = {
   id: number;
-  text?: string;
+  text: string;
   completed: boolean;
-  date?: string; // YYYY-MM-DD
+  date: string; // YYYY-MM-DD
 };
 
 /** CSS 변수로 구름 위치/크기 오버라이드 */
@@ -26,7 +26,7 @@ type CloudVars = React.CSSProperties & {
 type Props = {
   leaveDate: string;
   items: ChecklistItem[];
-  cloudVars?: CloudVars; // 위치/크기 커스터마이즈
+  cloudVars?: CloudVars; 
 };
 
 function daysUntil(leaveDate: string) {
