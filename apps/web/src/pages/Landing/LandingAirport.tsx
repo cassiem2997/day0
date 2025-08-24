@@ -39,6 +39,12 @@ export default function LandingAirport({ isActive = false }: Props) {
         src={airplane}
         alt=""
       />
+
+      <div className={styles.ctaWrap}>
+        <a className={styles.cta} href="/login">
+          시작하기
+        </a>
+      </div>
     </section>
   );
 }
