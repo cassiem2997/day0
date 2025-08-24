@@ -1,6 +1,6 @@
 .wrap {
   /* 프레임/바 높이 */
-  --frame-border: 6px;
+  --frame-border: 3px;
   --frame-radius: 14px;
   --bar-height: 22px;
 

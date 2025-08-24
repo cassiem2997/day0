@@ -1,14 +1,17 @@
 .card {
-  /* 최소 베이스 스타일(나중에 디테일 잡자) */
-  border: 6px solid #1f1720;
+  border: 3px solid #1f1720;
   border-radius: 14px;
   background: #cfd8ff;
   padding: 16px 20px;
 }
 
 .message {
+  font-family: "EF_jejudoldam";
   margin: 0;
   font-size: 16px;
-  font-weight: 800;
-  color: #131314;
+  /* font-weight: 800; */
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  -webkit-text-stroke: 5px #121212;
+  paint-order: stroke fill;
 }
