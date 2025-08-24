@@ -1,60 +1,4 @@
-def find_missing_items(existing_items: List[dict], popularity_data: List[dict]) -> List[dict]:
-    """누락된 항목 찾기 - 고급 AI 분석 적용"""
-    
-    # 고급 AI 엔진 초기화
-    ai_engine = AdvancedAIEngine()
-    
-    # 사용자 행동 패턴 분석
-    user_behavior = ai_engine.analyze_user_behavior(existing_items)
-    print(f"🧠 사용자 행동 분석: 완료율 {user_behavior['completion_rate']:.2f}, 계획성 {user_behavior['planning_score']:.2f}")
-    
-    # 사용자 벡터 생성
-    user_vector = ai_engine.create_user_vector(existing_items, user_behavior)
-    
-    # 사용자 유형 예측
-    user_type, type_name, confidence = ai_engine.predict_user_type(user_vector)
-    print(f"🎯 사용자 유형: {type_name} (신뢰도: {confidence:.2f})")
-    
-    # 기존 항목들의 제목 세트
-    existing_titles = {item['title'].lower() for item in existing_items}
-    
-    # 후보 항목 필터링
-    candidate_items = []
-    for pop_item in popularity_data:
-        item_title = pop_item['item_title'].lower()
-        
-        # 1. 정확한 제목 매칭으로 이미 있는지 확인
-        if item_title in existing_titles:
-            continue
-            
-        # 2. 의미적 유사성으로 이미 있는지 확인
-        is_already_exists = False
-        for existing_item in existing_items:
-            if is_semantically_similar(
-                existing_item['title'],
-                existing_item.get('description', ''),
-                pop_item['item_title'],
-                pop_item.get('item_description', ''),
-                threshold=0.7
-            ):
-                is_already_exists = True
-                break
-        
-        if not is_already_exists:
-            candidate_items.append(pop_item)
-    
-    # 고급 점수 계산
-    enhanced_items = ai_engine.calculate_advanced_scores(candidate_items, user_type, user_vector)
-    
-    # 상위 5개 선택하여 최종 형태로 변환
-    missing_items = []
-    for item in enhanced_items[:5]:
-        # Decimal을 float로 안전하게 변환
-        popularity_rate = float(item['popularity_rate']) if isinstance(item['popularity_rate'], decimal.Decimal) else item['popularity_rate']
-        priority_score = float(item['priority_score']) if isinstance(item['priority_score'], decimal.Decimal) else item['priority_score']
-        
-        missing_items.append({
-            'item_title': item['item_title'],# main.py - AI 추천 전용 FastAPI (최종 고도화 버전)
+# main.py - AI 추천 전용 FastAPI (최종 고도화 버전)
 # DB 스키마 호환성 + 메모리 캐싱 + is_fixed 필드 활용 + 고급 ML 기능
 
 from dotenv import load_dotenv
@@ -475,12 +419,27 @@ class AdvancedAIEngine:
         return enhanced_items
 
 def find_missing_items(existing_items: List[dict], popularity_data: List[dict]) -> List[dict]:
-    """누락된 항목 찾기 - is_fixed 우선 고려"""
+    """누락된 항목 찾기 - 고급 AI 분석 적용"""
+    
+    # 고급 AI 엔진 초기화
+    ai_engine = AdvancedAIEngine()
+    
+    # 사용자 행동 패턴 분석
+    user_behavior = ai_engine.analyze_user_behavior(existing_items)
+    print(f"🧠 사용자 행동 분석: 완료율 {user_behavior['completion_rate']:.2f}, 계획성 {user_behavior['planning_score']:.2f}")
+    
+    # 사용자 벡터 생성
+    user_vector = ai_engine.create_user_vector(existing_items, user_behavior)
+    
+    # 사용자 유형 예측
+    user_type, type_name, confidence = ai_engine.predict_user_type(user_vector)
+    print(f"🎯 사용자 유형: {type_name} (신뢰도: {confidence:.2f})")
     
     # 기존 항목들의 제목 세트
     existing_titles = {item['title'].lower() for item in existing_items}
     
-    missing_items = []
+    # 후보 항목 필터링
+    candidate_items = []
     for pop_item in popularity_data:
         item_title = pop_item['item_title'].lower()
         
@@ -500,6 +459,19 @@ def find_missing_items(existing_items: List[dict], popularity_data: List[dict]) 
             ):
                 is_already_exists = True
                 break
+        
+        if not is_already_exists:
+            candidate_items.append(pop_item)
+    
+    # 고급 점수 계산
+    enhanced_items = ai_engine.calculate_advanced_scores(candidate_items, user_type, user_vector)
+    
+    # 상위 5개 선택하여 최종 형태로 변환
+    missing_items = []
+    for item in enhanced_items[:5]:
+        # Decimal을 float로 안전하게 변환
+        popularity_rate = float(item['popularity_rate']) if isinstance(item['popularity_rate'], decimal.Decimal) else item['popularity_rate']
+        priority_score = float(item['priority_score']) if isinstance(item['priority_score'], decimal.Decimal) else item['priority_score']
         
         missing_items.append({
             'item_title': item['item_title'],
