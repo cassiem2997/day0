@@ -1,0 +1,36 @@
+.alertBtn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 16px;
+  background: #4758fc; /* 버튼 배경 */
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+}
+
+.strokeText {
+  /* 기본 타이포 */
+  font-weight: 900;
+  font-size: 18px;
+  line-height: 1;
+  white-space: nowrap;
+
+  /* 흰 글자 + 검은 윤곽선 */
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  -webkit-text-stroke: 2px #121212;
+  paint-order: stroke fill;
+  /* 스무딩 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+
+/* 눌림 효과 */
+.alertBtn:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 16px rgba(16, 24, 40, 0.08);
+}
