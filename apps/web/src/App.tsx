@@ -1,12 +1,14 @@
 // App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import type { ReactElement /* or ReactNode */ } from "react";
+import type { ReactElement } from "react";
 
 // 페이지 import
 import ChecklistPage from "./pages/Checklist/ChecklistPage";
 import ExchangeRatePage from "./pages/ExchangeRate/ExchangeRatePage";
 import LoginPage from "./pages/Login/LoginPage";
 import LandingPage from "./pages/Landing/LandingPage";
+import SavingsPage from "./pages/Savings/SavingsPage";
+
 
 // 간단 보호 라우트 (토큰 유무로 판별 예시)
 // children 타입을 ReactElement로!
@@ -43,7 +45,28 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/savings"
+          element={
+            <ProtectedRoute>
+              <SavingsPage />
+            </ProtectedRoute>
+          }
+        />
 
+        {/* 추가된 헤더 메뉴 라우트 */}
+     
+        <Route
+          path="/community"
+          element={
+            <ProtectedRoute>
+              <CommunityPage />
+            </ProtectedRoute>
+          }
+        />
+       
+
+        {/* 와일드카드 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

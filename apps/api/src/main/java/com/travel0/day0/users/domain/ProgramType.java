@@ -22,6 +22,7 @@ public class ProgramType {
     @Column(name = "program_type_id")
     private Long programTypeId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "code", nullable = false, unique = true, length = 50)
     private ProgramTypeCode code;
 

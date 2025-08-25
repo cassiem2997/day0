@@ -58,7 +58,7 @@
 .walkerStage {
   position: absolute;
   left: 50%;
-  bottom: 6.2vh; /* 필요시 5.5~8vh 사이로 조절 */
+  bottom: 12vh; /* 필요시 5.5~8vh 사이로 조절 */
   transform: translateX(-50%);
   z-index: 3;
   pointer-events: none;

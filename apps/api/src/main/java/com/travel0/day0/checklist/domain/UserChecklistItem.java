@@ -63,6 +63,10 @@ public class UserChecklistItem {
     @Column(name = "linked_amount", precision = 18, scale = 2)
     private BigDecimal linkedAmount;
 
+    @Column(name = "is_fixed", nullable = false)
+    @Builder.Default
+    private Boolean isFixed = false;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
