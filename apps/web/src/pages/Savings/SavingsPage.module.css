@@ -2,7 +2,7 @@
 .container {
   display: flex;
   flex-direction: row;
-  background-color: #f8f9fa;
+  background-color: #f3fcff;
   min-height: 100vh;
 }
 
@@ -73,7 +73,7 @@
 }
 
 .amountPill.goal {
-  background: #4758fc; /* 목표는 퍼플/블루 톤 */
+  background: #4758fc;
   color: #fff;
 }
 
@@ -113,7 +113,7 @@
   height: 100%;
   width: 0%;
   border-right: 3px solid #121212;
-  background: #5a5df6;
+  background: #4758fc;
   border-radius: inherit;
   transition: width 500ms ease;
 }
@@ -561,6 +561,8 @@
   font-weight: 900;
   white-space: nowrap;
   line-height: 1.05;
+  font-family: "Mungyeong-Gamhong-Apple";
+    paint-order: stroke fill;
 }
 
 /* 헤더 라벨(흰 글자+검정 외곽선) */
@@ -605,6 +607,7 @@
 }
 .colDesc {
   line-height: 1.6;
+  font-family: "ONE-Mobile-POP";
 }
 .colDate {
   text-align: center;
