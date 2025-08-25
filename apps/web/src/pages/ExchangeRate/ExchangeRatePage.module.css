@@ -1,9 +1,9 @@
-/* ===== 레이아웃 공통 ===== */
+/* ===== 레이아웃 기본 ===== */
 .container {
   display: flex;
   flex-direction: row;
   min-height: 100vh;
-  background: #f8fafb;
+  background: #f3fcff;
 }
 
 .main {
@@ -13,7 +13,6 @@
   width: 100%;
 }
 
-/* 페이지 컨테이너: 폭 통일 */
 .pageContent {
   width: 100%;
   max-width: 1100px;
@@ -22,13 +21,26 @@
   box-sizing: border-box;
 }
 
-.title {
-  text-align: center;
-  margin-top: 20px;
-  margin-bottom: 12px;
-  font-size: 28px;
-  font-weight: 800;
-  color: #343a40;
+/* ===== EXCHANGE 타이틀 ===== */
+.hero {
+  margin-top: 24px; /* 상단 여백 */
+  padding-left: 6px; /* 모바일 햄버거와 살짝 간격 */
+}
+
+.exchangeTitle {
+  margin: 20px 0 12px 0;
+  font-size: clamp(36px, 6vw, 50px);
+  font-weight: 900;
+  line-height: 1.05;
+  color: #111;
+  letter-spacing: 4px;
+  text-align: left;
+  font-family: "Mungyeong-Gamhong-Apple";
+}
+
+/* 그래프 섹션 여백 */
+.chartSection {
+  margin-top: 60px;
 }
 
 /* ===== 모바일 전용 햄버거 ===== */
@@ -48,214 +60,45 @@
   gap: 3px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
+
 .mobileHamburger span {
   display: block;
   width: 20px;
   height: 2px;
   background: #212529;
 }
+
 @media (min-width: 768px) {
   .mobileHamburger {
     display: none;
   }
 }
 
-/* ===== 그래프 박스 ===== */
-.rateBox {
-  margin: 0 auto 16px auto;
-  background: #fff;
-  border: 1px solid #e0e6ec;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  padding: 12px;
-  box-sizing: border-box;
-}
-.rateImage {
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  border-radius: 8px;
-  border: 1px solid #eef1f4;
-  background: #f9fbff;
-}
-
-/* ===== 환전 카드 ===== */
-.convertCard {
-  margin: 0 auto;
-  background: #fff;
-  border: 1px solid #e0e6ec;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  padding: 16px;
-  box-sizing: border-box;
-}
-
-.pillRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.bankPill {
-  font-size: 13px;
-  color: #5f3dc4;
-  background: #f3f0ff;
-  border: 1px solid #e5dbff;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-weight: 700;
-}
-
-/* 입력 행 */
-.row {
-  display: flex;
-  align-items: center;
-  border: 1px solid #e0e6ec;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #fff;
-}
-
-.leftCol {
-  width: 260px;
-  border-right: 1px solid #eef1f4;
-  padding: 12px 14px;
-  box-sizing: border-box;
-}
-.country {
-  font-size: 15px;
-  font-weight: 700;
-}
-.code {
-  font-size: 13px;
-  color: #6b7480;
-  margin-top: 2px;
-}
-
-.rightCol {
-  flex: 1;
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  box-sizing: border-box;
-}
-
-.amountInput {
-  width: 200px;
-  text-align: right;
-  border: none;
-  outline: none;
-  font-size: 18px;
-  font-weight: 700;
-  background: transparent;
-}
-.amountInput::-webkit-outer-spin-button,
-.amountInput::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-.subLabel {
-  min-width: 90px;
-  text-align: right;
-  font-size: 12px;
-  color: #6b7480;
-}
-
-/* 가운데 = 구분선 */
-.equalDivider {
-  text-align: center;
-  color: #9aa3ad;
-  margin: 8px 0;
-  position: relative;
-}
-.equalDivider::before,
-.equalDivider::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 45%;
-  height: 1px;
-  background: #eef1f4;
-}
-.equalDivider::before {
-  left: 0;
-}
-.equalDivider::after {
-  right: 0;
-}
-.equalDivider > span {
-  display: inline-block;
-  width: 36px;
-  height: 36px;
-  line-height: 36px;
-  border-radius: 50%;
-  background: #fff;
-  border: 1px solid #eef1f4;
-  font-weight: 700;
-}
-
-/* 하단 안내 + CTA */
-.ctaRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  justify-content: space-between;
-  margin-top: 12px;
-}
-.guide {
-  margin: 0;
-  color: #6b7480;
-  font-size: 13.5px;
-}
-.applyBtn {
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: 1px solid #5f3dc4;
-  background: #5f3dc4;
-  color: #fff;
-  font-weight: 700;
-  cursor: pointer;
-}
-.applyBtn:hover {
-  filter: brightness(0.95);
-}
-
-/* ===== 반응형 보완 ===== */
-@media (max-width: 1024px) {
-  .leftCol {
-    width: 200px;
-  }
-}
 @media (max-width: 768px) {
   .pageContent {
     padding: 0 16px 24px;
   }
-  .row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
+  .hero {
+    margin-top: 16px;
+    padding-left: 4px;
   }
-  .leftCol {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid #eef1f4;
+  .exchangeTitle {
+    font-size: clamp(28px, 12vw, 44px);
   }
-  .rightCol {
-    justify-content: space-between;
-  }
-  .amountInput {
-    width: 100%;
-    text-align: right;
-  }
-  .ctaRow {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  .applyBtn {
-    width: 100%;
-  }
+}
+.chartHeader {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 6px 0 8px 0; /* 타이틀과 그래프 사이 */
+}
+
+.chartSection {
+  margin-top: 8px;
+}
+.chartSection {
+  margin-top: 8px;
+}
+.cardSection {
+  margin-top: 18px;
 }
