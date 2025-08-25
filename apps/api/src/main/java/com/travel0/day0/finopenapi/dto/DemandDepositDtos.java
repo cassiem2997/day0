@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class DemandDepositDtos {
@@ -180,6 +181,9 @@ public class DemandDepositDtos {
         private String accountExpiryDate;
         private String lastTransactionDate;
         private String currency;
+
+        public AccountBalanceRec(String accountNo, String currency, BigDecimal bal) {
+        }
     }
 
     /** 계좌 잔액 조회 */
