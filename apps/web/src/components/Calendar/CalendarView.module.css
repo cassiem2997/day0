@@ -2,21 +2,21 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px; /* 여백 살짝 키움 */
   width: 100%;
   max-width: 1120px;
   margin: 30px auto 0;
   box-sizing: border-box;
 }
 
-/* 공통 카드 패널 */
+/* 공통 카드 패널 (상단 카드 톤과 통일) */
 .panel {
   width: 100%;
   background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e8edf3;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
   box-sizing: border-box;
 }
 
@@ -24,7 +24,9 @@
 .calendarPanel :global(.react-calendar) {
   width: 100%;
   border: 0;
+  background: transparent;
   font-family: inherit;
+  line-height: 1.35;
 }
 
 /* 네비게이션/요일 */
@@ -33,11 +35,26 @@
 }
 .calendarPanel :global(.react-calendar__navigation__label) {
   font-weight: 700;
+  color: #111827;
 }
+/* ⬇️ hover 배경 제거, focus만 유지 */
+.calendarPanel :global(.react-calendar__navigation button:enabled:hover) {
+  background: transparent !important;
+}
+.calendarPanel :global(.react-calendar__navigation button:enabled:focus) {
+  background: #f7faff;
+  border-radius: 8px;
+}
+
+/* 요일 머리 */
 .calendarPanel :global(.react-calendar__month-view__weekdays) {
   text-transform: none;
-  font-weight: 700;
-  color: #495057;
+}
+.calendarPanel :global(.react-calendar__month-view__weekdays__weekday) {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 0;
 }
 
 /* 타일 기본 */
@@ -46,18 +63,25 @@
   height: 48px;
   position: relative;
   background: transparent;
+  border-radius: 12px;
 }
-
-/* 오늘: 타일 배경은 투명, 숫자에만 링 */
-.calendarPanel :global(.react-calendar__tile--now) {
-  background: transparent;
+/* ⬇️ hover 배경 제거, focus만 유지 */
+.calendarPanel :global(.react-calendar__tile:enabled:hover) {
+  background: transparent !important;
+}
+.calendarPanel :global(.react-calendar__tile:enabled:focus) {
+  background: #f7faff;
 }
 
 /* --- 숫자만 칠해지는 둥근 배지 --- */
 :root {
   --day-badge: 32px;
 }
-
+@media (max-width: 640px) {
+  :root {
+    --day-badge: 28px;
+  }
+}
 .calendarPanel :global(.react-calendar__tile abbr) {
   display: inline-flex;
   align-items: center;
@@ -68,28 +92,32 @@
   transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* 오늘 링 */
+/* 오늘: 하늘색 링만 */
+.calendarPanel :global(.react-calendar__tile--now) {
+  background: transparent;
+}
 .calendarPanel :global(.react-calendar__tile--now abbr) {
-  box-shadow: 0 0 0 2px #dee2e6 inset;
+  box-shadow: inset 0 0 0 2px #a8d5ff;
+  color: #111827;
 }
 
-/* 출국일(타일 배경 X, 배지에만 표시) */
+/* 출국일(배지 배경) */
 .leaveDay {
   background: transparent !important;
 }
 .leaveDay :global(abbr) {
-  background: #ffecf2;
-  color: #c2255c;
+  background: #ffe4d9; /* peach 톤 */
+  color: #ee7d61;
   font-weight: 700;
-  box-shadow: 0 0 0 2px #ffc9de inset;
+  box-shadow: inset 0 0 0 2px #ffd1c2;
 }
 
-/* 선택된 날짜: 숫자 배지만 색 채우기 (가장 우선) */
+/* 선택된 날짜: 배지 채움 */
 .calendarPanel :global(.react-calendar__tile--active) {
   background: transparent !important;
 }
 .calendarPanel :global(.react-calendar__tile--active abbr) {
-  background: #1971c2 !important;
+  background: #4dabf7 !important; /* 브랜드 스카이 딥 */
   color: #fff !important;
   box-shadow: none !important;
 }
@@ -108,8 +136,8 @@
   right: 6px;
   font-size: 11px;
   padding: 2px 6px;
-  background: #ffdde7;
-  color: #c2255c;
+  background: #ffe4d9;
+  color: #ee7d61;
   border-radius: 999px;
   font-weight: 700;
 }
@@ -123,14 +151,23 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #339af0;
+  background: #4dabf7;
+}
+
+/* 비활성 날짜 톤 다운 */
+.calendarPanel :global(.react-calendar__tile:disabled) {
+  background: transparent;
+  color: #cbd5e1;
 }
 
 /* ===== 체크리스트 카드 ===== */
+
 .dailyHeader {
+  font-family: "SBAggroB";
   margin: 0 0 12px 0;
   font-size: 16px;
   font-weight: 700;
+  color: #111827;
 }
 
 .checklist {
@@ -140,6 +177,7 @@
 }
 
 .checklistItem {
+  font-family: 'ONE-Mobile-POP';
   display: flex;
   align-items: center;
   gap: 10px;
@@ -150,27 +188,29 @@
   border-bottom: none;
 }
 
+/* 체크박스도 하늘색 포인트 */
+.checklistItem input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #4dabf7;
+}
+
 .itemText {
   font-size: 15px;
+  color: #1f2937;
 }
 
 .noItems {
-  color: #868e96;
+  font-family: 'ONE-Mobile-POP';
+  /* color: #868E96; */
   padding: 6px 0 2px 0;
   font-size: 14px;
 }
 
-/* ===== hover/focus 전부 끄기 (타일 + 네비게이션) ===== */
-.calendarPanel :global(.react-calendar__tile:enabled:hover),
-.calendarPanel :global(.react-calendar__tile:enabled:focus) {
-  background: transparent !important;
-  box-shadow: none !important;
+/* 모션 민감 사용자 배려 */
+@media (prefers-reduced-motion: reduce) {
+  .calendarPanel :global(.react-calendar__tile),
+  .calendarPanel :global(.react-calendar__navigation button) {
+    transition: none;
+  }
 }
-
-.calendarPanel :global(.react-calendar__navigation button:enabled:hover),
-.calendarPanel :global(.react-calendar__navigation button:enabled:focus) {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-
