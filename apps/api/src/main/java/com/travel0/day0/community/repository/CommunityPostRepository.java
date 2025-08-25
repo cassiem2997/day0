@@ -1,6 +1,6 @@
 package com.travel0.day0.community.repository;
 
-import com.travel0.day0.community.entity.CommunityPost;
+import com.travel0.day0.community.domain.CommunityPost;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;

@@ -7,6 +7,7 @@ import com.travel0.day0.users.domain.User;
 import com.travel0.day0.users.domain.University;
 import com.travel0.day0.users.repository.UserRepository;
 import com.travel0.day0.users.repository.UniversityRepository;
+import com.travel0.day0.common.enums.ChecklistVisibility;
 import com.travel0.day0.checklist.domain.UserChecklist;
 import com.travel0.day0.checklist.repository.UserChecklistRepository;
 import lombok.RequiredArgsConstructor;
