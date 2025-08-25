@@ -34,7 +34,7 @@ export default function LandingHero() {
 
       {/* CTA */}
       <div className={styles.ctaWrap}>
-        <a className={styles.cta} href="/signup">
+        <a className={styles.cta} href="/login">
           시작하기
         </a>
       </div>

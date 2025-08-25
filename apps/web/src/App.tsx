@@ -1,20 +1,18 @@
 // App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import type { ReactElement /* or ReactNode */ } from "react";
+import type { ReactElement } from "react";
 
-// 페이지 import
 import ChecklistPage from "./pages/Checklist/ChecklistPage";
 import ExchangeRatePage from "./pages/ExchangeRate/ExchangeRatePage";
 import LoginPage from "./pages/Login/LoginPage";
 import LandingPage from "./pages/Landing/LandingPage";
-
-// 간단 보호 라우트 (토큰 유무로 판별 예시)
-// children 타입을 ReactElement로!
+import SavingsPage from "./pages/Savings/SavingsPage";
+import CommunityPage from "./pages/Community/CommunityPage";
+import CommunityDetail from "./pages/Community/CommunityDetail";
+import CommunityWrite from "./pages/Community/CommunityWrite";
 function ProtectedRoute({ children }: { children: ReactElement }) {
-  const token = localStorage.getItem("accessToken"); // 프로젝트 규칙에 맞게 변경
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
+  const token = localStorage.getItem("accessToken");
+  if (!token) return <Navigate to="/login" replace />;
   return children;
 }
 
@@ -43,7 +41,43 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/savings"
+          element={
+            <ProtectedRoute>
+              <SavingsPage />
+            </ProtectedRoute>
+          }
+        />
 
+        {/* 커뮤니티 */}
+        <Route
+          path="/community"
+          element={
+            <ProtectedRoute>
+              <CommunityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/community/:postId"
+          element={
+            <ProtectedRoute>
+              <CommunityDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/community/write"
+          element={
+            <ProtectedRoute>
+              <CommunityWrite />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 와일드카드 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

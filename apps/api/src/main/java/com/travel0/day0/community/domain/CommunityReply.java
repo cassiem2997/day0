@@ -35,4 +35,11 @@ public class CommunityReply {
             columnDefinition = "TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3)")
     private Instant createdAt;
 
+    @Column(name = "is_adopted", nullable = false)
+    @Builder.Default
+    private Boolean isAdopted = false;
+
+    @Column(name = "adopted_at")
+    private Instant adoptedAt;
+
 }

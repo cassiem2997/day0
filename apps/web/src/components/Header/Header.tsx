@@ -1,5 +1,7 @@
-import { NavLink } from "react-router-dom";
+// src/components/Header/Header.tsx
+import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import Swal from "sweetalert2";
 import styles from "./Header.module.css";
 
 type User = { name: string; avatarUrl?: string };
@@ -15,19 +17,18 @@ const NAV = [
 // 더미 유저 (API 연동 전)
 const DUMMY_USER: User = {
   name: "홍길동",
-  // avatarUrl: "https://i.pravatar.cc/120?img=5", // 이미지 테스트 시 주석 해제
+  // avatarUrl: "https://i.pravatar.cc/120?img=5",
 };
 
 function getInitial(name?: string) {
-  if (!name) {
-    return "?";
-  }
+  if (!name) return "?";
   return name.trim().slice(0, 1);
 }
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const navigate = useNavigate();
 
   useEffect(function () {
     function handleClickOutside(e: MouseEvent) {
@@ -41,9 +42,19 @@ export default function Header() {
     };
   }, []);
 
-  function handleLogout() {
-    alert("로그아웃(더미): 실제 연동 시 토큰 제거 + 리다이렉트 처리하세요.");
+  async function handleLogout() {
+    // 보호 라우트 차단용 토큰 제거
+    localStorage.removeItem("accessToken");
     setOpen(false);
+
+    // 알림 후 로그인 페이지로 이동
+    await Swal.fire({
+      icon: "success",
+      title: "로그아웃 되었습니다.",
+      confirmButtonText: "확인",
+      confirmButtonColor: "#a8d5ff",
+    });
+    navigate("/login", { replace: true });
   }
 
   return (
