@@ -1,8 +1,10 @@
 package com.travel0.day0.savings.controller;
 
+import com.travel0.day0.auth.service.PrincipalDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.travel0.day0.savings.domain.SavingsPlan;
@@ -41,12 +43,11 @@ public class SavingsPlanController {
     @Operation(summary = "적금 플랜 목록 조회", description = "활성화되어 있는 내 적금 플랜")
     public List<SavingsPlan> my(@RequestParam(name="me", required=false) Boolean me,
                                 @RequestParam(name="active", required=false) Boolean active,
-                                @RequestHeader(name="X-User-Id") Long userId) {
-        // TO DO: AuthenticationPrincipal에서 userId 추출
+                                @AuthenticationPrincipal PrincipalDetails user) {
         if (Boolean.TRUE.equals(me)) {
-            return planService.listMy(userId, active);
+            return planService.listMy(user.getUserId(), active);
         }
-        return planService.listMy(userId, active);
+        return planService.listMy(user.getUserId(), active);
     }
 
     @PatchMapping("/{planId}")
