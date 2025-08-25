@@ -7,7 +7,8 @@ import ChecklistPage from "./pages/Checklist/ChecklistPage";
 import ExchangeRatePage from "./pages/ExchangeRate/ExchangeRatePage";
 import LoginPage from "./pages/Login/LoginPage";
 import LandingPage from "./pages/Landing/LandingPage";
-import CommunityPage from "./pages/Community/CommunityPage";
+import SavingsPage from "./pages/Savings/SavingsPage";
+
 
 // 간단 보호 라우트 (토큰 유무로 판별 예시)
 // children 타입을 ReactElement로!
@@ -41,6 +42,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <ExchangeRatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/savings"
+          element={
+            <ProtectedRoute>
+              <SavingsPage />
             </ProtectedRoute>
           }
         />
