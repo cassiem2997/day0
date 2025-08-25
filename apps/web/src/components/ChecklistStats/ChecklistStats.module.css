@@ -1,0 +1,130 @@
+.wrap {
+  /* 프레임/바 높이 */
+  --frame-border: 3px;
+  --frame-radius: 14px;
+  --bar-height: 22px;
+
+  --cloud-tr-top: 22%;
+  --cloud-tr-right: 0%;
+  --cloud-tr-w: 220px;
+
+  --cloud-br-bottom: 10px;
+  --cloud-br-right: 18px;
+  --cloud-br-w: 120px;
+
+  --cloud-bl-bottom: 16px;
+  --cloud-bl-left: 14%;
+  --cloud-bl-w: 150px;
+
+  position: relative;
+  border: var(--frame-border) solid #1f1720;
+  border-radius: var(--frame-radius);
+  background: linear-gradient(
+      0deg,
+      rgba(110, 140, 220, 0.16),
+      rgba(110, 140, 220, 0.16)
+    ),
+    #cfd8ff;
+  padding: 24px;
+  overflow: hidden;
+}
+
+/* 구름 공통 */
+.cloud {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.98;
+}
+.tr {
+  top: var(--cloud-tr-top);
+  right: var(--cloud-tr-right);
+  width: var(--cloud-tr-w);
+}
+.br {
+  bottom: var(--cloud-br-bottom);
+  right: var(--cloud-br-right);
+  width: var(--cloud-br-w);
+}
+.bl {
+  bottom: var(--cloud-bl-bottom);
+  left: var(--cloud-bl-left);
+  width: var(--cloud-bl-w);
+}
+
+.topRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+@media (min-width: 720px) {
+  .topRow {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  padding: 14px 20px;
+  border-radius: 9999px;
+  border: 4px solid #23171f;
+  background: linear-gradient(180deg, #6b6af6 0%, #4d44d9 100%);
+  color: #f5eef6;
+  font-weight: 900;
+  font-size: clamp(20px, 4.8vw, 32px);
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: 3px 3px 0 #23171f;
+}
+
+/* 진행바 */
+.progressRow {
+  margin-top: 18px;
+}
+
+.progressTrack {
+  position: relative;
+  width: 100%;
+  height: var(--bar-height);
+  border-radius: 9999px;
+  border: 4px solid #23171f;
+  background: #efeaf4;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+.progressFill {
+  height: 100%;
+  border-right: 4px solid #23171f;
+  background: linear-gradient(180deg, #6b6af6 0%, #4d44d9 100%);
+  transition: width 360ms ease;
+}
+
+.section {
+  margin-top: 12px;
+}
+.kicker {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+.sectionTitle {
+  margin: 0 0 12px;
+  font-size: 32px;
+  font-weight: 800;
+}
+.tipCardWrap {
+  margin-top: 8px;
+}
+
+.calendarSection {
+  margin-top: 28px;
+}
