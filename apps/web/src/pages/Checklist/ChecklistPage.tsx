@@ -133,7 +133,6 @@ export default function ChecklistPage() {
 
           {/* Today’s Tip */}
           <section className={styles.section} aria-labelledby="tip-title">
-            <p className={styles.kicker}>오늘의 팁</p>
             <h2 id="tip-title" className={styles.sectionTitle}>
               Today’s Tip
             </h2>
