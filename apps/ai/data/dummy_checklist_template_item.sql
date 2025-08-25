@@ -29,7 +29,7 @@ INSERT INTO checklist_template_item (template_id, title, description, offset_day
 
 -- D+7 ~ D+30: 현지 도착 후 (중요도 중간)
 (1, 'SSN 신청', '소셜시큐리티넘버 신청', 14, 'DOCUMENT', 40000.00),
-(1, '미국 은행계좌 개설', 'Bank of America, Chase 등', 7, 'EXCHANGE', 50000.00),
+(1, '미국 은행계좌 개설', 'Bank of America, Chase 등', 7, 'EXCHANGE', 50000.00);
 
 -- =========================================================
 -- 일본 교환학생 템플릿 (template_id = 2)
@@ -55,7 +55,7 @@ INSERT INTO checklist_template_item (template_id, title, description, offset_day
 -- D+7 ~ D+30: 현지 도착 후 (중요도 중간)
 (2, '재류카드 신청', '입국 후 14일 내 거주지 신고', 7, 'DOCUMENT', 35000.00),
 (2, '국민건강보험 가입', '외국인등록 후 가입', 14, 'INSURANCE', 30000.00),
-(2, '일본 은행계좌 개설', '미즈호, 미쓰이스미토모 등', 21, 'EXCHANGE', 40000.00),
+(2, '일본 은행계좌 개설', '미즈호, 미쓰이스미토모 등', 21, 'EXCHANGE', 40000.00);
 
 -- =========================================================
 -- 독일 교환학생 템플릿 (template_id = 3)
@@ -84,7 +84,7 @@ INSERT INTO checklist_template_item (template_id, title, description, offset_day
 -- D+3 ~ D+30: 현지 도착 후 (중요도 중간)
 (3, 'Anmeldung (거주지 등록)', '거주지 등록 신고', 3, 'DOCUMENT', 40000.00),
 (3, '개인배상책임보험', 'Haftpflichtversicherung', 7, 'INSURANCE', 30000.00),
-(3, '독일 은행계좌 개설', 'Deutsche Bank, Sparkasse 등', 14, 'EXCHANGE', 45000.00),
+(3, '독일 은행계좌 개설', 'Deutsche Bank, Sparkasse 등', 14, 'EXCHANGE', 45000.00);
 
 -- =========================================================
 -- 공통 템플릿 (template_id = 4) - 모든 교환학생 기본

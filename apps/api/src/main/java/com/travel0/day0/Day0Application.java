@@ -2,6 +2,9 @@ package com.travel0.day0;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration; //
+
+
 
 @SpringBootApplication
 public class Day0Application {
