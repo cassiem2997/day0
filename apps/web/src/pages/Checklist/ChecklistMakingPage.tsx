@@ -1,3 +1,4 @@
+// src/pages/Checklist/ChecklistMakingPage.tsx
 import { useState, type FormEvent, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar/Sidebar";
@@ -6,8 +7,18 @@ import styles from "./ChecklistPage.module.css";
 import formStyles from "./ChecklistMaking.module.css";
 import bg from "../../assets/checklistMaking.svg";
 import { createDeparture } from "../../api/departure";
+import { createUserChecklist } from "../../api/checklist";
 
 const COUNTRY_OPTIONS = ["미국", "영국", "호주", "캐나다", "일본"] as const;
+
+// 한글 → ISO2 코드 매핑 (DB의 CHAR(2)와 맞추기)
+const COUNTRY_CODE_MAP: Record<(typeof COUNTRY_OPTIONS)[number], string> = {
+  미국: "US",
+  영국: "GB",
+  호주: "AU",
+  캐나다: "CA",
+  일본: "JP",
+};
 
 const UNIVERSITY_BY_COUNTRY: Record<
   (typeof COUNTRY_OPTIONS)[number],
@@ -63,26 +74,49 @@ export default function ChecklistMakingPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     try {
-      const payload = {
-        userId: 1, // TODO: 로그인 사용자 ID 동적으로 가져오기
+      const userId = Number(localStorage.getItem("userId") ?? 1); // 임시: 로그인 연동 전
+
+      // 출국 컨텍스트 생성
+      const dep = await createDeparture({
+        userId,
         universityId: universityId ? (universityId as number) : null,
-        programTypeId: 1, // TODO: 프로그램 종류 선택 UI 후 값 연동
-        countryCode: country,
-        startDate: new Date(leaveDate).toISOString(),
+        programTypeId: 1, // 임시
+        countryCode:
+          COUNTRY_CODE_MAP[country as keyof typeof COUNTRY_CODE_MAP] ?? country,
+        // 날짜는 서버에서 파싱하도록 YYYY-MM-DD 그대로 전달
+        startDate: leaveDate,
         endDate: null,
-        status: "PLANNED" as const,
-      };
+        status: "PLANNED",
+      });
 
-      const data = await createDeparture(payload);
-      console.log("출국 컨텍스트 생성 성공:", data);
+      const departureId: number =
+        dep.departureId ?? dep.id ?? dep.data?.departureId;
+      if (!departureId) throw new Error("departureId를 확인할 수 없습니다.");
 
-      // TODO: 생성된 departure_id 기반 체크리스트 생성 API 호출 필요
-      navigate("/checklist");
-    } catch (err) {
+      // 체크리스트 생성
+      const checklist = await createUserChecklist({
+        userId,
+        departureId,
+        visibility: "PRIVATE",
+        title: undefined, // 필요하면 입력 필드 추가
+        templateId: null,
+      });
+
+      const userChecklistId: number =
+        checklist.userChecklistId ??
+        checklist.id ??
+        checklist.data?.userChecklistId;
+      if (!userChecklistId)
+        throw new Error("userChecklistId를 확인할 수 없습니다.");
+
+      // 결과 페이지로 이동
+      navigate(`/checklist/result/${userChecklistId}`, {
+        state: { justCreated: true },
+      });
+    } catch (err: any) {
       console.error(err);
-      alert("출국 컨텍스트 생성 중 오류가 발생했습니다.");
+      alert(err?.response?.data?.message ?? "생성 중 오류가 발생했습니다.");
     }
   };
 
@@ -112,7 +146,6 @@ export default function ChecklistMakingPage() {
               <img className={formStyles.bg} src={bg} alt="" />
 
               <form className={formStyles.card} onSubmit={handleSubmit}>
-                {/* 날짜 */}
                 <div className={formStyles.row}>
                   <label className={formStyles.label}>예상출국일</label>
                   <div className={formStyles.inputWrap}>
@@ -126,7 +159,6 @@ export default function ChecklistMakingPage() {
                   </div>
                 </div>
 
-                {/* 국가 */}
                 <div className={formStyles.row}>
                   <label className={formStyles.label}>국가</label>
                   <div className={formStyles.inputWrap}>
@@ -154,7 +186,6 @@ export default function ChecklistMakingPage() {
                   </div>
                 </div>
 
-                {/* 대학교 */}
                 <div className={formStyles.row}>
                   <label className={formStyles.label}>대학교</label>
                   <div className={formStyles.inputWrap}>

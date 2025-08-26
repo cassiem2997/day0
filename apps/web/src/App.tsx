@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 
 import ChecklistPage from "./pages/Checklist/ChecklistPage";
 import ChecklistMakingPage from "./pages/Checklist/ChecklistMakingPage";
-
+import ChecklistResultPage from "./pages/Checklist/ChecklistResultPage";
 import ExchangeRatePage from "./pages/ExchangeRate/ExchangeRatePage";
 import LoginPage from "./pages/Login/LoginPage";
 import LandingPage from "./pages/Landing/LandingPage";
@@ -45,6 +45,14 @@ export default function App() {
           }
         />
 
+        <Route
+          path="/checklist/result/:checklistId"
+          element={
+            <ProtectedRoute>
+              <ChecklistResultPage />
+            </ProtectedRoute>
+          }
+        />
         {/* 환율 */}
         <Route
           path="/exchange"
