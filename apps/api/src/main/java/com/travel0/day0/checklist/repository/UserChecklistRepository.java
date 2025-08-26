@@ -21,17 +21,42 @@ public interface UserChecklistRepository extends JpaRepository<UserChecklist, Lo
     // 단건 조회 (서비스에서 쓰는 시그니처)
     Optional<UserChecklist> findByUserChecklistIdAndUserUserId(Long userChecklistId, Long userId);
 
-    // 공유 리스트 조회 (앞에서 만들었던 JPQL)
+    /**
+     * 공유 체크리스트 목록 조회
+     */
     @Query("""
-        select ucl
-        from UserChecklist ucl
-        where ucl.visibility = :visibility
-          and (:countryCode is null or ucl.departure.countryCode = :countryCode)
-          and (:universityId is null or ucl.departure.university.universityId = :universityId)
-        order by ucl.createdAt desc
+        SELECT uc FROM UserChecklist uc 
+        JOIN FETCH uc.user u 
+        JOIN FETCH uc.departure d 
+        LEFT JOIN FETCH d.university univ
+        LEFT JOIN FETCH d.programType pt
+        WHERE uc.visibility = :visibility
+          AND (:countryCode IS NULL OR d.countryCode = :countryCode)
+          AND (:universityId IS NULL OR univ.universityId = :universityId)
+        ORDER BY uc.createdAt DESC
         """)
-    Page<UserChecklist> findSharedChecklists(@Param("visibility") ChecklistVisibility visibility,
-                                             @Param("countryCode") String countryCode,
-                                             @Param("universityId") Long universityId,
-                                             Pageable pageable);
+    Page<UserChecklist> findSharedChecklists(
+            @Param("visibility") ChecklistVisibility visibility,
+            @Param("countryCode") String countryCode,
+            @Param("universityId") Long universityId,
+            Pageable pageable
+    );
+
+    /**
+     * 공개된 체크리스트 단건 조회
+     */
+    @Query("""
+        SELECT uc FROM UserChecklist uc 
+        JOIN FETCH uc.user u 
+        JOIN FETCH uc.departure d 
+        LEFT JOIN FETCH d.university univ
+        LEFT JOIN FETCH d.programType pt
+        LEFT JOIN FETCH uc.items items
+        WHERE uc.userChecklistId = :checklistId 
+          AND uc.visibility = :visibility
+        """)
+    Optional<UserChecklist> findSharedChecklistById(
+            @Param("checklistId") Long checklistId,
+            @Param("visibility") ChecklistVisibility visibility
+    );
 }

@@ -2,6 +2,8 @@ package com.travel0.day0.fx.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.cglib.core.Local;
+
 import java.math.*;
 import java.time.*;
 
@@ -29,7 +31,7 @@ public class ExchangeRateHistory {
     private BigDecimal rate;
 
     @Column(name = "rate_date", nullable = false)
-    private Instant rateDate;
+    private LocalDate rateDate;
 
     @Column(name = "created_at", nullable = false, updatable = false,
             columnDefinition = "TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3)")
