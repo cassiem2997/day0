@@ -1,6 +1,7 @@
 // src/api/user.ts
 import api from "./axiosInstance";
 
+// ---------------- 회원가입 ----------------
 export type Gender = "MALE" | "FEMALE";
 
 export interface SignUpPayload {
@@ -27,5 +28,21 @@ export async function signUp(user: SignUpPayload, profileImage?: File | Blob) {
   }
 
   const res = await api.post("/auth/register", formData);
+  return res.data;
+}
+
+// ---------------- 로그인 ----------------
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken?: string;
+}
+
+export async function login(payload: LoginPayload): Promise<LoginResponse> {
+  const res = await api.post<LoginResponse>("/auth/login", payload);
   return res.data;
 }
