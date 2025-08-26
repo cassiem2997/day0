@@ -59,4 +59,25 @@ public interface UserChecklistRepository extends JpaRepository<UserChecklist, Lo
             @Param("checklistId") Long checklistId,
             @Param("visibility") ChecklistVisibility visibility
     );
+
+    @Query("""
+    SELECT uc FROM UserChecklist uc 
+    JOIN FETCH uc.user u 
+    JOIN FETCH uc.departure d 
+    LEFT JOIN FETCH d.university univ
+    LEFT JOIN FETCH d.programType pt
+    LEFT JOIN ItemCollectStat ics ON ics.sourceChecklist.userChecklistId = uc.userChecklistId
+    WHERE uc.visibility = 'PUBLIC'
+      AND (:countryCode IS NULL OR d.countryCode = :countryCode)
+      AND (:universityId IS NULL OR univ.universityId = :universityId)
+    GROUP BY uc.userChecklistId
+    ORDER BY COALESCE(SUM(ics.collectCount), 0) DESC, uc.createdAt DESC
+    """)
+    Page<UserChecklist> findPublicChecklistsOrderByPopularity(
+            @Param("countryCode") String countryCode,
+            @Param("universityId") Long universityId,
+            Pageable pageable
+    );
+
+
 }
