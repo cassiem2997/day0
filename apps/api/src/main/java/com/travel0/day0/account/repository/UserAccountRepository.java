@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserAccountRepository extends JpaRepository<UserAccount, Long> {
-    List<UserAccount> findAllByUserIdAndAccountTypeAndActiveTrue(
+    List<UserAccount> findAllByUser_UserIdAndAccountTypeAndActiveTrue(
             Long userId, UserAccount.AccountType accountType
     );
-    Optional<UserAccount> findByAccountIdAndUserId(Long accountId, Long userId);
+    Optional<UserAccount> findByAccountIdAndUser_UserId(Long accountId, Long userId);
 
 }

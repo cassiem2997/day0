@@ -11,6 +11,7 @@ import com.travel0.day0.finopenapi.config.FinOpenApiProperties;
 import com.travel0.day0.finopenapi.dto.DemandDepositDtos;
 import com.travel0.day0.finopenapi.dto.DemandDepositDtos.*;
 import com.travel0.day0.savings.port.DemandDepositExternalPort;
+import com.travel0.day0.users.repository.UserRepository;
 import com.travel0.day0.users.service.UserKeyService;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ public class UserAccountService {
     private final ProductRepository productRepository;
     private final UserAccountRepository userAccountRepository;
     private final TransactionRepository transactionRepository;
+    private final UserRepository userRepository;
 
     private String resolveUserKey(Long localUserId) {
         String apiKey = finOpenApiProperties.getApiKey();
@@ -60,8 +62,8 @@ public class UserAccountService {
 
     // 계좌 생성
     @Transactional
-    public CreateDemandDepositAccountRes createAccount(Long localUserId, String accountTypeUniqueNo) {
-        String userKey = resolveUserKey(localUserId);
+    public CreateDemandDepositAccountRes createAccount(PrincipalDetails localUser, String accountTypeUniqueNo) {
+        String userKey = resolveUserKey(localUser.getUserId());
 
         CreateDemandDepositAccountRes createRes =
                 externalPort.createAccount(accountTypeUniqueNo, userKey);
@@ -77,9 +79,11 @@ public class UserAccountService {
         DemandDepositDtos.AccountListRec d = externalPort.inquireAccount(accountNo, userKey);
         if (d == null) throw new IllegalStateException("계좌 상세 조회 응답에 REC가 없습니다.");
 
+        var userEntity = userRepository.getReferenceById(localUser.getUserId());
+
         // DB에 저장
         UserAccount ua = UserAccount.builder()
-                .userId(localUserId)
+                .user(userEntity)
                 .origin(UserAccount.Origin.INTERNAL)
                 .provider(null)
                 .bankCode(nvl(d.getBankCode(), bankCodeFromCreate))
@@ -104,7 +108,7 @@ public class UserAccountService {
     @Transactional(readOnly = true)
     public List<AccountListRec> listAccounts(PrincipalDetails user) {
         Long localUserId = user.getUserId();
-        var rows = userAccountRepository.findAllByUserIdAndAccountTypeAndActiveTrue(
+        var rows = userAccountRepository.findAllByUser_UserIdAndAccountTypeAndActiveTrue(
                 localUserId, UserAccount.AccountType.DEPOSIT
         );
         return rows.stream()
@@ -134,14 +138,14 @@ public class UserAccountService {
     @Transactional(readOnly = true)
     public AccountListRec getAccount(PrincipalDetails user, Long accountId) {
         var ua = userAccountRepository
-                .findByAccountIdAndUserId(accountId, user.getUserId())
+                .findByAccountIdAndUser_UserId(accountId, user.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("계좌가 없거나 접근 권한이 없습니다."));
         return toAccountListRec(ua, user);
     }
 
     @Transactional(readOnly = true)
     public AccountBalanceRec getBalance(Long localUserId, Long accountId) {
-        var account = userAccountRepository.findByAccountIdAndUserId(accountId, localUserId)
+        var account = userAccountRepository.findByAccountIdAndUser_UserId(accountId, localUserId)
                 .orElseThrow(() -> new IllegalArgumentException("계좌가 없거나 접근 권한이 없습니다."));
 
         return AccountBalanceRec.builder()
@@ -164,7 +168,7 @@ public class UserAccountService {
             String transactionType, // A|1|2
             String orderByType      // ASC|DESC
     ) {
-        var ua = userAccountRepository.findByAccountIdAndUserId(accountId, userId)
+        var ua = userAccountRepository.findByAccountIdAndUser_UserId(accountId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("계좌가 없거나 접근 권한이 없습니다."));
         // 정렬
         Sort sort = "ASC".equalsIgnoreCase(orderByType)
@@ -175,9 +179,9 @@ public class UserAccountService {
         List<AccountTransaction> list = (
                 "A".equalsIgnoreCase(transactionType)
                         ? transactionRepository.findByAccountIdAndTransactionDateBetween(
-                        ua.getUserId(), startDate, endDate, sort)
+                        ua.getAccountId(), startDate, endDate, sort)
                         : transactionRepository.findByAccountIdAndTransactionTypeAndTransactionDateBetween(
-                        ua.getUserId(), transactionType, startDate, endDate, sort)
+                        ua.getAccountId(), transactionType, startDate, endDate, sort)
         );
 
         // 매핑

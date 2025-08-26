@@ -1,5 +1,6 @@
 package com.travel0.day0.account.domain;
 
+import com.travel0.day0.users.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -22,8 +23,9 @@ public class UserAccount {
     @Column(name="account_id")
     private Long accountId;
 
-    @Column(name="user_id", nullable=false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(name="origin", nullable=false)

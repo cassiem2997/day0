@@ -1,5 +1,6 @@
 package com.travel0.day0.savings.domain;
 
+import com.travel0.day0.account.domain.UserAccount;
 import com.travel0.day0.common.enums.SavingsFrequency;
 import com.travel0.day0.users.domain.User;
 import com.travel0.day0.departures.domain.DepartureInfo;
@@ -29,6 +30,15 @@ public class SavingsPlan {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "departure_id", nullable = true)
     private DepartureInfo departure;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "withdraw_account_id", nullable = false)
+    private UserAccount withdrawAccount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "saving_account_id")
+    private UserAccount savingAccount;
+
 
     @Column(name = "goal_amount", nullable = false, precision = 18, scale = 2)
     private BigDecimal goalAmount;

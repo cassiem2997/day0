@@ -19,21 +19,21 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/savings/plans")
+@RequestMapping("/savings")
 @RequiredArgsConstructor
 @Tag(name = "적금 플랜", description = "적금 플랜 API")
 public class SavingsPlanController {
 
     private final SavingsPlanService planService;
 
-    @PostMapping
+    @PostMapping("/plans")
     @Operation(summary = "적금 플랜 생성")
     public ResponseEntity<Void> create(@Valid @RequestBody CreatePlanRequest req) {
         Long id = planService.create(req);
         return ResponseEntity.created(URI.create("/savings/plans/" + id)).build();
     }
 
-    @GetMapping("/{planId}")
+    @GetMapping("/plans/{planId}")
     @Operation(summary = "적금 플랜 상세 조회")
     public SavingsPlan get(@PathVariable Long planId) {
         return planService.get(planId);
@@ -50,13 +50,13 @@ public class SavingsPlanController {
         return planService.listMy(user.getUserId(), active);
     }
 
-    @PatchMapping("/{planId}")
+    @PatchMapping("/plans/{planId}")
     @Operation(summary = "적금 플랜 수정")
     public void patch(@PathVariable Long planId, @RequestBody UpdatePlanRequest req) {
         planService.update(planId, req);
     }
 
-    @DeleteMapping("/{planId}")
+    @DeleteMapping("/plans/{planId}")
     @Operation(summary = "적금 플랜 해지 (soft delete)")
     public void deactivate(@PathVariable Long planId) {
         planService.deactivate(planId);

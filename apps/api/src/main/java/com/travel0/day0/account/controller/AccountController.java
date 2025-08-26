@@ -37,7 +37,7 @@ public class AccountController {
             @AuthenticationPrincipal PrincipalDetails user,
             @RequestBody CreateAccountReq req
     ) {
-        var res = userAccountService.createAccount(user.getUserId(), req.accountTypeUniqueNo());
+        var res = userAccountService.createAccount(user, req.accountTypeUniqueNo());
         return ResponseEntity.ok(res);
     }
 

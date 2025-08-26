@@ -1,7 +1,6 @@
 package com.travel0.day0.bank.service;
 
 import com.travel0.day0.account.domain.Product;
-import com.travel0.day0.account.dto.CreateAccountReq;
 import com.travel0.day0.account.repository.ProductRepository;
 import com.travel0.day0.bank.port.BankExternalPort;
 import com.travel0.day0.finopenapi.dto.DemandDepositDtos;

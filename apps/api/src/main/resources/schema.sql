@@ -73,6 +73,7 @@ CREATE TABLE departure_info (
 -- 0-2) 사용자 입출금
 -- =========================================================
 
+
 -- [사용자 계좌]---------------------------------------------------------------------------------------------------------
 
 CREATE TABLE user_account (
@@ -176,6 +177,7 @@ CREATE TABLE products (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
+
 -- =========================================================
 -- 1) 체크리스트
 -- =========================================================
@@ -244,6 +246,7 @@ CREATE TABLE user_checklist_item (
   tag               ENUM('NONE','SAVING','EXCHANGE','INSURANCE','DOCUMENT','ETC') NOT NULL DEFAULT 'NONE',
   linked_amount     DECIMAL(18,2) NULL,
   created_at        TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+	is_fixed          BOOLEAN NOT NULL,
 
   CONSTRAINT fk_uci_ucl   FOREIGN KEY (user_checklist_id) REFERENCES user_checklist(user_checklist_id) ON DELETE CASCADE,
   CONSTRAINT fk_uci_titem FOREIGN KEY (template_item_id)  REFERENCES checklist_template_item(template_item_id) ON DELETE SET NULL,
@@ -337,6 +340,8 @@ CREATE TABLE item_popularity_stats (
 -- =========================================================
 -- 2) Savings (적금)
 -- =========================================================
+
+-- 목표 적금 플랜
 
 CREATE TABLE savings_plan (
   plan_id            BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -445,6 +450,7 @@ CREATE TABLE saving_txn (
   INDEX idx_txn_type      (txn_type, requested_at),
   INDEX idx_txn_schedule  (schedule_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- =========================================================
 -- 3) FX / Exchange (환율/환전)
