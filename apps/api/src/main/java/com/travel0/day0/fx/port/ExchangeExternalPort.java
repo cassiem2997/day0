@@ -8,7 +8,7 @@ public interface ExchangeExternalPort {
     EstimateInfo estimateExchange(String currency, String exchangeCurrency, Double amount);
 
     // 환전 신청
-    ExchangeResult createExchange(String userKey, String accountNo, String exchangeCurrency, Double exchangeAmount);
+    ExchangeResult createExchange(String userKey, String accountNo, String exchangeCurrency, String exchangeAmount);
 
     // 환전 내역 조회
     List<ExchangeHistory> getExchangeHistory(String userKey, String accountNo, String startDate, String endDate);

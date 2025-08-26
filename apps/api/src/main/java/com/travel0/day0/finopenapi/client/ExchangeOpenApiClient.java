@@ -37,7 +37,6 @@ public class ExchangeOpenApiClient {
 
         log.info("[FIN-REQ] POST {} | 예상환전조회 {}->{}:{}", path, currency, exchangeCurrency, amount);
         logJson("FIN-REQ-BODY", body);
-
         return finWebClient.post()
                 .uri(path)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -48,9 +47,9 @@ public class ExchangeOpenApiClient {
     }
 
     // 환전 신청
-    public ExchangeExternalDtos.CreateExchangeRes createExchange(String userKey, String accountNo, String exchangeCurrency, Double exchangeAmount) {
+    public ExchangeExternalDtos.CreateExchangeRes createExchange(String userKey, String accountNo, String exchangeCurrency, String exchangeAmount) {
         final String code = props.getCreateExchange();
-        final String path = "/ssafy/api/v1/edu/exchange/" + code;
+        final String path = "/ssafy/api/v1/edu/" + code;
 
         var header = headers.build(code, code, userKey);
         var body = ExchangeExternalDtos.CreateExchangeReq.builder()
@@ -62,6 +61,9 @@ public class ExchangeOpenApiClient {
 
         log.info("[FIN-REQ] POST {} | 환전신청 {}->{}:{}", path, accountNo, exchangeCurrency, exchangeAmount);
         logJson("FIN-REQ-BODY", body);
+        log.info("실제 API 요청 - URL: {}", path);
+        log.info("실제 API 요청 - userKey 존재: {}", userKey != null && !userKey.isEmpty());
+        log.info("실제 API 요청 - Header userKey: {}", header.getUserKey() != null ? "있음" : "없음");
 
         return finWebClient.post()
                 .uri(path)

@@ -1,9 +1,11 @@
 package com.travel0.day0.fx.service;
 
 import com.travel0.day0.fx.port.ExchangeExternalPort;
+import com.travel0.day0.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import com.travel0.day0.users.domain.User;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 public class ExchangeService {
 
     private final ExchangeExternalPort exchangeExternalPort;
+    private final UserRepository userRepository;
 
     // 환전 예상 금액 조회
     public EstimateExchangeInfo estimateExchange(String fromCurrency, String toCurrency, Double amount) {
@@ -39,11 +42,12 @@ public class ExchangeService {
     }
 
     // 환전 신청
-    public ExchangeTransactionInfo createExchange(String userKey, String accountNo, String exchangeCurrency, Double exchangeAmount) {
+    public ExchangeTransactionInfo createExchange(Long userId, String accountNo, String exchangeCurrency, String exchangeAmount) {
         log.info("환전 신청: {} {} -> {}", exchangeAmount, accountNo, exchangeCurrency);
-
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         try {
-            var result = exchangeExternalPort.createExchange(userKey, accountNo, exchangeCurrency, exchangeAmount);
+            var result = exchangeExternalPort.createExchange(user.getUserKey(), accountNo, exchangeCurrency, exchangeAmount);
 
             return new ExchangeTransactionInfo(
                     result.exchangeCurrency(),
@@ -62,14 +66,16 @@ public class ExchangeService {
     }
 
     // 환전 내역 조회
-    public List<ExchangeHistoryInfo> getExchangeHistory(String userKey, String accountNo, LocalDate startDate, LocalDate endDate) {
+    public List<ExchangeHistoryInfo> getExchangeHistory(Long userId, String accountNo, LocalDate startDate, LocalDate endDate) {
         log.info("환전 내역 조회: {} {} ~ {}", accountNo, startDate, endDate);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         try {
             String startDateStr = startDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             String endDateStr = endDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-            var historyList = exchangeExternalPort.getExchangeHistory(userKey, accountNo, startDateStr, endDateStr);
+            var historyList = exchangeExternalPort.getExchangeHistory(user.getUserKey(), accountNo, startDateStr, endDateStr);
 
             return historyList.stream()
                     .map(h -> new ExchangeHistoryInfo(
