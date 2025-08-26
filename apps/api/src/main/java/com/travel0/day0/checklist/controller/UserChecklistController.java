@@ -1,6 +1,7 @@
 package com.travel0.day0.checklist.controller;
 
 import com.travel0.day0.checklist.dto.*;
+import com.travel0.day0.common.dto.PagedResponse;
 import com.travel0.day0.checklist.service.UserChecklistService;
 import com.travel0.day0.common.enums.ChecklistItemStatus;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.Instant;
 import java.util.List;
@@ -132,4 +136,69 @@ public class UserChecklistController {
        userChecklistService.deleteUserChecklistItem(itemId, userId);
        return ResponseEntity.noContent().build();
    }
+
+    /**
+     * 공개된 체크리스트 목록 조회 (인기순/최신순)
+     * GET /api/checklist/user-checklists/public?sort=popular&country=US&page=0&size=10
+     */
+    @GetMapping("/public")
+    @Operation(summary = "공개 체크리스트 목록", description = "다른 사용자들의 공개 체크리스트 조회")
+    public ResponseEntity<PagedResponse<PublicChecklistResponse>> getPublicChecklists(
+            @RequestParam(defaultValue = "latest") String sort, // popular, latest
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) Long universityId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) Long userId) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        PagedResponse<PublicChecklistResponse> response = userChecklistService.getPublicChecklists(
+                sort, country, universityId, pageable, userId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 공개 체크리스트 상세 조회 (항목 포함)
+     * GET /api/checklist/user-checklists/public/{checklistId}?userId=1
+     */
+    @GetMapping("/public/{checklistId}")
+    @Operation(summary = "공개 체크리스트 상세", description = "공개 체크리스트의 모든 항목 조회")
+    public ResponseEntity<PublicChecklistDetailResponse> getPublicChecklistDetail(
+            @PathVariable Long checklistId,
+            @RequestParam(required = false) Long userId) {
+
+        PublicChecklistDetailResponse response = userChecklistService.getPublicChecklistDetail(checklistId, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 항목 가져오기 (다른 사용자의 공개 체크리스트 항목을 내 체크리스트에 추가)
+     * POST /api/checklist/user-checklists/{myChecklistId}/collect-item?userId=1&sourceItemId=5
+     */
+    @PostMapping("/{myChecklistId}/collect-item")
+    @Operation(summary = "항목 가져오기", description = "다른 사용자의 체크리스트 항목을 내 체크리스트에 추가")
+    public ResponseEntity<UserChecklistItemResponse> collectItem(
+            @PathVariable Long myChecklistId,
+            @RequestParam Long userId,
+            @RequestParam Long sourceItemId) {
+
+        UserChecklistItemResponse response = userChecklistService.collectItemToMyChecklist(
+                myChecklistId, userId, sourceItemId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * 인기 체크리스트 TOP 10
+     * GET /api/checklist/user-checklists/popular-top?country=US
+     */
+    @GetMapping("/popular-top")
+    @Operation(summary = "인기 체크리스트 TOP", description = "가져오기 횟수가 많은 인기 체크리스트")
+    public ResponseEntity<List<PublicChecklistResponse>> getPopularChecklists(
+            @RequestParam(required = false) String country,
+            @RequestParam(defaultValue = "10") int limit) {
+
+        List<PublicChecklistResponse> response = userChecklistService.getPopularChecklists(country, limit);
+        return ResponseEntity.ok(response);
+    }
 }
