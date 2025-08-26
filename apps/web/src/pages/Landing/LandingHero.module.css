@@ -21,22 +21,6 @@
   }
 }
 
-/* 구름 */
-.cloud {
-  position: absolute;
-  top: 12vh;
-  width: 22vw;
-  opacity: 0.95;
-  z-index: 2;
-  animation: cloudFloat 12s ease-in-out infinite;
-}
-.cloudA {
-  left: 8vw;
-}
-.cloudB {
-  right: 10vw;
-  animation-delay: 3s;
-}
 
 @keyframes cloudFloat {
   0%,
