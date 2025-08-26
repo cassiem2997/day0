@@ -7,7 +7,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.RestClientException;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -27,8 +27,8 @@ public class AiRecommendationClient {
     private final RestTemplate restTemplate;
 
     public AiRecommendationClient() {
-        // 타임아웃 실제 적용
-        var factory = new HttpComponentsClientHttpRequestFactory();
+        // SimpleClientHttpRequestFactory 사용 (HttpComponents 의존성 불필요)
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(timeoutSeconds * 1000);
         factory.setReadTimeout(timeoutSeconds * 1000);
         this.restTemplate = new RestTemplate(factory);
@@ -51,7 +51,7 @@ public class AiRecommendationClient {
                     url, HttpMethod.POST, entity, MissingItemsResponse.class);
 
             if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
-                log.info("[AI] missing-items ✔ totalMissing={}", resp.getBody().getTotalMissing());
+                log.info("[AI] missing-items ✓ totalMissing={}", resp.getBody().getTotalMissing());
                 return resp.getBody();
             }
             log.warn("[AI] missing-items ◀ non-OK status={}", resp.getStatusCode());
@@ -82,7 +82,7 @@ public class AiRecommendationClient {
                     url, HttpMethod.POST, entity, PriorityReorderResponse.class);
 
             if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
-                log.info("[AI] priority-reorder ✔ totalReordered={}", resp.getBody().getTotalReordered());
+                log.info("[AI] priority-reorder ✓ totalReordered={}", resp.getBody().getTotalReordered());
                 return resp.getBody();
             }
             log.warn("[AI] priority-reorder ◀ non-OK status={}", resp.getStatusCode());
@@ -98,7 +98,6 @@ public class AiRecommendationClient {
 
     public boolean isAiServiceHealthy() {
         try {
-            // ✅ main.py 기준으로 수정
             String url = aiServiceUrl + "/health";
             ResponseEntity<Map> resp = restTemplate.getForEntity(url, Map.class);
             boolean ok = resp.getStatusCode().is2xxSuccessful();
@@ -139,7 +138,7 @@ public class AiRecommendationClient {
                         .originalPriority(request.getCurrentItems().indexOf(item) + 1)
                         .aiPriority(request.getCurrentItems().indexOf(item) + 1)
                         .urgencyScore(0.5)
-                        .reorderReason("📝 기본 순서 유지")
+                        .reorderReason("🔧 기본 순서 유지")
                         .isFixed(Boolean.TRUE.equals(item.getIsFixed()))
                         .build())
                 .toList();
