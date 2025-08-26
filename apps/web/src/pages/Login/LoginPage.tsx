@@ -1,11 +1,14 @@
 // src/pages/Login/LoginPage.tsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import styles from "./LoginPage.module.css";
 import Character from "../../assets/character.svg";
 import Swal from "sweetalert2";
 
-type Gender = "" | "MALE" | "FEMALE";
+// API
+import { signUp, type Gender, type SignUpPayload } from "../../api/user";
+
+type LocalGender = "" | "MALE" | "FEMALE";
 
 export default function LoginPage() {
   // 라우팅 훅
@@ -15,29 +18,32 @@ export default function LoginPage() {
   const [rightPanel, setRightPanel] = useState(false);
 
   // 회원가입 폼 상태
-  const [signUp, setSignUp] = useState({
+  const [signUpForm, setSignUpForm] = useState({
     name: "",
     nickname: "",
-    gender: "" as Gender,
+    gender: "" as LocalGender,
     birth: "", // yyyy-mm-dd
     email: "",
     password: "",
     password2: "",
   });
 
+  // 중복 제출 방지
+  const [submitting, setSubmitting] = useState(false);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setSignUp((s) => ({ ...s, [name]: value }));
+    setSignUpForm((s) => ({ ...s, [name]: value }));
   };
 
-  // 로그인 제출
+  // 로그인 제출 (임시)
   const handleSignInSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // TODO: 로그인 API 연동 전 임시 처리
-    localStorage.setItem("accessToken", "demo-token"); // ★ 추가
+    localStorage.setItem("accessToken", "demo-token");
 
     await Swal.fire({
       title: "로그인 성공!",
@@ -48,20 +54,22 @@ export default function LoginPage() {
     });
 
     // 체크리스트로 이동 (뒤로가기 시 로그인으로 안돌아오게 replace)
-    navigate("/checklist", { replace: true }); // ★ 추가
+    navigate("/checklist", { replace: true });
   };
 
-  // 회원가입 제출
+  // 회원가입 API
   const handleSignUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (submitting) return;
+
     // 기본 검증
     if (
-      !signUp.name ||
-      !signUp.nickname ||
-      !signUp.email ||
-      !signUp.password ||
-      !signUp.password2
+      !signUpForm.name ||
+      !signUpForm.nickname ||
+      !signUpForm.email ||
+      !signUpForm.password ||
+      !signUpForm.password2
     ) {
       return Swal.fire({
         icon: "warning",
@@ -69,7 +77,7 @@ export default function LoginPage() {
         confirmButtonColor: "#a8d5ff",
       });
     }
-    if (signUp.password !== signUp.password2) {
+    if (signUpForm.password !== signUpForm.password2) {
       return Swal.fire({
         icon: "error",
         title: "비밀번호가 일치하지 않습니다.",
@@ -77,17 +85,49 @@ export default function LoginPage() {
       });
     }
 
-    await Swal.fire({
-      title: "회원가입 완료!",
-      html: "Day0과 함께 떠나영~",
-      icon: "success",
-      confirmButtonText: "확인",
-      confirmButtonColor: "#a8d5ff",
-      background: "#f9f9f9",
-    });
+    // payload
+    const payload: SignUpPayload = {
+      name: signUpForm.name.trim(),
+      nickname: signUpForm.nickname.trim(),
+      email: signUpForm.email.trim(),
+      password: signUpForm.password,
+      gender: (signUpForm.gender || "MALE") as Gender,
+      birth: signUpForm.birth,
+      homeUniversityId: 0, // 일단 0
+      destUniversityId: 0, // 일단 0
+    };
 
-    // 로그인 화면으로 슬라이드 복귀
-    setRightPanel(false);
+    try {
+      setSubmitting(true);
+
+      await signUp(payload);
+
+      await Swal.fire({
+        title: "회원가입 완료!",
+        html: "Day0과 함께 떠나영~",
+        icon: "success",
+        confirmButtonText: "확인",
+        confirmButtonColor: "#a8d5ff",
+        background: "#f9f9f9",
+      });
+
+      // 로그인 화면으로 슬라이드 복귀
+      setRightPanel(false);
+    } catch (err: any) {
+      // 에러 메시지
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "회원가입 중 오류가 발생했습니다.";
+      Swal.fire({
+        icon: "error",
+        title: "회원가입 실패",
+        text: message,
+        confirmButtonColor: "#a8d5ff",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -108,7 +148,7 @@ export default function LoginPage() {
               <input
                 className={styles.input}
                 name="name"
-                value={signUp.name}
+                value={signUpForm.name}
                 onChange={handleChange}
                 placeholder="이름"
               />
@@ -116,7 +156,7 @@ export default function LoginPage() {
               <input
                 className={styles.input}
                 name="nickname"
-                value={signUp.nickname}
+                value={signUpForm.nickname}
                 onChange={handleChange}
                 placeholder="닉네임"
               />
@@ -125,7 +165,7 @@ export default function LoginPage() {
                 <select
                   className={styles.input}
                   name="gender"
-                  value={signUp.gender}
+                  value={signUpForm.gender}
                   onChange={handleChange}
                 >
                   <option value="">성별(선택)</option>
@@ -137,7 +177,7 @@ export default function LoginPage() {
                   className={styles.input}
                   type="date"
                   name="birth"
-                  value={signUp.birth}
+                  value={signUpForm.birth}
                   onChange={handleChange}
                   placeholder="생년월일"
                 />
@@ -147,7 +187,7 @@ export default function LoginPage() {
                 className={styles.input}
                 type="email"
                 name="email"
-                value={signUp.email}
+                value={signUpForm.email}
                 onChange={handleChange}
                 placeholder="이메일"
               />
@@ -156,7 +196,7 @@ export default function LoginPage() {
                 className={styles.input}
                 type="password"
                 name="password"
-                value={signUp.password}
+                value={signUpForm.password}
                 onChange={handleChange}
                 placeholder="비밀번호"
               />
@@ -165,13 +205,18 @@ export default function LoginPage() {
                 className={styles.input}
                 type="password"
                 name="password2"
-                value={signUp.password2}
+                value={signUpForm.password2}
                 onChange={handleChange}
                 placeholder="비밀번호 확인"
               />
 
-              <button type="submit" className={styles.cta}>
-                가입하기
+              <button
+                type="submit"
+                className={styles.cta}
+                disabled={submitting}
+                aria-busy={submitting}
+              >
+                {submitting ? "가입 중..." : "가입하기"}
               </button>
             </div>
           </form>
