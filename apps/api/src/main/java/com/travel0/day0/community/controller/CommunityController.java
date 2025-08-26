@@ -392,72 +392,72 @@ public class CommunityController {
         }
     }
 
-    // =========================================================
-    // 체크리스트 공유 관련
-    // =========================================================
-
-    /**
-     * 공유된 체크리스트 목록 조회
-     * GET /api/community/shared-checklists?visibility=public&country=US&sort=popular
-     */
-    @GetMapping("/shared-checklists")
-    public ResponseEntity<ApiResponse<PagedResponse<SharedChecklistResponse>>> getSharedChecklists(
-            @RequestParam(defaultValue = "PUBLIC") String visibility,
-            @RequestParam(required = false) String country,
-            @RequestParam(required = false) Long universityId,
-            @RequestParam(defaultValue = "latest") String sort,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-
-        try {
-            log.info("공유 체크리스트 목록 조회: visibility={}, country={}, sort={}, page={}, size={}",
-                    visibility, country, sort, page, size);
-
-            Sort sortObj = createSort(sort);
-            Pageable pageable = PageRequest.of(page, size, sortObj);
-
-            PagedResponse<SharedChecklistResponse> response = communityService.getSharedChecklists(
-                    visibility, country, universityId, pageable);
-
-            return ResponseEntity.ok(ApiResponse.success(response));
-
-        } catch (Exception e) {
-            log.error("공유 체크리스트 목록 조회 실패", e);
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("공유 체크리스트 목록 조회에 실패했습니다.", "SHARED_CHECKLIST_LIST_ERROR"));
-        }
-    }
-
-    /**
-     * 공유 체크리스트 상세 조회
-     * GET /api/community/shared-checklists/{checklistId}?visibility=public
-     */
-    @GetMapping("/shared-checklists/{checklistId}")
-    public ResponseEntity<ApiResponse<SharedChecklistResponse>> getSharedChecklist(
-            @PathVariable Long checklistId,
-            @RequestParam(defaultValue = "PUBLIC") String visibility,
-            @RequestParam(required = false) Long userId) {
-
-        try {
-            log.info("공유 체크리스트 상세 조회: checklistId={}, visibility={}, userId={}",
-                    checklistId, visibility, userId);
-
-            SharedChecklistResponse response = communityService.getSharedChecklist(
-                    checklistId, visibility, userId);
-
-            return ResponseEntity.ok(ApiResponse.success(response));
-
-        } catch (IllegalArgumentException e) {
-            log.warn("공유 체크리스트 조회 실패: {}", e.getMessage());
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(e.getMessage(), "SHARED_CHECKLIST_NOT_FOUND"));
-        } catch (Exception e) {
-            log.error("공유 체크리스트 상세 조회 실패: checklistId={}", checklistId, e);
-            return ResponseEntity.internalServerError()
-                    .body(ApiResponse.error("공유 체크리스트 조회에 실패했습니다.", "SHARED_CHECKLIST_FETCH_ERROR"));
-        }
-    }
-
+//    // =========================================================
+//    // 체크리스트 공유 관련
+//    // =========================================================
+//
+//    /**
+//     * 공유된 체크리스트 목록 조회
+//     * GET /api/community/shared-checklists?visibility=public&country=US&sort=popular
+//     */
+//    @GetMapping("/shared-checklists")
+//    public ResponseEntity<ApiResponse<PagedResponse<SharedChecklistResponse>>> getSharedChecklists(
+//            @RequestParam(defaultValue = "PUBLIC") String visibility,
+//            @RequestParam(required = false) String country,
+//            @RequestParam(required = false) Long universityId,
+//            @RequestParam(defaultValue = "latest") String sort,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "20") int size) {
+//
+//        try {
+//            log.info("공유 체크리스트 목록 조회: visibility={}, country={}, sort={}, page={}, size={}",
+//                    visibility, country, sort, page, size);
+//
+//            Sort sortObj = createSort(sort);
+//            Pageable pageable = PageRequest.of(page, size, sortObj);
+//
+//            PagedResponse<SharedChecklistResponse> response = communityService.getSharedChecklists(
+//                    visibility, country, universityId, pageable);
+//
+//            return ResponseEntity.ok(ApiResponse.success(response));
+//
+//        } catch (Exception e) {
+//            log.error("공유 체크리스트 목록 조회 실패", e);
+//            return ResponseEntity.internalServerError()
+//                    .body(ApiResponse.error("공유 체크리스트 목록 조회에 실패했습니다.", "SHARED_CHECKLIST_LIST_ERROR"));
+//        }
+//    }
+//
+//    /**
+//     * 공유 체크리스트 상세 조회
+//     * GET /api/community/shared-checklists/{checklistId}?visibility=public
+//     */
+//    @GetMapping("/shared-checklists/{checklistId}")
+//    public ResponseEntity<ApiResponse<SharedChecklistResponse>> getSharedChecklist(
+//            @PathVariable Long checklistId,
+//            @RequestParam(defaultValue = "PUBLIC") String visibility,
+//            @RequestParam(required = false) Long userId) {
+//
+//        try {
+//            log.info("공유 체크리스트 상세 조회: checklistId={}, visibility={}, userId={}",
+//                    checklistId, visibility, userId);
+//
+//            SharedChecklistResponse response = communityService.getSharedChecklist(
+//                    checklistId, visibility, userId);
+//
+//            return ResponseEntity.ok(ApiResponse.success(response));
+//
+//        } catch (IllegalArgumentException e) {
+//            log.warn("공유 체크리스트 조회 실패: {}", e.getMessage());
+//            return ResponseEntity.badRequest()
+//                    .body(ApiResponse.error(e.getMessage(), "SHARED_CHECKLIST_NOT_FOUND"));
+//        } catch (Exception e) {
+//            log.error("공유 체크리스트 상세 조회 실패: checklistId={}", checklistId, e);
+//            return ResponseEntity.internalServerError()
+//                    .body(ApiResponse.error("공유 체크리스트 조회에 실패했습니다.", "SHARED_CHECKLIST_FETCH_ERROR"));
+//        }
+//    }
+//
     // =========================================================
     // Helper Methods
     // =========================================================

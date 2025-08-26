@@ -38,7 +38,7 @@ public class CommunityService {
     private final MileageService mileageService;
 
     // =========================================================
-    // 그룹 관련 - 중복 제거, 하나의 메서드만 유지
+    // 그룹 관련
     // =========================================================
 
     public List<CommunityGroupResponse> getGroups(String countryCode, Long universityId) {
@@ -367,39 +367,137 @@ public class CommunityService {
         log.info("좋아요 취소 완료: postId={}, userId={}", postId, userId);
     }
 
-    // =========================================================
-    // 체크리스트 공유 관련
-    // =========================================================
+//    // =========================================================
+//    // 체크리스트 공유 관련
+//    // =========================================================
+//
+//    public PagedResponse<SharedChecklistResponse> getSharedChecklists(String visibility,
+//                                                                      String countryCode,
+//                                                                      Long universityId,
+//                                                                      Pageable pageable) {
+//        log.info("공유 체크리스트 목록 조회: visibility={}, country={}, university={}",
+//                visibility, countryCode, universityId);
+//
+//        try {
+//            // visibility 검증 및 변환
+//            ChecklistVisibility visibilityEnum = ChecklistVisibility.valueOf(visibility.toUpperCase());
+//
+//            // 실제 DB 조회
+//            Page<UserChecklist> checklists = userChecklistRepository.findSharedChecklists(
+//                    visibilityEnum, countryCode, universityId, pageable);
+//
+//            // 응답 변환
+//            List<SharedChecklistResponse> content = checklists.getContent().stream()
+//                    .map(this::convertToSharedChecklistResponse)
+//                    .collect(Collectors.toList());
+//
+//            return PagedResponse.<SharedChecklistResponse>builder()
+//                    .content(content)
+//                    .currentPage(checklists.getNumber())
+//                    .totalPages(checklists.getTotalPages())
+//                    .totalElements(checklists.getTotalElements())
+//                    .pageSize(checklists.getSize())
+//                    .hasNext(checklists.hasNext())
+//                    .hasPrevious(checklists.hasPrevious())
+//                    .build();
+//
+//        } catch (IllegalArgumentException e) {
+//            log.warn("잘못된 visibility 값: {}", visibility);
+//            throw new IllegalArgumentException("올바르지 않은 공개 설정입니다: " + visibility);
+//        } catch (Exception e) {
+//            log.error("공유 체크리스트 목록 조회 중 오류 발생", e);
+//            // 빈 결과 반환
+//            return PagedResponse.<SharedChecklistResponse>builder()
+//                    .content(List.of())
+//                    .currentPage(0)
+//                    .totalPages(0)
+//                    .totalElements(0L)
+//                    .pageSize(pageable.getPageSize())
+//                    .hasNext(false)
+//                    .hasPrevious(false)
+//                    .build();
+//        }
+//    }
+//
+//    public SharedChecklistResponse getSharedChecklist(Long checklistId, String visibility, Long userId) {
+//        log.info("공유 체크리스트 상세 조회: checklistId={}, visibility={}, userId={}",
+//                checklistId, visibility, userId);
+//
+//        try {
+//            // visibility 검증 및 변환
+//            ChecklistVisibility visibilityEnum = ChecklistVisibility.valueOf(visibility.toUpperCase());
+//
+//            // 실제 DB 조회
+//            UserChecklist checklist = userChecklistRepository.findSharedChecklistById(
+//                            checklistId, visibilityEnum)
+//                    .orElseThrow(() -> new IllegalArgumentException("공개된 체크리스트를 찾을 수 없습니다."));
+//
+//            // 응답 변환
+//            return convertToSharedChecklistResponse(checklist, userId);
+//
+//        } catch (IllegalArgumentException e) {
+//            if (e.getMessage().contains("공개된 체크리스트")) {
+//                throw e; // 이미 적절한 메시지
+//            }
+//            log.warn("잘못된 visibility 값: {}", visibility);
+//            throw new IllegalArgumentException("올바르지 않은 공개 설정입니다: " + visibility);
+//        } catch (Exception e) {
+//            log.error("공유 체크리스트 상세 조회 중 오류 발생: checklistId={}", checklistId, e);
+//            throw new RuntimeException("체크리스트 조회 중 오류가 발생했습니다.");
+//        }
+//    }
 
-    public PagedResponse<SharedChecklistResponse> getSharedChecklists(String visibility,
-                                                                     String countryCode,
-                                                                     Long universityId,
-                                                                     Pageable pageable) {
-        log.info("공유 체크리스트 목록 조회: visibility={}, country={}, university={}",
-                visibility, countryCode, universityId);
+//    // =========================================================
+//    // Helper Methods - Converters
+//    // =========================================================
+//
+//    private SharedChecklistResponse convertToSharedChecklistResponse(UserChecklist checklist) {
+//        return convertToSharedChecklistResponse(checklist, null);
+//    }
+//
+//    private SharedChecklistResponse convertToSharedChecklistResponse(UserChecklist checklist, Long currentUserId) {
+//        // 체크리스트 통계 계산
+//        int totalItems = checklist.getItems() != null ? checklist.getItems().size() : 0;
+//        int completedItems = checklist.getItems() != null ?
+//                (int) checklist.getItems().stream()
+//                        .filter(item -> "DONE".equals(item.getStatus().name()))
+//                        .count() : 0;
+//        double completionRate = totalItems > 0 ? (double) completedItems / totalItems : 0.0;
+//
+//        return SharedChecklistResponse.builder()
+//                .userChecklistId(checklist.getUserChecklistId())
+//                .title(checklist.getTitle())
+//                .description("") // 필요시 추가
+//                .sharerNickname(checklist.getUser().getNickname())
+//                .sharerProfileImage(checklist.getUser().getProfileImage())
+//                .countryCode(checklist.getDeparture().getCountryCode())
+//                .countryName(getCountryName(checklist.getDeparture().getCountryCode()))
+//                .universityName(checklist.getDeparture().getUniversity() != null ?
+//                        checklist.getDeparture().getUniversity().getName() : null)
+//                .programTypeName(checklist.getDeparture().getProgramType() != null ?
+//                        checklist.getDeparture().getProgramType().getName() : null)
+//                .totalItems(totalItems)
+//                .completedItems(completedItems)
+//                .completionRate(completionRate)
+//                .likeCount(0L) // 추후 구현
+//                .scrapCount(0L) // 추후 구현
+//                .departureDate(checklist.getDeparture().getStartDate())
+//                .createdAt(checklist.getCreatedAt())
+//                .isScrapedByCurrentUser(false) // 추후 구현
+//                .build();
+//    }
+//
+//    private String getCountryName(String countryCode) {
+//        // 간단한 국가명 매핑 - 실제로는 별도 서비스나 상수로 관리
+//        return switch (countryCode) {
+//            case "US" -> "미국";
+//            case "JP" -> "일본";
+//            case "DE" -> "독일";
+//            case "KR" -> "한국";
+//            default -> countryCode;
+//        };
+//    }
 
-        // 임시로 빈 결과 반환
-        return PagedResponse.<SharedChecklistResponse>builder()
-                .content(List.of())
-                .currentPage(0)
-                .totalPages(0)
-                .totalElements(0L)
-                .pageSize(pageable.getPageSize())
-                .hasNext(false)
-                .hasPrevious(false)
-                .build();
-    }
-
-    public SharedChecklistResponse getSharedChecklist(Long checklistId, String visibility, Long userId) {
-        log.info("공유 체크리스트 상세 조회: checklistId={}, visibility={}, userId={}",
-                checklistId, visibility, userId);
-
-        throw new IllegalArgumentException("구현 중입니다.");
-    }
-
-    // =========================================================
-    // Helper Methods - Converters
-    // =========================================================
 
     private PostResponse convertToPostResponse(CommunityPost post, Long currentUserId) {
         // 좋아요 수 조회
