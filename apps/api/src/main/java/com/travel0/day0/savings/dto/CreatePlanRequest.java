@@ -8,6 +8,7 @@ import java.time.*;
 public record CreatePlanRequest(
         @NotNull Long userId,
         Long departureId,
+        Long withdrawAccountId,
         @NotNull @DecimalMin("0.01") BigDecimal goalAmount,
         @NotNull Instant startDate,
         Instant endDate,
