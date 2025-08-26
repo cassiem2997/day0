@@ -30,7 +30,7 @@ export default function NoChecklist({ onCreate, className }: NoChecklistProps) {
 
       {/* 오버레이: 안내 문구 + 버튼 */}
       <div className={styles.overlay}>
-        <h3 className={styles.title}>체크리스트가 없습니다.</h3>
+        <h3 className={styles.title}>체크리스트가 없습니다</h3>
         <button className={styles.cta} type="button" onClick={handleCreate}>
           생성하기
         </button>
