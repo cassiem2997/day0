@@ -1,3 +1,4 @@
+
 package com.travel0.day0.community.domain;
 
 import com.travel0.day0.users.domain.University;
@@ -34,7 +35,6 @@ public class CommunityPost {
     @Column(nullable = false, length = 200)
     private String title;
 
-    @Lob
     @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
     private String body;
 

@@ -1,19 +1,10 @@
 /* TipCard.module.css — 스타일만 수정 */
 
 .card {
-  
-  background-color: #f7faff; /* 연한 하늘색 배경 */
-  border: 1px solid #e8edf3; /* 얇은 보더로 선명도 */
-  border-radius: 16px; /* 말랑한 라운드 */
-  padding: 24px; /* 내부 여백 통일 */
-  flex: 1;
-  min-width: 250px;
-  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
-  transition: transform 160ms ease, box-shadow 160ms ease;
-}
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(16, 24, 40, 0.08);
+  border: 3px solid #1f1720;
+  border-radius: 14px;
+  background: #cfd8ff;
+  padding: 16px 20px;
 }
 
 .card h4 {

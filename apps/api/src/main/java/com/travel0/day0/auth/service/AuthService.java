@@ -47,11 +47,17 @@ public class AuthService {
             request.setProfileImage(imageUrl);
         }
 
-        University homeUniv = universityRepo.findById(request.getHomeUniversityId())
-                .orElseThrow(() -> new RuntimeException("대학을 찾을 수 없습니다."));
+        University homeUniv = null;
+        if (request.getHomeUniversityId() != null) {
+            homeUniv = universityRepo.findById(request.getHomeUniversityId())
+                    .orElseThrow(() -> new RuntimeException("대학을 찾을 수 없습니다."));
+        }
 
-        University destUniv = universityRepo.findById(request.getDestUniversityId())
-                .orElseThrow(() -> new RuntimeException("대학을 찾을 수 없습니다."));
+        University destUniv = null;
+        if (request.getDestUniversityId() != null) {
+            destUniv = universityRepo.findById(request.getDestUniversityId())
+                    .orElseThrow(() -> new RuntimeException("대학을 찾을 수 없습니다."));
+        }
 
         User user = User.builder()
                 .name(request.getName())

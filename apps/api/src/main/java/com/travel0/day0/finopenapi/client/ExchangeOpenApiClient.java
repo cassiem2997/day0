@@ -52,7 +52,7 @@ public class ExchangeOpenApiClient {
         final String code = props.getCreateExchange();
         final String path = "/ssafy/api/v1/edu/exchange/" + code;
 
-        var header = headers.buildWithUserKey(code, code, userKey);
+        var header = headers.build(code, code, userKey);
         var body = ExchangeExternalDtos.CreateExchangeReq.builder()
                 .Header(header)
                 .accountNo(accountNo)
@@ -77,7 +77,7 @@ public class ExchangeOpenApiClient {
         final String code = props.getInquireExchangeHistory();
         final String path = "/ssafy/api/v1/edu/exchange/" + code;
 
-        var header = headers.buildWithUserKey(code, code, userKey);
+        var header = headers.build(code, code, userKey);
         var body = ExchangeExternalDtos.ExchangeHistoryReq.builder()
                 .Header(header)
                 .accountNo(accountNo)
