@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import ChecklistStats, {
@@ -9,6 +8,7 @@ import TipCard from "../../components/TipCard/TipCard";
 import CalendarView from "../../components/Calendar/CalendarView";
 import DayPanel from "../../components/Calendar/DayPanel";
 import NoChecklist from "../../components/NoChecklist/NoChecklist";
+import ChecklistMaking from "./ChecklistMaking"; // ✅ 생성 폼을 같은 페이지에서 렌더
 import styles from "./ChecklistPage.module.css";
 
 import { pickRandomTipAny } from "../../utils/tipSelector";
@@ -28,32 +28,24 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
+type Mode = "empty" | "creating" | "list";
+
 export default function ChecklistPage() {
   const isMobile = useIsMobile(768);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((p) => !p);
 
-  const navigate = useNavigate();
-
-  // 출국일
   const leaveDate = "2026-02-20";
 
-  // 더미 데이터 → 테스트용으로 주석 처리
-  /*
-  const initialItems: ChecklistItem[] = [
-    { id: 1, date: "2025-08-20", text: "여권 발급 및 비자 신청", completed: true },
-    { id: 2, date: "2025-09-15", text: "항공권 예매", completed: true },
-    { id: 3, date: "2025-10-01", text: "학교 기숙사 신청", completed: true },
-    { id: 4, date: "2026-01-20", text: "해외유심/로밍 알아보기", completed: true },
-    { id: 5, date: "2026-01-25", text: "국제학생증 발급", completed: false },
-    { id: 6, date: "2025-11-10", text: "필요 서류 영문 번역 및 공증", completed: false },
-    { id: 7, date: "2026-02-05", text: "해외 결제 카드 준비", completed: false },
-    { id: 8, date: "2026-02-10", text: "출국 전 OT 참석", completed: false },
-  ];
-  */
-
-  // 빈 배열로 설정 → NoChecklist 보이도록
+  // 더미는 주석 처리. 초기엔 빈 배열 => 빈 상태 보여줌
   const [items, setItems] = useState<ChecklistItem[]>([]);
+  const hasItems = items.length > 0;
+
+  // ✔ 뷰 전환 전용 모드
+  const [mode, setMode] = useState<Mode>(hasItems ? "list" : "empty");
+  useEffect(() => {
+    setMode(hasItems ? "list" : "empty");
+  }, [hasItems]);
 
   // 체크 토글
   function toggleItem(id: number) {
@@ -73,8 +65,6 @@ export default function ChecklistPage() {
   // 캘린더 상태
   const [selectedDate, setSelectedDate] = useState(new Date());
   const handleDateChange = (d: Date) => setSelectedDate(d);
-
-  const hasItems = items.length > 0;
 
   return (
     <div className={styles.container}>
@@ -104,14 +94,37 @@ export default function ChecklistPage() {
             </h1>
           </header>
 
-          {/* 비어있을 때: 빈 상태 화면 */}
-          {!hasItems ? (
+          {/* ====== 빈 상태 → 생성 폼으로 전환 ====== */}
+          {!hasItems && mode === "empty" && (
             <section aria-label="빈 체크리스트 안내">
-              <NoChecklist onCreate={() => navigate("/checklist/create")} />
+              <NoChecklist onCreate={() => setMode("creating")} />
             </section>
-          ) : (
+          )}
+
+          {!hasItems && mode === "creating" && (
+            <section aria-label="체크리스트 생성">
+              <ChecklistMaking
+                onSubmit={({ leaveDate, country, university }) => {
+                  // TODO: 서버 저장 후 응답으로 목록 갱신
+                  // 데모용: 첫 아이템만 만들어 목록 화면으로 전환
+                  setItems([
+                    {
+                      id: Date.now(),
+                      date: leaveDate || "2025-08-20",
+                      text: `${country} ${university} 준비`,
+                      completed: false,
+                    },
+                  ]);
+                  setMode("list");
+                }}
+                onCancel={() => setMode("empty")}
+              />
+            </section>
+          )}
+
+          {/* ====== 실제 목록 화면 ====== */}
+          {hasItems && mode === "list" && (
             <>
-              {/* D-day / 진행도 */}
               <div style={{ marginTop: 12, marginBottom: 24 }}>
                 <ChecklistStats
                   leaveDate={leaveDate}
@@ -130,7 +143,6 @@ export default function ChecklistPage() {
                 />
               </div>
 
-              {/* Today’s Tip */}
               <section className={styles.section} aria-labelledby="tip-title">
                 <h2 id="tip-title" className={styles.sectionTitle}>
                   Today’s Tip
@@ -142,7 +154,6 @@ export default function ChecklistPage() {
                 </div>
               </section>
 
-              {/* Calendar + DayPanel */}
               <section
                 className={styles.calendarSection}
                 aria-labelledby="calendar-title"

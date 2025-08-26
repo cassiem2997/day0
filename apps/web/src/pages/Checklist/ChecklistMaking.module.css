@@ -1,0 +1,239 @@
+/* ===== 공통 변수 ===== */
+:root {
+  --ctrl-h: 60px; /* 입력/라벨 높이 */
+  --label-col-w: 120px; /* 라벨 열 폭 */
+  --frame-pad: clamp(14px, 2.2vw, 28px); /* 바깥 프레임 안쪽 여백 */
+  --top-gap: clamp(10px, 3vh, 28px); /* 타이틀 위쪽 여백 */
+  --between-gap: clamp(14px, 4vh, 36px); /* 타이틀 ↔ 카드 간격 */
+  --bottom-gap: clamp(14px, 4vh, 40px); /* 카드 아래 여백 (안전) */
+}
+
+/* 바깥 프레임 */
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 6px solid #111;
+  border-radius: 16px;
+  overflow: hidden; /* 프레임 밖으로 절대 안 나가게 */
+  background: #eaf5ff;
+  box-sizing: border-box;
+}
+
+/* 프레임 안쪽 안전 컨테이너: 흐름 배치 */
+.inner {
+  position: absolute;
+  inset: var(--frame-pad);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: var(--top-gap);
+  padding-bottom: var(--bottom-gap); /* 하단 튀어나옴 방지 */
+  box-sizing: border-box;
+}
+
+/* 배경 (구름) */
+.bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  z-index: 0;
+}
+
+/* 타이틀: 이제 문서 흐름에서 배치 (absolute 제거) */
+.title {
+  position: relative;
+  margin: 0 0 var(--between-gap) 0;
+  z-index: 1;
+  font-family: "EF_jejudoldam", system-ui, -apple-system, sans-serif;
+  font-weight: 900;
+  font-size: clamp(22px, 4vw, 46px);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  -webkit-text-stroke: 8px #121212;
+  paint-order: stroke fill;
+  letter-spacing: 1px;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* (선택) 아바타: 오른쪽 위, 안전 영역 안에만 */
+.avatar {
+  position: absolute;
+  right: clamp(10px, 2vw, 20px);
+  top: clamp(10px, 2vw, 20px);
+  width: clamp(44px, 5vw, 64px);
+  height: clamp(44px, 5vw, 64px);
+  border-radius: 999px;
+  border: 4px solid #111;
+  object-fit: cover;
+  background: #cfe0ff;
+  z-index: 2;
+}
+
+/* 카드: 흐름 배치, 중앙 정렬 */
+.card {
+  position: relative; /* absolute 제거 */
+  width: min(760px, 86%);
+  background: #f6fbff;
+  border: 6px solid #111;
+  border-radius: 18px;
+  padding: clamp(16px, 2.6vw, 28px);
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+/* 레이아웃: 라벨 열 고정 + 입력 열은 꽉 채움 */
+.row {
+  display: grid;
+  grid-template-columns: var(--label-col-w) minmax(0, 1fr);
+  gap: clamp(10px, 2vw, 16px);
+  align-items: center;
+  margin-bottom: clamp(10px, 2vw, 18px);
+  justify-items: stretch;
+  width: 100%;
+}
+
+/* 라벨 */
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--ctrl-h);
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 12px;
+  background: #fff;
+  border: 4px solid #111;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: clamp(12px, 1.6vw, 16px);
+  font-family: "EF_jejudoldam", system-ui, -apple-system, sans-serif;
+  color: #111;
+}
+
+/* 입력 공통 */
+.inputWrap {
+  position: relative;
+  width: 100%;
+}
+.row > * {
+  min-width: 0;
+}
+
+.control {
+  width: 100%;
+  height: var(--ctrl-h);
+  padding: 0 18px;
+  background: #fff;
+  border: 4px solid #111;
+  border-radius: 14px;
+  font-size: clamp(14px, 1.7vw, 18px);
+  font-weight: 700;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* input/date */
+input.control {
+  line-height: normal;
+  padding: 0 18px;
+}
+
+.date {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  padding-right: 40px;
+}
+.date::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+/* select */
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 40px;
+  line-height: var(--ctrl-h);
+}
+.chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  pointer-events: none;
+}
+
+/* disabled 룩 */
+.control:disabled {
+  background: #f4f6f9;
+  color: #9aa0a6;
+  opacity: 1;
+  border-color: #111;
+}
+
+/* 액션 버튼 */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: clamp(10px, 2vw, 20px);
+}
+.secondary {
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 4px solid #111;
+  background: #fff;
+  color: #111;
+  font-weight: 900;
+  font-size: clamp(14px, 1.6vw, 18px);
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+.cta {
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: 4px solid #111;
+  background: #4967ff;
+  color: #fff;
+  font-weight: 900;
+  font-size: clamp(14px, 1.6vw, 18px);
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.15s ease;
+  font-family: "EF_jejudoldam", system-ui, -apple-system, sans-serif;
+}
+.cta:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.03);
+}
+.cta:active {
+  transform: translateY(0);
+  filter: brightness(0.97);
+}
+
+/* 반응형 */
+@media (max-width: 820px) {
+  .title {
+    -webkit-text-stroke: 6px #121212;
+    margin-bottom: clamp(10px, 3vh, 20px);
+  }
+  .card {
+    width: 92%;
+  }
+  .row {
+    grid-template-columns: 1fr;
+  }
+  .label {
+    justify-content: flex-start;
+    padding-left: 16px;
+  }
+}
