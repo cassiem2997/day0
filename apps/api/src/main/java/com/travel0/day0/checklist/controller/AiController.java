@@ -28,6 +28,7 @@ public class AiController {
      *
      * GET /api/ai/recommendations/missing-items/{userChecklistId}?userId={userId}
      */
+    @CrossOrigin(origins = "*")
     @GetMapping("/recommendations/missing-items/{userChecklistId}")
     public ResponseEntity<MissingItemsResponse> getMissingItemRecommendations(
             @PathVariable Long userChecklistId,
@@ -51,6 +52,7 @@ public class AiController {
      *
      * GET /api/ai/recommendations/priority-reorder/{userChecklistId}?userId={userId}
      */
+    @CrossOrigin(origins = "*")
     @GetMapping("/recommendations/priority-reorder/{userChecklistId}")
     public ResponseEntity<PriorityReorderResponse> getPriorityReorderRecommendations(
             @PathVariable Long userChecklistId,
@@ -74,6 +76,7 @@ public class AiController {
      *
      * POST /api/ai/recommendations/apply/{userChecklistId}?userId={userId}
      */
+    @CrossOrigin(origins = "*")
     @PostMapping("/recommendations/apply/{userChecklistId}")
     public ResponseEntity<Map<String, Object>> applyRecommendation(
             @PathVariable Long userChecklistId,
@@ -104,6 +107,7 @@ public class AiController {
      *
      * GET /api/ai/health
      */
+    @CrossOrigin(origins = "*")
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> getAiServiceHealth() {
         try {

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.context.annotation.Profile;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
  * 커뮤니티 기능 REST API 컨트롤러
  */
 @Slf4j
+@Profile("!default")
 @RestController
 @RequestMapping("/api/community")
 @RequiredArgsConstructor

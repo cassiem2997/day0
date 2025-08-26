@@ -40,16 +40,16 @@ public class CommunityService {
     // 그룹 관련
     // =========================================================
 
-    public List<CommunityGroupResponse> getGroups(String countryCode, Long universityId) {
-        log.info("커뮤니티 그룹 목록 조회 시작: countryCode={}, universityId={}", countryCode, universityId);
+     public List<CommunityGroupResponse> getGroups(String countryCode, Long universityId) {
+         log.info("커뮤니티 그룹 목록 조회 시작: countryCode={}, universityId={}", countryCode, universityId);
 
-        // 그룹별 통계 조회 (게시글 수, 멤버 수)                          
-        List<Object[]> groupStats = postRepository.findGroupStatistics(countryCode, universityId);
+         // 그룹별 통계 조회 (게시글 수, 멤버 수)
+          List<Object[]> groupStats = postRepository.findGroupStatistics(countryCode, universityId);
         
-        return groupStats.stream()
-                .map(this::convertToGroupResponse)
-                .collect(Collectors.toList());
-    }
+         return groupStats.stream()
+                 .map(this::convertToGroupResponse)
+                 .collect(Collectors.toList());
+     }
 
     // =========================================================
     // 게시글 관련
