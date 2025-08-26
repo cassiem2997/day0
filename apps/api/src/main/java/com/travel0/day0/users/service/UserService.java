@@ -8,6 +8,7 @@ import com.travel0.day0.users.repository.UniversityRepository;
 import com.travel0.day0.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
@@ -31,6 +32,7 @@ public class UserService {
         return userRepo.findByEmail(email);
     }
 
+    @Transactional
     public void updateUserKey(Long userId, String userKey){
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));

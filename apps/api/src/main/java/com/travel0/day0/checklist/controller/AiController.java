@@ -1,4 +1,3 @@
-
 package com.travel0.day0.checklist.controller;
 
 import com.travel0.day0.checklist.dto.MissingItemsResponse;

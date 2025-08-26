@@ -77,4 +77,5 @@ public class FinOpenApiProperties {
 
     // 거래메모
     private String transactionMemo = "transactionMemo";
+
 }

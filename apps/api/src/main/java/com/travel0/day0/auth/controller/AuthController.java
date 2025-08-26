@@ -6,6 +6,7 @@ import com.travel0.day0.auth.dto.RegisterRequest;
 import com.travel0.day0.auth.service.AuthService;
 import com.travel0.day0.auth.service.PrincipalDetails;
 import com.travel0.day0.auth.service.TokenService;
+import com.travel0.day0.finopenapi.client.UserOpenApiClient;
 import com.travel0.day0.finopenapi.config.FinOpenApiProperties;
 import com.travel0.day0.users.domain.User;
 import com.travel0.day0.users.service.UserKeyService;
@@ -38,6 +39,7 @@ public class AuthController {
     private final UserService userService;
     private final FinOpenApiProperties finOpenApiProperties;
     private final UserKeyService userKeyService;
+    private final UserOpenApiClient userOpenApiClient;
 
     /**
      * 회원가입
@@ -82,15 +84,7 @@ public class AuthController {
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
             if(user.getUserKey() == null || user.getUserKey().isEmpty()){
-                try{
-                    String apiKey = finOpenApiProperties.getApiKey();
-                    String userKey = userKeyService.saveUserKey(user.getUserId(), apiKey);
-
-                    userService.updateUserKey(user.getUserId(), userKey);
-                } catch (Exception e){
-                    log.error("Failed to generate user key for user: {}, error: {}",
-                            user.getUserId(), e.getMessage());
-                }
+                userKeyService.saveUserKey(user.getUserId(), finOpenApiProperties.getApiKey());
             }
             String accessToken = tokenService.createToken(request.getEmail());
             String refreshToken = tokenService.createRefreshToken(request.getEmail());
