@@ -758,19 +758,7 @@ SELECT 'users', COUNT(*) FROM users
 UNION ALL
 SELECT 'departure_info', COUNT(*) FROM departure_info;
 
--- =========================================================
--- 9. 테스트 정보 출력
--- =========================================================
-SELECT 
-    '========== 테스트 계정 정보 ==========' as info
-UNION ALL
-SELECT 
-    CONCAT('이메일: ', email, ' | 비밀번호: password123 | 닉네임: ', nickname) as info
-FROM users 
-LIMIT 5
-UNION ALL
-SELECT 
-    '======================================' as info;
+
 
 -- =========================================================
 -- 10. 완료 메시지
