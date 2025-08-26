@@ -1,20 +1,23 @@
 package com.travel0.day0.savings.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.travel0.day0.common.enums.SavingsFrequency;
-import jakarta.validation.constraints.*;
-import org.springframework.format.annotation.DateTimeFormat;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
-import java.time.*;
+import java.time.Instant;
 
-public record CreatePlanRequest(
+public record CreatePlanResponse(
+        Long planId,
+        Instant startDate,
+        BigDecimal goalAmount,
         @NotNull Long userId,
         Long departureId,
         @NotNull Long withdrawAccountId,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        LocalDate endDate,
+        @NotNull Long savingAccountId,
+        Instant endDate,
         @NotNull SavingsFrequency frequency,
         @NotNull @DecimalMin("0.01") BigDecimal amountPerPeriod,
         @Min(1) @Max(28) Integer depositDay,
