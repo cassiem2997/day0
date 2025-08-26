@@ -1,0 +1,131 @@
+/* 무대 */
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 760px;
+  overflow: hidden;
+  background: #cfe4ff; /* 배경색은 기존과 동일 */
+}
+
+/* 배경 (landing4.svg) */
+.bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* 초광폭 화면에서 위아래 여백 방지 (원본 비율 보존) */
+@media (min-aspect-ratio: 1440/1028) {
+  .bg {
+    object-fit: contain;
+    background: #cfe4ff;
+  }
+}
+
+
+/* =========================
+   캐릭터 (제자리 걷기 연출)
+   ========================= */
+.walkerStage {
+  position: absolute;
+  left: 50%;
+  /* landing4 일러에서 하단 도로/테두리가 두꺼워서 약간 올림 */
+  bottom: 14vh;              /* 필요하면 10~16vh 사이로 미세조정 */
+  transform: translateX(-50%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.walkerRig {
+  position: relative;
+  animation: pace 3.4s ease-in-out infinite, tilt 3.4s ease-in-out infinite;
+  will-change: transform;
+}
+
+.walker {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  height: 15vh;              /* 다른 랜딩들과 동일한 스케일 */
+  pointer-events: none;
+  animation: bob 1.6s ease-in-out infinite;
+}
+
+/* 프레임 토글 (발 교대) */
+.walkLeft {
+  animation: stepLeft 0.8s steps(1) infinite, bob 1.6s ease-in-out infinite;
+}
+.walkRight {
+  animation: stepRight 0.8s steps(1) infinite, bob 1.6s ease-in-out infinite;
+}
+
+@keyframes stepLeft {
+  0%, 50%   { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+@keyframes stepRight {
+  0%, 50%   { opacity: 0; }
+  51%, 100% { opacity: 1; }
+}
+
+/* 미니 이동 + 전후감 */
+@keyframes pace {
+  0%   { transform: translateX(0) translateY(0) scale(1); }
+  25%  { transform: translateX(-1.1vw) translateY(-3px) scale(1.02); }
+  50%  { transform: translateX(0) translateY(-1px) scale(1.01); }
+  75%  { transform: translateX(1.1vw) translateY(-3px) scale(1.02); }
+  100% { transform: translateX(0) translateY(0) scale(1); }
+}
+
+/* 가벼운 틸트 */
+@keyframes tilt {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(2.2deg); }
+  50%  { transform: rotate(0deg); }
+  75%  { transform: rotate(-2.2deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* 바운스 */
+@keyframes bob {
+  0%   { transform: translateX(-50%) translateY(0); }
+  20%  { transform: translateX(-50%) translateY(-3px); }
+  50%  { transform: translateX(-50%) translateY(-6px); }
+  80%  { transform: translateX(-50%) translateY(-3px); }
+  100% { transform: translateX(-50%) translateY(0); }
+}
+
+/* CTA */
+.ctaWrap {
+  position: absolute;
+  bottom: 3vh;
+  left: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  z-index: 4;
+}
+.cta {
+  display: inline-block;
+  padding: 14px 28px;
+  background: #111;
+  color: #fff;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+.cta:hover {
+  transform: translateY(-2px);
+  opacity: 0.92;
+}
+
+/* 모션 줄이기 접근성 */
+@media (prefers-reduced-motion: reduce) {
+  .cloud,
+  .walker,
+  .walkerRig {
+    animation: none !important;
+  }
+}

@@ -1,10 +1,10 @@
-// pages/Landing/LandingPage.tsx
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./LandingPage.module.css";
 
 import LandingHero from "./LandingHero";
 import LandingAirport from "./LandingAirport";
-import LandingSchool from "./LandingSchool"; 
+import LandingSchool from "./LandingSchool";
+import Landing4 from "./Landing4"; // 신규 랜딩 섹션
 
 const TRANSITION_MS = 700; // 섹션 전환 속도
 const WHEEL_THRESHOLD = 8; // 트랙패드 미세 입력 무시
@@ -16,11 +16,12 @@ export default function LandingPage() {
   const viewportRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef<number | null>(null);
 
-  // 섹션 정의
+  // 섹션 정의 (위에서부터 순서대로)
   const sections = [
     { id: "hero", node: <LandingHero /> },
     { id: "airport", node: <LandingAirport isActive={index === 1} /> }, // 활성화 시 비행기 재생
     { id: "school", node: <LandingSchool isActive={index === 2} /> }, // 활성화 시(깃발/시계 등) 재생
+    { id: "bank", node: <Landing4 /> }, // 새 랜딩4 (은행/환전)
   ];
   const max = sections.length - 1;
 
