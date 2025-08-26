@@ -32,9 +32,18 @@ public class ExchangeExternalDtos {
 
             @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
             public static class CurrencyInfo {
-                private Double amount;
+                private Object amount;
                 private String currency;
                 private String currencyName;
+
+                public Double getAmountAsDouble() {
+                    if (amount == null) return null;
+                    if (amount instanceof Number) return ((Number) amount).doubleValue();
+                    if (amount instanceof String) {
+                        return Double.parseDouble(((String) amount).replace(",", ""));
+                    }
+                    return null;
+                }
             }
         }
     }
@@ -46,7 +55,7 @@ public class ExchangeExternalDtos {
         private CommonHeader.Req Header;
         private String accountNo;        // 출금계좌번호
         private String exchangeCurrency; // 환전할 통화코드
-        private Double exchangeAmount;   // 환전금액
+        private String exchangeAmount;   // 환전금액
     }
 
     // 환전 신청 응답
@@ -63,17 +72,53 @@ public class ExchangeExternalDtos {
 
             @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
             public static class ExchangeCurrencyInfo {
-                private Double amount;
-                private Double exchangeRate;
+                private Object amount;
+                private Object exchangeRate;
                 private String currency;
                 private String currencyName;
+
+                public Double getAmountAsDouble() {
+                    if (amount == null) return null;
+                    if (amount instanceof Number) return ((Number) amount).doubleValue();
+                    if (amount instanceof String) {
+                        return Double.parseDouble(((String) amount).replace(",", ""));
+                    }
+                    return null;
+                }
+
+                public Double getExchangeRateAsDouble() {
+                    if (exchangeRate == null) return null;
+                    if (exchangeRate instanceof Number) return ((Number) exchangeRate).doubleValue();
+                    if (exchangeRate instanceof String) {
+                        return Double.parseDouble(((String) exchangeRate).replace(",", ""));
+                    }
+                    return null;
+                }
             }
 
             @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
             public static class AccountInfo {
                 private String accountNo;
-                private Double amount;
-                private Double balance;
+                private Object amount;
+                private Object balance;
+
+                public Double getAmountAsDouble() {
+                    if (amount == null) return null;
+                    if (amount instanceof Number) return ((Number) amount).doubleValue();
+                    if (amount instanceof String) {
+                        return Double.parseDouble(((String) amount).replace(",", ""));
+                    }
+                    return null;
+                }
+
+                public Double getBalanceAsDouble() {
+                    if (balance == null) return null;
+                    if (balance instanceof Number) return ((Number) balance).doubleValue();
+                    if (balance instanceof String) {
+                        return Double.parseDouble(((String) balance).replace(",", ""));
+                    }
+                    return null;
+                }
             }
         }
     }
@@ -97,18 +142,43 @@ public class ExchangeExternalDtos {
 
         @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
         public static class HistoryRec {
-            private String bankName;
-            private String userName;
-            private String accountNo;
-            private String accountName;
-            private String currency;
-            private String currencyName;
-            private Double amount;
-            private String exchangeCurrency;
-            private String exchangeCurrencyName;
-            private Double exchangeAmount;
-            private Double exchangeRate;
+            private AccountInfo account;
+            private CurrencyInfo currency;
+            private ExchangeCurrencyInfo exchangeCurrency;
             private String created;
+
+            @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+            public static class AccountInfo {
+                private String bankName;
+                private String userName;
+                private String accountNo;
+                private String accountName;
+            }
+
+            @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+            public static class CurrencyInfo {
+                private String currency;
+                private String currencyName;
+                private String amount;
+            }
+
+            @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+            public static class ExchangeCurrencyInfo {
+                private String currency;
+                private String currencyName;
+                private String amount;
+                private String exchangeRate;
+
+                public Double getAmountAsDouble() {
+                    if (amount == null) return null;
+                    return Double.parseDouble(amount.replace(",", ""));
+                }
+
+                public Double getExchangeRateAsDouble() {
+                    if (exchangeRate == null) return null;
+                    return Double.parseDouble(exchangeRate.replace(",", ""));
+                }
+            }
         }
     }
 }

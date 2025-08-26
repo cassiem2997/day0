@@ -1,7 +1,6 @@
 package com.travel0.day0.fx.controller;
 
 import com.travel0.day0.fx.service.ExchangeService;
-import com.travel0.day0.users.domain.User;
 import com.travel0.day0.users.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -54,71 +53,75 @@ public class ExchangeController {
         }
     }
 
-//    // 환전 신청
-//    @PostMapping("/exchange")
-//    public ResponseEntity<Map<String, Object>> createExchange(@RequestBody ExchangeRequest request,
-//                                                              @RequestParam Long userId) {
-//        log.info("환전 신청 API: {}", request);
-//
-//        try {
-//            var result = exchangeService.createExchange(
-//                    request.accountNo(),
-//                    request.exchangeCurrency(),
-//                    request.exchangeAmount()
-//            );
-//
-//            Map<String, Object> response = new HashMap<>();
-//            response.put("success", true);
-//            response.put("data", result);
-//            response.put("message", "환전이 성공적으로 처리되었습니다");
-//
-//            return ResponseEntity.ok(response);
-//
-//        } catch (Exception e) {
-//            log.error("환전 신청 실패", e);
-//
-//            Map<String, Object> errorResponse = new HashMap<>();
-//            errorResponse.put("success", false);
-//            errorResponse.put("message", e.getMessage());
-//
-//            return ResponseEntity.status(500).body(errorResponse);
-//        }
-//    }
-//
-//    // 환전 내역 조회
-//    @GetMapping("/transactions")
-//    public ResponseEntity<Map<String, Object>> getExchangeHistory(
-//            @RequestParam String userKey,
-//            @RequestParam String accountNo,
-//            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-//            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
-//
-//        log.info("환전 내역 조회 API: {} {} ~ {}", accountNo, startDate, endDate);
-//
-//        try {
-//            List<ExchangeService.ExchangeHistoryInfo> history =
-//                    exchangeService.getExchangeHistory(userKey, accountNo, startDate, endDate);
-//
-//            Map<String, Object> response = new HashMap<>();
-//            response.put("success", true);
-//            response.put("data", history);
-//            response.put("count", history.size());
-//
-//            return ResponseEntity.ok(response);
-//
-//        } catch (Exception e) {
-//            log.error("환전 내역 조회 실패", e);
-//
-//            Map<String, Object> errorResponse = new HashMap<>();
-//            errorResponse.put("success", false);
-//            errorResponse.put("message", e.getMessage());
-//
-//            return ResponseEntity.status(500).body(errorResponse);
-//        }
-//    }
+    // 환전 신청
+    @PostMapping("/exchange")
+    @Operation(summary = "환전 신청")
+    public ResponseEntity<Map<String, Object>> createExchange(@RequestBody ExchangeRequest request,
+                                                              @RequestParam Long userId) {
+        log.info("환전 신청 API: {}", request);
+
+        try {
+            var result = exchangeService.createExchange(
+                    request.userId(),
+                    request.accountNo(),
+                    request.exchangeCurrency(),
+                    String.valueOf(request.exchangeAmount().intValue())
+            );
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("data", result);
+            response.put("message", "환전이 성공적으로 처리되었습니다");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("환전 신청 실패", e);
+
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    // 환전 내역 조회
+    @GetMapping("/transactions")
+    @Operation(summary = "환전 내역 조회")
+    public ResponseEntity<Map<String, Object>> getExchangeHistory(
+            @RequestParam Long userId,
+            @RequestParam String accountNo,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
+
+        log.info("환전 내역 조회 API: {} {} ~ {}", accountNo, startDate, endDate);
+
+        try {
+            List<ExchangeService.ExchangeHistoryInfo> history =
+                    exchangeService.getExchangeHistory(userId, accountNo, startDate, endDate);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("data", history);
+            response.put("count", history.size());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("환전 내역 조회 실패", e);
+
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
 
     // 요청 DTO
     public record ExchangeRequest(
+            Long userId,
             String accountNo,
             String exchangeCurrency,
             Double exchangeAmount

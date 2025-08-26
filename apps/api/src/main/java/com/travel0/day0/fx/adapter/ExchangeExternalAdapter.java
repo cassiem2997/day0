@@ -3,6 +3,7 @@ package com.travel0.day0.fx.adapter;
 import com.travel0.day0.finopenapi.client.ExchangeOpenApiClient;
 import com.travel0.day0.fx.port.ExchangeExternalPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ExchangeExternalAdapter implements ExchangeExternalPort {
 
     private final ExchangeOpenApiClient client;
@@ -25,15 +27,15 @@ public class ExchangeExternalAdapter implements ExchangeExternalPort {
         return new EstimateInfo(
                 rec.getCurrency().getCurrency(),
                 rec.getCurrency().getCurrencyName(),
-                rec.getCurrency().getAmount(),
+                rec.getCurrency().getAmountAsDouble(),
                 rec.getExchangeCurrency().getCurrency(),
                 rec.getExchangeCurrency().getCurrencyName(),
-                rec.getExchangeCurrency().getAmount()
+                rec.getExchangeCurrency().getAmountAsDouble()
         );
     }
 
     @Override
-    public ExchangeResult createExchange(String userKey, String accountNo, String exchangeCurrency, Double exchangeAmount) {
+    public ExchangeResult createExchange(String userKey, String accountNo, String exchangeCurrency, String exchangeAmount) {
         var res = client.createExchange(userKey, accountNo, exchangeCurrency, exchangeAmount);
         if (res == null || res.getREC() == null)
             throw new IllegalStateException("FINOPENAPI_EXCHANGE_CREATE_FAILED");
@@ -44,13 +46,13 @@ public class ExchangeExternalAdapter implements ExchangeExternalPort {
 
         return new ExchangeResult(
                 exchangeInfo.getCurrency(),
-                exchangeInfo.getAmount(),
-                exchangeInfo.getExchangeRate(),
+                exchangeInfo.getAmountAsDouble(),
+                exchangeInfo.getExchangeRateAsDouble(),
                 "KRW",
                 "원화",
                 accountInfo.getAccountNo(),
-                accountInfo.getAmount(),
-                accountInfo.getBalance()
+                accountInfo.getAmountAsDouble(),
+                accountInfo.getBalanceAsDouble()
         );
     }
 
@@ -62,17 +64,17 @@ public class ExchangeExternalAdapter implements ExchangeExternalPort {
 
         return res.getREC().stream()
                 .map(r -> new ExchangeHistory(
-                        r.getBankName(),
-                        r.getUserName(),
-                        r.getAccountNo(),
-                        r.getAccountName(),
-                        r.getCurrency(),
-                        r.getCurrencyName(),
-                        r.getAmount(),
-                        r.getExchangeCurrency(),
-                        r.getExchangeCurrencyName(),
-                        r.getExchangeAmount(),
-                        r.getExchangeRate(),
+                        r.getAccount().getBankName(),
+                        r.getAccount().getUserName(),
+                        r.getAccount().getAccountNo(),
+                        r.getAccount().getAccountName(),
+                        r.getCurrency().getCurrency(),
+                        r.getCurrency().getCurrencyName(),
+                        Double.parseDouble(r.getCurrency().getAmount().replace(",", "")),
+                        r.getExchangeCurrency().getCurrency(),
+                        r.getExchangeCurrency().getCurrencyName(),
+                        r.getExchangeCurrency().getAmountAsDouble(),
+                        r.getExchangeCurrency().getExchangeRateAsDouble(),
                         r.getCreated()
                 ))
                 .collect(Collectors.toList());
