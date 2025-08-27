@@ -43,9 +43,6 @@ public class ChecklistTemplateItem {
     @Builder.Default
     private ChecklistTag tag = ChecklistTag.NONE;
 
-    @Column(name = "default_amount", precision = 18, scale = 2)
-    private BigDecimal defaultAmount;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
