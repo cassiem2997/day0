@@ -11,7 +11,7 @@ const NAV = [
   { label: "환전하기", href: "/exchange" },
   { label: "적금", href: "/savings" },
   { label: "커뮤니티", href: "/community" },
-  { label: "마이페이지", href: "/profile" },
+  { label: "마이페이지", href: "/mypage" },
 ];
 
 // 더미 유저 (API 연동 전)
@@ -116,7 +116,7 @@ export default function Header() {
         {open ? (
           <div className={styles.dropdown} role="menu">
             <NavLink
-              to="/profile"
+              to="/mypage"
               className={styles.dropdownItem}
               onClick={function () {
                 setOpen(false);
