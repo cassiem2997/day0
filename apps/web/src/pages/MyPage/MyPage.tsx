@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import styles from "./MyPage.module.css";
+import MyPageChecklist from "./MyPageChecklist";
 
 /* 모바일 판별 */
 function useIsMobile(breakpoint = 768) {
@@ -30,7 +31,7 @@ export default function MyPage() {
     <div className={styles.container}>
       {isMobile ? (
         <>
-          <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar}></Sidebar>
+          <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />
           <button
             type="button"
             className={styles.mobileHamburger}
@@ -45,12 +46,12 @@ export default function MyPage() {
       ) : null}
 
       <main className={styles.main}>
-        {isMobile ? null : <Header></Header>}
+        {isMobile ? null : <Header />}
 
         <div className={styles.pageContent}>
           <h1 className={styles.myPageTitle}>MY PAGE</h1>
 
-          {/* 우측 상단 pill 탭 (커뮤니티와 동일 톤) */}
+          {/* 우측 상단 pill 탭 */}
           <div
             className={styles.pillTabs}
             role="tablist"
@@ -103,7 +104,7 @@ export default function MyPage() {
                 <h2 className={styles.nick}>닉네임</h2>
                 <p className={styles.subInfo}>
                   국내대학이름
-                  <br></br>
+                  <br />
                 </p>
               </div>
 
@@ -138,7 +139,32 @@ export default function MyPage() {
             </div>
           </section>
 
-          {/* TODO: 탭별 콘텐츠 섹션 */}
+          {/* 탭별 콘텐츠 */}
+          {tab === "checklists" && <MyPageChecklist />}
+
+          {tab === "saving" && (
+            <section
+              style={{ marginTop: 18, padding: "12px 4px" }}
+              aria-label="적금 섹션"
+            >
+              <h2 style={{ margin: 0, fontWeight: 900 }}>Saving</h2>
+              <p style={{ marginTop: 8, color: "#60646c" }}>
+                적금 탭 콘텐츠 영역 (준비중)
+              </p>
+            </section>
+          )}
+
+          {tab === "exchange" && (
+            <section
+              style={{ marginTop: 18, padding: "12px 4px" }}
+              aria-label="환전 섹션"
+            >
+              <h2 style={{ margin: 0, fontWeight: 900 }}>Exchange</h2>
+              <p style={{ marginTop: 8, color: "#60646c" }}>
+                환전 탭 콘텐츠 영역 (준비중)
+              </p>
+            </section>
+          )}
         </div>
       </main>
     </div>
