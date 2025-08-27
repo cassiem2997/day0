@@ -1,8 +1,7 @@
-/* 전체 래퍼/머리 */
+/* 래퍼/헤더 */
 .wrap {
-  margin-top: 50px;
+  margin-top: 24px;
 }
-
 .titleRow {
   display: flex;
   align-items: center;
@@ -17,8 +16,6 @@
   letter-spacing: 2px;
   line-height: 1.05;
 }
-
-/* 우측 계좌 등록 버튼 */
 .createBtn {
   height: 40px;
   padding: 0 16px;
@@ -33,7 +30,7 @@
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
 }
 
-/* 카드(그리드 테이블 스타일) */
+/* 카드 테이블 */
 .tableCard {
   background: #f7fbff;
   border: 6px solid #121212;
@@ -67,11 +64,11 @@
   grid-template-columns: 140px 1fr 180px;
   align-items: center;
   border-bottom: 2px solid #e9eef6;
+  position: relative;
 }
 .row:last-child {
   border-bottom: 0;
 }
-
 .cell {
   padding: 18px;
 }
@@ -80,6 +77,55 @@
 }
 .cellRight {
   text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+/* 클릭/포커스/피드백 */
+.rowClickable {
+  cursor: pointer;
+  transition: background 140ms ease, transform 40ms ease, box-shadow 140ms ease;
+}
+.rowClickable:hover {
+  background: #f9fbff;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.06) inset;
+}
+.rowClickable:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+.rowClickable::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 4px 0 0 4px;
+  background: transparent;
+  transition: background 140ms ease;
+}
+.rowClickable:hover::before {
+  background: #5a5df6;
+}
+.rowClickable:focus-visible {
+  outline: 3px solid #5a5df6;
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+.chevron {
+  margin-left: 8px;
+  font-weight: 900;
+  opacity: 0.35;
+  transform: translateX(0);
+  transition: transform 140ms ease, opacity 140ms ease;
+}
+.rowClickable:hover .chevron {
+  transform: translateX(2px);
+  opacity: 0.6;
 }
 
 /* 배지 */
@@ -105,7 +151,7 @@
   color: #111;
 }
 
-/* 항목/계좌번호/금액 */
+/* 텍스트들 */
 .itemTitle {
   font-weight: 900;
   letter-spacing: 0.2px;
@@ -138,7 +184,7 @@
   .row {
     grid-template-columns: 1fr;
     margin: 8px 12px;
-    padding: 12px;
+    padding: 16px;
     border: 6px solid #121212;
     border-radius: 14px;
     background: #fff;
@@ -149,8 +195,6 @@
   }
   .cellRight {
     text-align: left;
-  }
-  .badge {
-    margin-bottom: 6px;
+    justify-content: flex-start;
   }
 }

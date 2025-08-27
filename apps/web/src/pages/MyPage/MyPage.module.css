@@ -23,7 +23,7 @@
 .myPageTitle {
   margin: 20px 0 12px 0;
   font-size: clamp(36px, 6.4vw, 64px);
-  font-weight: 900;
+  font-weight: 500;
   line-height: 1.05;
   color: #111;
   letter-spacing: 4px;

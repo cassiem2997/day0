@@ -50,7 +50,7 @@ export default function MyPage() {
         {isMobile ? null : <Header />}
 
         <div className={styles.pageContent}>
-          <h1 className={styles.myPageTitle}>MY PAGE</h1>
+          <h1 className={styles.myPageTitle}>마이페이지</h1>
 
           {/* 우측 상단 pill 탭 */}
           <div
