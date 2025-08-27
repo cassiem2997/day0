@@ -1,6 +1,6 @@
 /* 전체 래퍼 */
 .wrap {
-  margin-top: 18px;
+  margin-top: 50px;
 }
 
 /* 캡션 & 타이틀 */
@@ -17,17 +17,6 @@
   font-size: clamp(30px, 6vw, 54px);
   letter-spacing: 2px;
   line-height: 1.05;
-}
-.title::after {
-  content: "";
-  position: absolute;
-  left: 6px;
-  bottom: -6px;
-  width: 46%;
-  height: 14px;
-  background: #cfe1ff;
-  border-radius: 8px;
-  opacity: 0.9;
 }
 
 /* 카드(테이블) */
@@ -50,7 +39,11 @@
 .th {
   font-weight: 900;
   padding: 16px 18px;
-  border-right: 6px solid #121212;
+  font-family: "Mungyeong-Gamhong-Apple";
+  color: #FFF;
+  -webkit-text-fill-color: #fff;
+  -webkit-text-stroke: 1.2px #121212;
+  /* border-right: 6px solid #121212; */
 }
 .th:last-child {
   border-right: 0;
