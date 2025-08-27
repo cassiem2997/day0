@@ -31,13 +31,13 @@ public class AccountController {
     }
 
     // 계좌 생성
-    @PostMapping("")
+    @PostMapping("/products/{productId}")
     @Operation(summary = "계좌 생성")
     public ResponseEntity<CreateDemandDepositAccountRes> createAccount(
             @AuthenticationPrincipal PrincipalDetails user,
-            @RequestBody CreateAccountReq req
+            @PathVariable Long productId
     ) {
-        var res = userAccountService.createAccount(user, req.accountTypeUniqueNo());
+        var res = userAccountService.createAccount(user, productId);
         return ResponseEntity.ok(res);
     }
 

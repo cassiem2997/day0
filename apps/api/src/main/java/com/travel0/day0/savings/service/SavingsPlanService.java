@@ -330,7 +330,6 @@ public class SavingsPlanService {
         return new ResponseStatusException(HttpStatus.BAD_REQUEST, msg);
     }
 
-
     // ----- 유틸 -----
     private static String nvl(String v, String def) {
         return (v == null || v.isBlank()) ? def : v;
