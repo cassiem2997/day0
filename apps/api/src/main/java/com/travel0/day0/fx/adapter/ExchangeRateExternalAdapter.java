@@ -30,4 +30,21 @@ public class ExchangeRateExternalAdapter implements ExchangeRateExternalPort {
                 ))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public ExchangeRateInfo inquireSpecificExchangeRate(String currency) {
+        var res = client.inquireExchangeRateSearch(currency);
+        if (res == null || res.getREC() == null) {
+            throw new IllegalStateException("FINOPENAPI_SPECIFIC_EXCHANGE_RATE_EMPTY: " + currency);
+        }
+
+        var rec = res.getREC();
+        return new ExchangeRateInfo(
+                rec.getId(),
+                rec.getCurrency(),
+                rec.getExchangeRateAsDouble(),
+                rec.getExchangeMinAsDouble(),
+                rec.getCreated()
+        );
+    }
 }

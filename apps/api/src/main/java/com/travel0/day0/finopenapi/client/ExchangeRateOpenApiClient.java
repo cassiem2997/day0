@@ -74,6 +74,32 @@ public class ExchangeRateOpenApiClient {
                 .block();
     }
 
+    public ExchangeRateExternalDtos.InquireExchangeRateSearchRes inquireExchangeRateSearch(String currency) {
+        final String code = "exchangeRateSearch"; // API 코드명
+        final String path = "/ssafy/api/v1/edu/" + code;
+
+        var header = headers.build(code, code);
+        var body = ExchangeRateExternalDtos.InquireExchangeRateSearchReq.builder()
+                .Header(header)
+                .currency(currency)
+                .build();
+
+        log.info("[FIN-REQ] POST {} | code={} currency={} key={}",
+                path, code, currency, mask(props.getApiKey(), 4));
+        logJson("FIN-REQ-BODY", body);
+
+        return finWebClient.post()
+                .uri(path)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .bodyValue(body)
+                .exchangeToMono(res -> {
+                    return res.bodyToMono(ExchangeRateExternalDtos.InquireExchangeRateSearchRes.class)
+                            .doOnNext(ok -> logJson("FIN-RES-BODY", ok));
+                })
+                .block();
+    }
+
     private void logJson(String tag, Object obj) {
         try {
             String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);

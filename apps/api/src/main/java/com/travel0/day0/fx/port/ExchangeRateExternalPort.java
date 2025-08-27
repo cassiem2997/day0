@@ -5,6 +5,8 @@ import java.util.List;
 public interface ExchangeRateExternalPort {
     List<ExchangeRateInfo> inquireExchangeRates();
 
+    ExchangeRateInfo inquireSpecificExchangeRate(String currency);
+
     record ExchangeRateInfo(
             Long id,
             String currency,
