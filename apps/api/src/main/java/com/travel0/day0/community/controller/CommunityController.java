@@ -20,7 +20,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/community")
+@RequestMapping("/community")
 @RequiredArgsConstructor
 public class CommunityController {
 
