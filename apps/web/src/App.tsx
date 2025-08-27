@@ -1,6 +1,7 @@
-// App.tsx
+// src/App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import type { ReactElement } from "react";
+
+import ProtectedRoute from "./routes/protectedRoute";
 
 import ChecklistPage from "./pages/Checklist/ChecklistPage";
 import ChecklistMakingPage from "./pages/Checklist/ChecklistMakingPage";
@@ -12,12 +13,7 @@ import SavingsPage from "./pages/Savings/SavingsPage";
 import CommunityPage from "./pages/Community/CommunityPage";
 import CommunityDetail from "./pages/Community/CommunityDetail";
 import CommunityWrite from "./pages/Community/CommunityWrite";
-
-function ProtectedRoute({ children }: { children: ReactElement }) {
-  const token = localStorage.getItem("accessToken");
-  if (!token) return <Navigate to="/login" replace />;
-  return children;
-}
+import MyPage from "./pages/MyPage/MyPage";
 
 export default function App() {
   return (
@@ -44,7 +40,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/checklist/result/:checklistId"
           element={
@@ -53,6 +48,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         {/* 환율 */}
         <Route
           path="/exchange"
@@ -95,6 +91,16 @@ export default function App() {
           element={
             <ProtectedRoute>
               <CommunityWrite />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 마이페이지 */}
+        <Route
+          path="/mypage"
+          element={
+            <ProtectedRoute>
+              <MyPage />
             </ProtectedRoute>
           }
         />

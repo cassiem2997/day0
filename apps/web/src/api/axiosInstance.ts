@@ -1,34 +1,40 @@
 // src/api/axiosInstance.ts
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
-// 공통 인스턴스 생성
+const baseURL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
+
 const api = axios.create({
-  baseURL: "http://localhost:8080/api", // 나중에 수정 필요
-  timeout: 5000, 
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL,
+  timeout: 30000,
+  withCredentials: true,
+  headers: { Accept: "application/json" },
 });
 
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("accessToken"); // 토큰 가져오기
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+// refresh 전용(인터셉터 미적용)
+const refreshClient = axios.create({
+  baseURL,
+  withCredentials: true,
+});
 
-// 응답 인터셉터 
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error("API Error:", error);
-    return Promise.reject(error);
+  (res) => res,
+  async (err: AxiosError) => {
+    const status = err.response?.status;
+    const original = err.config as any;
+
+    const url = (original?.url ?? "") as string;
+    const isAuthPath = /\/auth\/(login|register|refresh)(\?|$)/.test(url);
+
+    if (status === 401 && !original?._retry && !isAuthPath) {
+      original._retry = true;
+      try {
+        await refreshClient.post("/auth/refresh");
+        return api(original); // 원래 요청 재시도
+      } catch {
+        // refresh 실패 -> 그대로 에러 반환
+      }
+    }
+    return Promise.reject(err);
   }
 );
 

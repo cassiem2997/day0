@@ -91,6 +91,19 @@ public class ExchangeRateService {
         }
     }
 
+    public ExchangeRateExternalPort.ExchangeRateInfo getSpecificCurrencyRate(String currency) {
+        log.info("특정 환율 조회: {}", currency);
+
+        try {
+            // SSAFY exchangeRateSearch API 호출
+            var response = exchangeRateExternalPort.inquireSpecificExchangeRate(currency);
+            return response;
+        } catch (Exception e) {
+            log.error("특정 환율 조회 실패: {}", currency, e);
+            return null;
+        }
+    }
+
     public record ExchangeRateChartData(
             String date,
             Double rate
