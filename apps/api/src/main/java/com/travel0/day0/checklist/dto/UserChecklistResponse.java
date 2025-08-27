@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -22,4 +23,5 @@ public class UserChecklistResponse {
     private ChecklistVisibility visibility;
     private Instant createdAt;
     private List<UserChecklistItemResponse> items;
+    private BigDecimal amount;
 }

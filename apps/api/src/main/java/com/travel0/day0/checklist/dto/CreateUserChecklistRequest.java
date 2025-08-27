@@ -6,13 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class CreateUserChecklistRequest {
     private Long departureId;
-    private Long templateId;
     private String title;
+    private BigDecimal amount;
     private ChecklistVisibility visibility = ChecklistVisibility.PUBLIC;
 }

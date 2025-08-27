@@ -13,11 +13,11 @@ import java.util.Map;
 
 /**
  * AI 추천 기능 REST API 컨트롤러
- * Python AI 서비스(simplified_main.py)와 연동
+ * Python AI 서비스와 연동
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/ai")
+@RequestMapping("/ai")
 @RequiredArgsConstructor
 public class AiController {
 
