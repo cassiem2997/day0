@@ -12,6 +12,7 @@ import SavingsPage from "./pages/Savings/SavingsPage";
 import CommunityPage from "./pages/Community/CommunityPage";
 import CommunityDetail from "./pages/Community/CommunityDetail";
 import CommunityWrite from "./pages/Community/CommunityWrite";
+import MyPage from "./pages/MyPage/MyPage";
 
 function ProtectedRoute({ children }: { children: ReactElement }) {
   const token = localStorage.getItem("accessToken");
@@ -95,6 +96,16 @@ export default function App() {
           element={
             <ProtectedRoute>
               <CommunityWrite />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 마이페이지 */}
+        <Route
+          path="/mypage"
+          element={
+            <ProtectedRoute>
+              <MyPage />
             </ProtectedRoute>
           }
         />
