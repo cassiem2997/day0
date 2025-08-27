@@ -2,27 +2,25 @@
 import axios, { AxiosError } from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080/",
+  baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080",
   timeout: 8000,
-  headers: {
-    Accept: "application/json", // ← 이 정도만 전역으로
-  },
-  // withCredentials: true, // 쿠키 기반이면 사용
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-  if (token) {
-    config.headers = config.headers ?? {};
-    (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
-  }
-  return config;
+  withCredentials: true, // 쿠키로 변경
+  headers: { Accept: "application/json" },
 });
 
 api.interceptors.response.use(
   (res) => res,
-  (err: AxiosError) => {
-    console.error("API Error:", err);
+  async (err: AxiosError) => {
+    const status = err.response?.status;
+    const original = err.config as any;
+    if (status === 401 && !original?._retry) {
+      original._retry = true;
+      try {
+        await api.post("/auth/refresh"); // 쿠키에서 refresh 읽어 새 access 쿠키 발급
+        return api(original);            // 원래 요청 재시도
+      } catch {
+      }
+    }
     return Promise.reject(err);
   }
 );
