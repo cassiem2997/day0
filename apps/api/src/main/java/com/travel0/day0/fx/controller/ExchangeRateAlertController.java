@@ -1,10 +1,14 @@
 package com.travel0.day0.fx.controller;
 
+import com.travel0.day0.auth.service.PrincipalDetails;
 import com.travel0.day0.common.enums.FxDirection;
 import com.travel0.day0.fx.service.ExchangeRateAlertService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -22,6 +26,7 @@ public class ExchangeRateAlertController {
 
     // 알림 등록
     @PostMapping
+    @Operation(summary = "알림 등록")
     public ResponseEntity<Map<String, Object>> createAlert(@RequestBody AlertRequest request) {
         log.info("환율 알림 등록 API: {}", request);
 
@@ -54,12 +59,13 @@ public class ExchangeRateAlertController {
 
     // 사용자 알림 목록 조회
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getUserAlerts(@RequestParam Long userId) {
-        log.info("사용자 알림 목록 조회 API: userId={}", userId);
+    @Operation(summary = "사용자 알림 목록 조회")
+    public ResponseEntity<Map<String, Object>> getUserAlerts(@AuthenticationPrincipal PrincipalDetails userDetail) {
+        log.info("사용자 알림 목록 조회 API: userId={}", userDetail.getUserId());
 
         try {
             List<ExchangeRateAlertService.ExchangeAlertInfo> alerts =
-                    alertService.getUserAlerts(userId);
+                    alertService.getUserAlerts(userDetail.getUserId());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -81,6 +87,7 @@ public class ExchangeRateAlertController {
 
     // 알림 수정
     @PutMapping("/{alertId}")
+    @Operation(summary = "알림 수정")
     public ResponseEntity<Map<String, Object>> updateAlert(
             @PathVariable Long alertId,
             @RequestBody AlertUpdateRequest request) {
@@ -110,6 +117,7 @@ public class ExchangeRateAlertController {
 
     // 알림 삭제
     @DeleteMapping("/{alertId}")
+    @Operation(summary = "알림 삭제")
     public ResponseEntity<Map<String, Object>> deleteAlert(@PathVariable Long alertId) {
         log.info("환율 알림 삭제 API: alertId={}", alertId);
 
