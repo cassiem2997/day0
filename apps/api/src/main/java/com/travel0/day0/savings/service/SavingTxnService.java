@@ -4,8 +4,10 @@ import com.travel0.day0.account.domain.AccountTransaction;
 import com.travel0.day0.account.domain.UserAccount;
 import com.travel0.day0.account.repository.TransactionRepository;
 import com.travel0.day0.account.repository.UserAccountRepository;
+import com.travel0.day0.checklist.domain.UserChecklistItem;
 import com.travel0.day0.common.enums.PaymentStatus;
 import com.travel0.day0.common.enums.SavingTxnStatus;
+import com.travel0.day0.common.enums.SavingTxnType;
 import com.travel0.day0.savings.domain.PaymentSchedule;
 import com.travel0.day0.savings.domain.SavingTxn;
 import com.travel0.day0.savings.domain.SavingsPlan;
@@ -24,10 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.travel0.day0.finopenapi.dto.DemandDepositDtos.*;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.math.*;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -120,12 +120,12 @@ public class SavingTxnService {
             return;
         }
 
-        // 0) 한도/상태 체크
+        // 한도/상태 체크
         ensureActive(withdraw);
         ensureActive(saving);
         ensureLimits(withdraw, ps.getAmount()); // one-time / daily limit
 
-        // 1) saving_txn (RECEIVED) 생성 (멱등 PS-<scheduleId>)
+        //saving_txn (RECEIVED) 생성 (멱등 PS-<scheduleId>)
         String idem = "PS-" + ps.getScheduleId();
         SavingTxn txn = savingTxnRepository.findByPlan_PlanIdAndIdempotencyKey(plan.getPlanId(), idem)
                 .orElseGet(() -> savingTxnRepository.save(SavingTxn.received(
@@ -140,13 +140,13 @@ public class SavingTxnService {
             return;
         }
 
-        // 2) 외부 이체 호출
+        // 외부 이체 호출
         updateDemandDepositAccountTransferRes res;
         try {
             res = demandDepositService.transfer(plan.getUser().getUserId(), withdraw.getAccountNo(),
                     saving.getAccountNo(), ps.getAmount().longValue(), "적금 자동이체", "적금 입금");
         } catch (Exception e) {
-            // 재시도: FAILED 로 두고 종료 (백오프 전략이 필요하면 ps에 next_attempt_at 등 칼럼 추가)
+            // 재시도: FAILED 로 두고 종료
             fail(ps, "BANK_API", e.getMessage());
             savingTxnRepository.markFailed(txn.getTxnId(), e.getMessage());
             return;
@@ -155,21 +155,79 @@ public class SavingTxnService {
         // 외부 거래번호
         String externalTxId = safe(String.valueOf(res.getREC().get(0).getTransactionUniqueNo()));
 
-        // 3) 내부 회계 — account_transaction 2건 + 잔액 반영
+        // 내부 회계 — account_transaction 2건 + 잔액 반영
         var debit = ledgerService.postTxn(withdraw, false, ps.getAmount(), "출금(적금이체)", "적금 자동이체",
                 saving.getAccountNo(), externalTxId, idem + "-D");
         var credit = ledgerService.postTxn(saving, true, ps.getAmount(), "입금(적금이체)", "적금 입금",
                 withdraw.getAccountNo(), externalTxId, idem + "-C");
 
-        // 4) saving_txn 성공 반영 (posting_tx_id: 내부 입금 tx_id)
+        // saving_txn 성공 반영 (posting_tx_id: 내부 입금 tx_id)
         savingTxnRepository.markSuccess(txn.getTxnId(), externalTxId, credit);
 
-        // 5) 스케줄 성공
+        // 스케줄 성공
         markScheduleSuccess(ps, externalTxId);
     }
 
-    // ===== Helper =====
+    @Transactional
+    public void missionDeposit(Long userId, UserChecklistItem uci) {
+        // 활성 플랜/계좌 가져오기
+        SavingsPlan plan = planRepository.findByUser_UserIdAndActive(userId, true)
+                .stream().findFirst()
+                .orElseThrow(() -> new IllegalStateException("활성 적금 플랜이 없습니다."));
+        var withdraw = plan.getWithdrawAccount(); // 외부(출금)
+        var saving   = plan.getSavingAccount();   // 내부(적금)
+        if (withdraw == null || saving == null) throw new IllegalStateException("계좌 연결 누락");
 
+        // 금액
+        var amount = Optional.ofNullable(uci.getLinkedAmount())
+                .filter(a -> a.signum() > 0)
+                .orElseThrow(() -> new IllegalArgumentException("linkedAmount가 유효하지 않습니다."));
+
+        // saving_txn RECEIVED (멱등)
+        String idem = "UCI-" + uci.getUciId();
+        SavingTxn txn = savingTxnRepository.findByPlan_PlanIdAndIdempotencyKey(plan.getPlanId(), idem)
+                .orElseGet(() -> {
+                    SavingTxn t = SavingTxn.received(plan, null, amount, idem);
+                    t.setTxnType(SavingTxnType.MISSION);
+                    t.setSourceChecklistItem(uci);
+                    return savingTxnRepository.save(t);
+                });
+
+        if (txn.getStatus() == SavingTxnStatus.SUCCESS) return;
+
+        // 외부 이체
+        String externalTxId;
+        try {
+            var res = demandDepositService.transfer(
+                    plan.getUser().getUserId(),
+                    withdraw.getAccountNo(),
+                    saving.getAccountNo(),
+                    amount.longValue(),
+                    "미션적금 이체", "적금 입금(미션)"
+            );
+            externalTxId = String.valueOf(res.getREC().get(0).getTransactionUniqueNo());
+        } catch (Exception e) {
+            savingTxnRepository.markFailed(txn.getTxnId(), e.getMessage());
+            throw new IllegalStateException("미션 이체 실패: " + e.getMessage(), e);
+        }
+
+        // 출금(사용자 외부계좌)
+        var debitTx = ledgerService.postTxn(
+                withdraw, false, amount,
+                "출금(미션적금)", "미션적금 자동이체", saving.getAccountNo(),
+                externalTxId, idem
+        );
+        // 입금(적금 내부계좌)
+        var creditTx = ledgerService.postTxn(
+                saving, true, amount,
+                "입금(미션적금)", "미션적금 자동이체", withdraw.getAccountNo(),
+                externalTxId, idem
+        );
+
+        txn.markSuccess(externalTxId, creditTx);
+    }
+
+    // 헬퍼 메서드
     private void ensureActive(UserAccount acc) {
         if (!acc.isActive())
             throw new IllegalStateException("비활성 계좌");
@@ -178,7 +236,6 @@ public class SavingTxnService {
     private void ensureLimits(UserAccount withdraw, BigDecimal amount) {
         if (amount.longValue() > withdraw.getOneTimeTransferLimit().longValue())
             throw new IllegalStateException("1회 이체 한도 초과");
-        // 일일 누적은 txRepo.sumToday(withdraw) 등으로 합산 체크
     }
 
     private void markScheduleSuccess(PaymentSchedule ps, String extTxId) {
