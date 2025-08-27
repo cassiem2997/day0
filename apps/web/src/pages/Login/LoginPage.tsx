@@ -1,5 +1,5 @@
 // src/pages/Login/LoginPage.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./LoginPage.module.css";
 import Character from "../../assets/character.svg";
@@ -13,6 +13,7 @@ import {
   type SignUpPayload,
   type LoginPayload,
 } from "../../api/user";
+import { getHomeUniversities, type UniversityHome } from "../../api/university";
 
 type LocalGender = "" | "MALE" | "FEMALE";
 
@@ -21,6 +22,11 @@ export default function LoginPage() {
 
   // 슬라이드 상태: false = 로그인, true = 회원가입
   const [rightPanel, setRightPanel] = useState(false);
+
+  // 대학 목록 상태
+  const [universities, setUniversities] = useState<UniversityHome[]>([]);
+  const [uniLoading, setUniLoading] = useState(false);
+  const [uniError, setUniError] = useState<string | null>(null);
 
   // 회원가입 폼 상태
   const [signUpForm, setSignUpForm] = useState({
@@ -31,6 +37,7 @@ export default function LoginPage() {
     email: "",
     password: "",
     password2: "",
+    homeUniversityId: "" as "" | number,
   });
 
   // 로그인 폼 상태
@@ -42,6 +49,32 @@ export default function LoginPage() {
   // 중복 제출 방지
   const [submitting, setSubmitting] = useState(false);
 
+  // 대학 목록 로드 (초기 1회)
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setUniLoading(true);
+        setUniError(null);
+        const list = await getHomeUniversities();
+        if (!mounted) return;
+        setUniversities(list);
+      } catch (e: any) {
+        if (!mounted) return;
+        setUniError(
+          e?.response?.data?.message ||
+            e?.message ||
+            "대학 목록을 불러오지 못했습니다."
+        );
+      } finally {
+        if (mounted) setUniLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   // 공통 change handler
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -50,7 +83,13 @@ export default function LoginPage() {
 
     if (rightPanel) {
       // 회원가입 입력 중
-      setSignUpForm((s) => ({ ...s, [name]: value }));
+      if (name === "homeUniversityId") {
+        const parsed =
+          value === "" ? "" : Number.isNaN(Number(value)) ? "" : Number(value);
+        setSignUpForm((s) => ({ ...s, homeUniversityId: parsed as any }));
+      } else {
+        setSignUpForm((s) => ({ ...s, [name]: value }));
+      }
     } else {
       // 로그인 입력 중
       setLoginForm((s) => ({ ...s, [name]: value }));
@@ -78,7 +117,6 @@ export default function LoginPage() {
         password: loginForm.password,
       };
 
-      // ★ 서버가 HttpOnly 쿠키로 토큰 내려줌 (응답 바디엔 message/email/userId 정도)
       const res = await login(payload);
 
       await Swal.fire({
@@ -131,6 +169,16 @@ export default function LoginPage() {
         confirmButtonColor: "#a8d5ff",
       });
     }
+    if (
+      signUpForm.homeUniversityId === "" ||
+      signUpForm.homeUniversityId == null
+    ) {
+      return Swal.fire({
+        icon: "warning",
+        title: "재학중인 대학교를 선택해주세요.",
+        confirmButtonColor: "#a8d5ff",
+      });
+    }
 
     const payload: SignUpPayload = {
       name: signUpForm.name.trim(),
@@ -139,14 +187,12 @@ export default function LoginPage() {
       password: signUpForm.password,
       gender: (signUpForm.gender || "MALE") as Gender,
       birth: signUpForm.birth,
-      homeUniversityId: 1,
+      homeUniversityId: Number(signUpForm.homeUniversityId),
     };
 
     try {
       setSubmitting(true);
-
       await signUp(payload);
-
       await Swal.fire({
         title: "회원가입 완료!",
         html: "Day0과 함께 떠나영~",
@@ -155,8 +201,7 @@ export default function LoginPage() {
         confirmButtonColor: "#a8d5ff",
         background: "#f9f9f9",
       });
-
-      setRightPanel(false); // 회원가입 성공 → 로그인 화면으로
+      setRightPanel(false); // 로그인 화면으로
     } catch (err: any) {
       const message =
         err?.response?.data?.message ||
@@ -226,6 +271,28 @@ export default function LoginPage() {
                 />
               </div>
 
+              {/* 출신 대학교 드롭다운 */}
+              <select
+                className={styles.input}
+                name="homeUniversityId"
+                value={String(signUpForm.homeUniversityId)}
+                onChange={handleChange}
+                disabled={uniLoading || !!uniError}
+              >
+                <option value="">
+                  {uniLoading
+                    ? "대학 목록 불러오는 중..."
+                    : uniError
+                    ? "목록을 불러오지 못했습니다"
+                    : "대학교 선택"}
+                </option>
+                {universities.map((u) => (
+                  <option key={u.universityId} value={u.universityId}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+
               <input
                 className={styles.input}
                 type="email"
@@ -256,8 +323,8 @@ export default function LoginPage() {
               <button
                 type="submit"
                 className={styles.cta}
-                disabled={submitting}
-                aria-busy={submitting}
+                disabled={submitting || uniLoading}
+                aria-busy={submitting || uniLoading}
               >
                 {submitting ? "가입 중..." : "가입하기"}
               </button>
