@@ -1,3 +1,4 @@
+// src/pages/Community/CommunityDetail.tsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar/Sidebar";
@@ -7,8 +8,10 @@ import styles from "./CommunityDetail.module.css";
 import api from "../../api/axiosInstance";
 import {
   getCommunityPostDetail,
+  deleteCommunityPost,
   type PostDetail as ApiPostDetail,
 } from "../../api/community";
+import Swal from "sweetalert2";
 
 /* ───────────────── 공통: 모바일 판별 ───────────────── */
 function useIsMobile(breakpoint = 768) {
@@ -141,6 +144,32 @@ export default function CommunityDetail() {
     })();
   }, [pid, userId]);
 
+  /* 게시글 삭제 핸들러 */
+  async function handleDelete() {
+    if (!post || !userId) return;
+
+    const result = await Swal.fire({
+      title: "정말 삭제하시겠습니까?",
+      text: "삭제한 글은 되돌릴 수 없습니다.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "삭제",
+      cancelButtonText: "취소",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteCommunityPost(post.id, userId);
+        await Swal.fire("삭제 완료", "게시글이 삭제되었습니다.", "success");
+        nav("/community", { replace: true });
+      } catch (e) {
+        Swal.fire("오류", "삭제 중 문제가 발생했습니다.", "error");
+      }
+    }
+  }
+
   return (
     <div className={styles.container}>
       {isMobile ? (
@@ -233,9 +262,9 @@ export default function CommunityDetail() {
                 </div>
               </section>
 
-              {/* 작성자일 때만 수정 버튼 노출 */}
+              {/* 작성자일 때만 수정/삭제 버튼 노출 */}
               {userId && post.authorId === userId && (
-                <div style={{ marginTop: "12px" }}>
+                <div style={{ marginTop: "12px", display: "flex", gap: "8px" }}>
                   <button
                     type="button"
                     className={styles.chip}
@@ -244,6 +273,13 @@ export default function CommunityDetail() {
                     }
                   >
                     수정하기
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.chip} ${styles.chipPrimary}`}
+                    onClick={handleDelete}
+                  >
+                    삭제하기
                   </button>
                 </div>
               )}

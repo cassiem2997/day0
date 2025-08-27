@@ -134,3 +134,20 @@ export async function updateCommunityPost(
   );
   return data;
 }
+
+/* ---------- 게시글 삭제 ---------- */
+export interface DeleteCommunityPostResponse {
+  success: boolean;
+  data: any; // 보통 빈 객체 {} 반환
+  message?: string;
+  errorCode?: string;
+}
+
+/** 게시글 삭제: DELETE /community/posts/{postId}?userId=xx */
+export async function deleteCommunityPost(postId: number, userId: number) {
+  const { data } = await api.delete<DeleteCommunityPostResponse>(
+    `/community/posts/${postId}`,
+    { params: { userId } }
+  );
+  return data;
+}
