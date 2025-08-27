@@ -42,20 +42,9 @@ public class AuthService {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
-        if(profileImage != null && !profileImage.isEmpty()){
-            String imageUrl = fileService.saveProfileImage(profileImage);
-            request.setProfileImage(imageUrl);
-        }
-
         University homeUniv = null;
         if (request.getHomeUniversityId() != null) {
             homeUniv = universityRepo.findById(request.getHomeUniversityId())
-                    .orElseThrow(() -> new RuntimeException("대학을 찾을 수 없습니다."));
-        }
-
-        University destUniv = null;
-        if (request.getDestUniversityId() != null) {
-            destUniv = universityRepo.findById(request.getDestUniversityId())
                     .orElseThrow(() -> new RuntimeException("대학을 찾을 수 없습니다."));
         }
 
@@ -66,9 +55,7 @@ public class AuthService {
                 .nickname(request.getNickname())
                 .gender(request.getGender())
                 .birth(request.getBirth())
-                .profileImage(request.getProfileImage())
                 .homeUniversity(homeUniv)
-                .destUniversity(destUniv)
                 .build();
 
         User savedUser = userRepo.save(user);

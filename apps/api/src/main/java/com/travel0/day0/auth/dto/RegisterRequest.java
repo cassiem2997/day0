@@ -16,7 +16,5 @@ public class RegisterRequest {
     private String nickname;
     private Gender gender;
     private LocalDate birth;
-    private String profileImage;
     private Long homeUniversityId;
-    private Long destUniversityId;
 }
