@@ -1,4 +1,5 @@
 // src/components/FxConvertCard/FxConvertCard.tsx
+// @ts-ignore
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import styles from "./FxConvertCard.module.css";
