@@ -80,18 +80,19 @@ public class SavingTxn {
         }
     }
 
-
     public void markProcessing() {
         this.status = SavingTxnStatus.PROCESSING;
+        this.failureReason = null;
     }
 
-    public void markSuccess(String externalTxId, AccountTransaction postingTx) {
+    public void markSuccess(String externalTxId, AccountTransaction creditTx) {
         this.status = SavingTxnStatus.SUCCESS;
         this.externalTxId = externalTxId;
-        this.postingTx = postingTx;
+        this.postingTx = creditTx;
         this.processedAt = Instant.now();
         this.failureReason = null;
     }
+
     public void markFailed(String reason) {
         this.status = SavingTxnStatus.FAILED;
         this.failureReason = reason;

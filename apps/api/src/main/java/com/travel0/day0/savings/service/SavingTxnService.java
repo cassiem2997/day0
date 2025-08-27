@@ -132,6 +132,8 @@ public class SavingTxnService {
                         plan, ps, ps.getAmount(), idem
                 )));
 
+        txn.markProcessing();
+
         // 이미 성공 처리된 멱등 요청이면 skip
         if (txn.getStatus() == SavingTxnStatus.SUCCESS) {
             markScheduleSuccess(ps, txn.getExternalTxId());
