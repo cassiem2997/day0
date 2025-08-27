@@ -2,6 +2,7 @@ package com.travel0.day0.savings.domain;
 
 import com.travel0.day0.account.domain.AccountTransaction;
 import com.travel0.day0.checklist.domain.UserChecklistItem;
+import com.travel0.day0.common.enums.PaymentStatus;
 import com.travel0.day0.common.enums.SavingTxnStatus;
 import com.travel0.day0.common.enums.SavingTxnType;
 import jakarta.persistence.*;
@@ -95,5 +96,16 @@ public class SavingTxn {
         this.status = SavingTxnStatus.FAILED;
         this.failureReason = reason;
         this.processedAt = Instant.now();
+    }
+
+    public static SavingTxn received(SavingsPlan plan, PaymentSchedule schedule, BigDecimal amount, String idem) {
+        SavingTxn t = new SavingTxn();
+        t.setPlan(plan);
+        t.setSchedule(schedule);
+        t.setAmount(amount);
+        t.setIdempotencyKey(idem);
+        t.setStatus(SavingTxnStatus.RECEIVED);
+        t.setRequestedAt(Instant.now());
+        return t;
     }
 }
