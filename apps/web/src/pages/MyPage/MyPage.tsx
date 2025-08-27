@@ -4,6 +4,7 @@ import Header from "../../components/Header/Header";
 import styles from "./MyPage.module.css";
 import MyPageChecklist from "./MyPageChecklist";
 import MyPageSavings from "./MyPageSavings";
+import MyPageExchange from "./MyPageExchange";
 
 /* 모바일 판별 */
 function useIsMobile(breakpoint = 768) {
@@ -145,17 +146,7 @@ export default function MyPage() {
 
           {tab === "saving" && <MyPageSavings />}
 
-          {tab === "exchange" && (
-            <section
-              style={{ marginTop: 18, padding: "12px 4px" }}
-              aria-label="환전 섹션"
-            >
-              <h2 style={{ margin: 0, fontWeight: 900 }}>Exchange</h2>
-              <p style={{ marginTop: 8, color: "#60646c" }}>
-                환전 탭 콘텐츠 영역 (준비중)
-              </p>
-            </section>
-          )}
+          {tab === "exchange" && <MyPageExchange />}
         </div>
       </main>
     </div>
