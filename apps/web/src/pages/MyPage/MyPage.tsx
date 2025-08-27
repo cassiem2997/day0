@@ -3,6 +3,7 @@ import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import styles from "./MyPage.module.css";
 import MyPageChecklist from "./MyPageChecklist";
+import MyPageSavings from "./MyPageSavings";
 
 /* 모바일 판별 */
 function useIsMobile(breakpoint = 768) {
@@ -49,7 +50,7 @@ export default function MyPage() {
         {isMobile ? null : <Header />}
 
         <div className={styles.pageContent}>
-          <h1 className={styles.myPageTitle}>MY PAGE</h1>
+          <h1 className={styles.myPageTitle}>마이페이지</h1>
 
           {/* 우측 상단 pill 탭 */}
           <div
@@ -142,17 +143,7 @@ export default function MyPage() {
           {/* 탭별 콘텐츠 */}
           {tab === "checklists" && <MyPageChecklist />}
 
-          {tab === "saving" && (
-            <section
-              style={{ marginTop: 18, padding: "12px 4px" }}
-              aria-label="적금 섹션"
-            >
-              <h2 style={{ margin: 0, fontWeight: 900 }}>Saving</h2>
-              <p style={{ marginTop: 8, color: "#60646c" }}>
-                적금 탭 콘텐츠 영역 (준비중)
-              </p>
-            </section>
-          )}
+          {tab === "saving" && <MyPageSavings />}
 
           {tab === "exchange" && (
             <section
