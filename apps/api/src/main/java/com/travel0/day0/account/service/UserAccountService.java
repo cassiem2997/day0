@@ -62,11 +62,13 @@ public class UserAccountService {
 
     // 계좌 생성
     @Transactional
-    public CreateDemandDepositAccountRes createAccount(PrincipalDetails localUser, String accountTypeUniqueNo) {
+    public CreateDemandDepositAccountRes createAccount(PrincipalDetails localUser, Long productId) {
         String userKey = resolveUserKey(localUser.getUserId());
 
+        var product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품 없음: " + productId));
         CreateDemandDepositAccountRes createRes =
-                externalPort.createAccount(accountTypeUniqueNo, userKey);
+                externalPort.createAccount(product.getAccountTypeUniqueNo(), userKey);
 
         // 생성 응답에서 생성한 계좌 정보 조회
         DemandDepositDtos.AccountRec created = (createRes.getREC() != null && !createRes.getREC().isEmpty())
