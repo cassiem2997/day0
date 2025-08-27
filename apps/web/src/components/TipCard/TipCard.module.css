@@ -1,0 +1,33 @@
+/* TipCard.module.css — 스타일만 수정 */
+
+.card {
+  border: 3px solid #1f1720;
+  border-radius: 14px;
+  background: #cfd8ff;
+  padding: 16px 20px;
+}
+
+.card h4 {
+  font-family: 'SBAggroB';
+  margin: 0 0 10px 0;
+  font-size: 18px; /* 살짝 키워서 제목감 */
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+.card p {
+  font-family: 'ONE-Mobile-POP';
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  /* color: #6b7280; */
+}
+
+/* 모션 민감 사용자 배려 */
+@media (prefers-reduced-motion: reduce) {
+  .card:hover {
+    transform: none;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+  }
+}

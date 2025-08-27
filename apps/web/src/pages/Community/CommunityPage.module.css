@@ -1,0 +1,511 @@
+/* ===== 레이아웃 ===== */
+.container {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  background: #f1f7fb;
+}
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.pageContent {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 40px 48px;
+  box-sizing: border-box;
+}
+
+/* ===== 타이틀 ===== */
+.communityTitle {
+  margin: 20px 0 12px 0;
+  font-size: clamp(36px, 6vw, 50px);
+  font-weight: 900;
+  line-height: 1.05;
+  color: #111;
+  letter-spacing: 4px;
+  text-align: left;
+  font-family: "Mungyeong-Gamhong-Apple";
+}
+
+/* ===== 박스 바깥 우측 상단 탭 (pill) ===== */
+.pillTabs {
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 6px 6px 10px;
+}
+.pill {
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 4px solid #121212;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+.pillIdle {
+  background: #fff;
+  color: #111;
+}
+.pillActive {
+  background: #5a5df6;
+  color: #fff;
+}
+.pill:hover {
+  transform: translateY(-1px);
+}
+.pill:active {
+  transform: translateY(0);
+}
+
+/* ===== Best 전용 큰 파란 박스 ===== */
+.panelFrame {
+  position: relative;
+  border: 6px solid #121212;
+  border-radius: 14px;
+  background: #cfe1ff;
+  padding: 26px 20px 28px;
+  overflow: hidden;
+  min-height: 380px;
+}
+
+/* 박스 안 장식 행 (매달린 느낌) */
+.decorRow {
+  font-family: "Mungyeong-Gamhong-Apple";
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(20px, 5vw, 52px);
+  margin: 4px 0 16px;
+}
+.decorPill {
+  position: relative;
+  padding: 10px 26px;
+  border: 6px solid #121212;
+  border-radius: 999px;
+  background: #5a5df6;
+  color: #fff;
+  font-weight: 900;
+  font-size: clamp(20px, 3.4vw, 44px);
+  -webkit-text-fill-color: #fff;
+  -webkit-text-stroke: 3px #121212;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.25);
+}
+/* 줄 + 고리 */
+.decorPill::before {
+  content: "";
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  width: 4px;
+  height: 28px;
+  background: #121212;
+  transform: translateX(-50%);
+}
+.decorPill::after {
+  content: "";
+  position: absolute;
+  top: -36px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  border: 4px solid #121212;
+  border-radius: 50%;
+  background: #fff;
+  transform: translateX(-50%);
+}
+
+/* 내부 콘텐츠 박스 */
+.innerBox {
+  position: relative;
+  background: #d6e5ff;
+  border: 6px solid #121212;
+  border-radius: 10px;
+  padding: 18px;
+  margin: 10px 8px 0;
+}
+
+/* Board 탭일 때는 별도 레이아웃(박스 없음) */
+.boardWrap {
+  margin-top: 12px;
+}
+
+/* 구름 (assets/clouds.svg) */
+.cloud {
+  position: absolute;
+  bottom: 8px;
+  width: clamp(140px, 18vw, 220px);
+  height: clamp(70px, 9vw, 100px);
+  background: url("../../assets/clouds.svg") no-repeat center / contain;
+  pointer-events: none;
+  opacity: 0.95;
+}
+.cloudLeft {
+  left: -16px;
+}
+.cloudRight {
+  right: -16px;
+}
+
+/* ===== Best 리스트 공통 ===== */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.postCard {
+  position: relative;
+  background: #ffffff;
+  border: 6px solid #121212;
+  border-radius: 12px;
+  padding: 18px 18px 16px;
+}
+.postHead {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+.postTitle {
+  margin: 0;
+  line-height: 1.1;
+  font-weight: 900;
+  font-size: clamp(20px, 3.2vw, 40px);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  -webkit-text-stroke: 6px #121212; /* 굵은 윤곽선 */
+  paint-order: stroke fill;
+  font-family: "EF_jejudoldam";
+}
+.saveBtn {
+  padding: 8px 18px;
+  border: 6px solid #121212;
+  border-radius: 999px;
+  background: #5a5df6;
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+}
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  font-weight: 800;
+}
+.badgeCheck {
+  width: 28px;
+  height: 28px;
+  border: 4px solid #121212;
+  border-radius: 8px;
+  background: #34c759;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  line-height: 1;
+}
+.star {
+  font-weight: 900;
+  font-size: 18px;
+  margin-left: 6px;
+}
+.countText {
+  font-size: 18px;
+}
+.slash {
+  margin: 0 8px;
+  font-weight: 900;
+}
+.by {
+  margin-left: auto;
+  opacity: 0.8;
+}
+.author {
+  font-weight: 900;
+}
+.rowDivider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -18px;
+  height: 6px;
+  background: #121212;
+  border-radius: 3px;
+}
+
+/* ===== Board: 히어로 + 필터 + 리스트 ===== */
+.boardRoot {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.boardHero {
+  margin: 8px 0 16px;
+}
+.boardHeroImg {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #cfe1ff;
+  border: 6px solid #121212;
+  border-radius: 12px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.22);
+}
+
+/* 필터 칩 바 */
+.boardFilterBar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 8px 2px 6px;
+}
+.chip {
+  padding: 8px 16px;
+  border: 4px solid #121212;
+  border-radius: 999px;
+  background: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  line-height: 1;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+}
+.chipActive {
+  background: #5a5df6;
+  color: #fff;
+}
+
+/* 리스트 컨테이너 */
+.boardList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* 한 행(카드) */
+.boardRow {
+  display: grid;
+  grid-template-columns: 1fr 260px; /* 왼쪽 내용 / 오른쪽 썸네일 */
+  gap: 18px;
+  background: #fff;
+  border: 6px solid #121212;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.16);
+}
+.rowLeft {
+  min-width: 0;
+}
+.rowBadge {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 4px solid #121212;
+  border-radius: 999px;
+  background: #5a5df6;
+  color: #fff;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+.rowTitle {
+  margin: 4px 0 8px 0;
+  font-weight: 900;
+  font-size: clamp(22px, 3.4vw, 34px);
+}
+.rowSnippet {
+  margin: 6px 0 12px 0;
+  font-family: inherit;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  color: #222;
+}
+.rowMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: #2b3035;
+  font-weight: 700;
+}
+.metaAuthor {
+  font-weight: 900;
+}
+.metaDot {
+  margin: 0 2px;
+  opacity: 0.6;
+}
+.metaSep {
+  flex: 0 0 1px;
+  height: 14px;
+  background: #e5e7eb;
+  margin: 0 6px 0 2px;
+}
+
+/* 썸네일 */
+.rowRight {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.thumbImg {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 4px solid #121212;
+  border-radius: 12px;
+}
+.thumbPlaceholder {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #cfe1ff;
+  border: 4px solid #121212;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+}
+
+/* ===== 제목 링크 리셋 (보라색/밑줄 방지) ===== */
+.titleLink,
+.titleLink:link,
+.titleLink:visited,
+.titleLink:hover,
+.titleLink:active,
+.titleLink:focus {
+  color: inherit;
+  text-decoration: none;
+  display: inline-block;
+}
+/* Best/Board 제목의 채움/윤곽선 유지 */
+.postTitle .titleLink,
+.rowTitle .titleLink {
+  -webkit-text-fill-color: inherit; /* 부모의 채움색 따라감 */
+  -webkit-text-stroke: inherit; /* 부모의 윤곽선 굵기/색 따라감 */
+}
+/* 접근성: 키보드 포커스 링 */
+.titleLink:focus-visible {
+  outline: 3px solid #5a5df6;
+  outline-offset: 2px;
+}
+
+/* 모바일 햄버거 */
+.mobileHamburger {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 60;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.mobileHamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #212529;
+}
+@media (min-width: 768px) {
+  .mobileHamburger {
+    display: none;
+  }
+}
+
+/* 작은 화면 보정 */
+@media (max-width: 860px) {
+  .boardRow {
+    grid-template-columns: 1fr;
+  }
+  .rowRight {
+    order: 2;
+  }
+}
+@media (max-width: 768px) {
+  .pageContent {
+    padding: 0 16px 24px;
+  }
+  .pillTabs {
+    justify-content: center;
+    gap: 12px;
+    margin-right: 0;
+  }
+}
+
+/* 칩 오른쪽 정렬용 */
+.spacer {
+  flex: 1;
+}
+
+/* 글쓰기 버튼 (상단 우측) */
+.writeBtn {
+  padding: 10px 18px;
+  border: 4px solid #121212;
+  border-radius: 999px;
+  background: #5a5df6;
+  color: #fff;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+  text-decoration: none;
+  display: inline-block;
+  transition: transform 120ms ease;
+}
+.writeBtn:hover {
+  transform: translateY(-1px);
+}
+.writeBtn:active {
+  transform: translateY(0);
+}
+.writeBtn:focus-visible {
+  outline: 3px solid #111;
+  outline-offset: 2px;
+}
+
+/* 모바일 플로팅 FAB */
+.fabWrite {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 60px;
+  height: 60px;
+  border: 5px solid #121212;
+  border-radius: 50%;
+  background: #5a5df6;
+  color: #fff;
+  font-weight: 900;
+  font-size: 30px;
+  display: none; /* 데스크탑에서는 숨김 */
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  z-index: 70;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.25);
+}
+.fabWrite:focus-visible {
+  outline: 3px solid #111;
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .fabWrite {
+    display: flex;
+  }
+}

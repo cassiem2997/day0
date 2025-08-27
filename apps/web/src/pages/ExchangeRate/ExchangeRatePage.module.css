@@ -1,0 +1,104 @@
+/* ===== 레이아웃 기본 ===== */
+.container {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  background: #f3fcff;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.pageContent {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px 40px;
+  box-sizing: border-box;
+}
+
+/* ===== EXCHANGE 타이틀 ===== */
+.hero {
+  margin-top: 24px; /* 상단 여백 */
+  padding-left: 6px; /* 모바일 햄버거와 살짝 간격 */
+}
+
+.exchangeTitle {
+  margin: 20px 0 12px 0;
+  font-size: clamp(36px, 6vw, 50px);
+  font-weight: 900;
+  line-height: 1.05;
+  color: #111;
+  letter-spacing: 4px;
+  text-align: left;
+  font-family: "Mungyeong-Gamhong-Apple";
+}
+
+/* 그래프 섹션 여백 */
+.chartSection {
+  margin-top: 60px;
+}
+
+/* ===== 모바일 전용 햄버거 ===== */
+.mobileHamburger {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 60;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.mobileHamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #212529;
+}
+
+@media (min-width: 768px) {
+  .mobileHamburger {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageContent {
+    padding: 0 16px 24px;
+  }
+  .hero {
+    margin-top: 16px;
+    padding-left: 4px;
+  }
+  .exchangeTitle {
+    font-size: clamp(28px, 12vw, 44px);
+  }
+}
+.chartHeader {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 6px 0 8px 0; /* 타이틀과 그래프 사이 */
+}
+
+.chartSection {
+  margin-top: 8px;
+}
+.chartSection {
+  margin-top: 8px;
+}
+.cardSection {
+  margin-top: 18px;
+}
