@@ -5,9 +5,8 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080/",
   timeout: 8000,
   headers: {
-    Accept: "application/json", // ← 이 정도만 전역으로
+    Accept: "application/json",
   },
-  // withCredentials: true, // 쿠키 기반이면 사용
 });
 
 api.interceptors.request.use((config) => {
