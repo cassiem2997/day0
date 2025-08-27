@@ -1,11 +1,9 @@
-// src/pages/Login/LoginPage.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./LoginPage.module.css";
 import Character from "../../assets/character.svg";
 import Swal from "sweetalert2";
 
-// API
 import {
   signUp,
   login,
@@ -20,15 +18,12 @@ type LocalGender = "" | "MALE" | "FEMALE";
 export default function LoginPage() {
   const navigate = useNavigate();
 
-  // 슬라이드 상태: false = 로그인, true = 회원가입
   const [rightPanel, setRightPanel] = useState(false);
 
-  // 대학 목록 상태
   const [universities, setUniversities] = useState<UniversityHome[]>([]);
   const [uniLoading, setUniLoading] = useState(false);
   const [uniError, setUniError] = useState<string | null>(null);
 
-  // 회원가입 폼 상태
   const [signUpForm, setSignUpForm] = useState({
     name: "",
     nickname: "",
@@ -40,16 +35,13 @@ export default function LoginPage() {
     homeUniversityId: "" as "" | number,
   });
 
-  // 로그인 폼 상태
   const [loginForm, setLoginForm] = useState({
     email: "",
     password: "",
   });
 
-  // 중복 제출 방지
   const [submitting, setSubmitting] = useState(false);
 
-  // 대학 목록 로드 (초기 1회)
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -75,14 +67,12 @@ export default function LoginPage() {
     };
   }, []);
 
-  // 공통 change handler
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
 
     if (rightPanel) {
-      // 회원가입 입력 중
       if (name === "homeUniversityId") {
         const parsed =
           value === "" ? "" : Number.isNaN(Number(value)) ? "" : Number(value);
@@ -91,12 +81,10 @@ export default function LoginPage() {
         setSignUpForm((s) => ({ ...s, [name]: value }));
       }
     } else {
-      // 로그인 입력 중
       setLoginForm((s) => ({ ...s, [name]: value }));
     }
   };
 
-  // ---------------- 로그인 ----------------
   const handleSignInSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
@@ -144,7 +132,6 @@ export default function LoginPage() {
     }
   };
 
-  // ---------------- 회원가입 ----------------
   const handleSignUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
@@ -201,7 +188,7 @@ export default function LoginPage() {
         confirmButtonColor: "#a8d5ff",
         background: "#f9f9f9",
       });
-      setRightPanel(false); // 로그인 화면으로
+      setRightPanel(false);
     } catch (err: any) {
       const message =
         err?.response?.data?.message ||
@@ -225,7 +212,6 @@ export default function LoginPage() {
           rightPanel ? styles["right-panel-active"] : ""
         }`}
       >
-        {/* ========= Sign Up ========= */}
         <div
           className={`${styles["form-container"]} ${styles["sign-up-container"]} ${styles.bluePanel}`}
         >
@@ -271,7 +257,6 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* 출신 대학교 드롭다운 */}
               <select
                 className={styles.input}
                 name="homeUniversityId"
@@ -332,7 +317,6 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* ========= Sign In ========= */}
         <div
           className={`${styles["form-container"]} ${styles["sign-in-container"]} ${styles.bluePanel}`}
         >
@@ -368,7 +352,6 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* ========= Overlay ========= */}
         <div className={styles["overlay-container"]}>
           <div className={styles.overlay}>
             <div
