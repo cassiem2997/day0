@@ -14,7 +14,6 @@ export interface SignUpPayload {
   gender: Gender;
   birth: string;
   homeUniversityId: number;
-  // 필요 시 destUniversityId 등 다른 필드는 여기에 추가
 }
 
 export interface SignUpResponse {
@@ -62,7 +61,6 @@ export interface LoginResponse {
 
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
   const { data } = await api.post<LoginResponse>("/auth/login", payload);
-  // 쿠키는 브라우저가 자동으로 저장/전송하므로 따로 처리할 것 없음
   return data;
 }
 
@@ -85,6 +83,82 @@ export async function me(): Promise<MeResponse> {
 }
 
 export async function refresh(): Promise<void> {
-  // 쿠키의 refreshToken을 사용해 서버가 accessToken 쿠키 재발급
   await api.post("/auth/refresh");
+}
+
+/* =======================
+ * 사용자 프로필 조회 / 수정
+ * ======================= */
+export interface UserProfile {
+  userId: number;
+  name: string;
+  email: string;
+  nickname: string;
+  gender: Gender | string;
+  birth: string; // ISO (YYYY-MM-DD)
+  profileImage?: string | null; // 이미지 URL
+  mileage?: number;
+  homeUnivId?: number;
+  destUnivId?: number;
+}
+
+export interface GetUserProfileResponse {
+  success: boolean;
+  data: UserProfile;
+  message?: string;
+  errorCode?: string;
+}
+
+/** 프로필 조회: GET /users/profile?userId=xx */
+export async function getUserProfile(userId: number) {
+  const { data } = await api.get<GetUserProfileResponse>("/users/profile", {
+    params: { userId },
+  });
+  return data;
+}
+
+export interface UpdateUserProfileBody {
+  name?: string;
+  nickname?: string;
+  gender?: Gender;
+  birth?: string; // YYYY-MM-DD
+  homeUnivId?: number;
+  destUnivId?: number;
+  deleteProfileImage?: boolean; // 프로필 사진 삭제 시 true
+}
+
+export interface UpdateUserProfileResponse {
+  success: boolean;
+  data: UserProfile;
+  message?: string;
+  errorCode?: string;
+}
+
+/** 프로필 수정: PATCH /users/profile?userId=xx (multipart/form-data) */
+export async function updateUserProfile(
+  userId: number,
+  user: UpdateUserProfileBody,
+  profileImage?: File | Blob | null
+) {
+  const formData = new FormData();
+
+  // JSON 본문을 Blob 으로 넣어줌
+  const userBlob = new Blob([JSON.stringify(user)], {
+    type: "application/json",
+  });
+  formData.append("user", userBlob);
+
+  if (profileImage) {
+    formData.append("profileImage", profileImage);
+  }
+
+  const { data } = await api.patch<UpdateUserProfileResponse>(
+    "/users/profile",
+    formData,
+    {
+      params: { userId },
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
+  return data;
 }
