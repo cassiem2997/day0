@@ -12,8 +12,8 @@
 .title {
   position: relative;
   margin: 0 0 18px 0;
-  font-family: "Mungyeong-Gamhong-Apple", system-ui, -apple-system, sans-serif;
-  font-weight: 900;
+  font-family: "EF_jejudoldam";
+  font-weight: 500;
   font-size: clamp(30px, 6vw, 54px);
   letter-spacing: 2px;
   line-height: 1.05;
@@ -40,7 +40,7 @@
   font-weight: 900;
   padding: 16px 18px;
   font-family: "Mungyeong-Gamhong-Apple";
-  color: #FFF;
+  color: #fff;
   -webkit-text-fill-color: #fff;
   -webkit-text-stroke: 1.2px #121212;
   /* border-right: 6px solid #121212; */
