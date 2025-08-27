@@ -27,6 +27,7 @@ import com.travel0.day0.common.dto.PagedResponse;
 import org.springframework.data.domain.PageImpl;
 
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -61,6 +62,7 @@ public class UserChecklistService {
                 .template(template)
                 .title(request.getTitle())
                 .visibility(request.getVisibility())
+                .linkedAmount(request.getAmount())
                 .build();
 
         userChecklist = userChecklistRepository.save(userChecklist);
@@ -83,7 +85,7 @@ public class UserChecklistService {
                         .dueDate(dueDate)
                         .status(ChecklistItemStatus.TODO)
                         .tag(templateItem.getTag())
-                        .linkedAmount(templateItem.getDefaultAmount())
+                        .linkedAmount(userChecklist.getLinkedAmount())
                         .build();
 
                 userChecklistItemRepository.save(userItem);
@@ -148,7 +150,15 @@ public class UserChecklistService {
         if (request.getVisibility() != null) {
             checklist.setVisibility(request.getVisibility());
         }
+        if(request.getAmount() != null){
+            BigDecimal newAmount = request.getAmount();
+            checklist.setLinkedAmount(newAmount);
 
+            checklist.getItems().forEach(item ->
+                    item.setLinkedAmount(newAmount)
+            );
+
+        }
         checklist = userChecklistRepository.save(checklist);
         return convertToResponse(checklist);
     }
@@ -255,6 +265,7 @@ public class UserChecklistService {
                 .templateId(checklist.getTemplate() != null ? checklist.getTemplate().getTemplateId() : null)
                 .title(checklist.getTitle())
                 .visibility(checklist.getVisibility())
+                .amount(checklist.getLinkedAmount())
                 .createdAt(checklist.getCreatedAt())
                 .build();
     }
