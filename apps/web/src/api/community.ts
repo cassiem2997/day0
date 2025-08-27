@@ -151,3 +151,98 @@ export async function deleteCommunityPost(postId: number, userId: number) {
   );
   return data;
 }
+
+/* ---------- 게시글 좋아요 ---------- */
+export interface LikePostResponse {
+  success: boolean;
+  data: any; // 보통 빈 객체 {} 반환
+  message?: string;
+  errorCode?: string;
+}
+
+/** 게시글 좋아요: POST /community/posts/{postId}/like?userId=xx */
+export async function likeCommunityPost(postId: number, userId: number) {
+  const { data } = await api.post<LikePostResponse>(
+    `/community/posts/${postId}/like`,
+    {},
+    { params: { userId } }
+  );
+  return data;
+}
+
+/** 게시글 좋아요 취소: DELETE /community/posts/{postId}/like?userId=xx */
+export async function unlikeCommunityPost(postId: number, userId: number) {
+  const { data } = await api.delete<LikePostResponse>(
+    `/community/posts/${postId}/like`,
+    { params: { userId } }
+  );
+  return data;
+}
+
+/* ---------- 댓글 작성 ---------- */
+export interface CreateReplyPayload {
+  body: string;
+}
+
+export interface Reply {
+  replyId: number;
+  postId: number;
+  authorId: number;
+  authorNickname: string;
+  body: string;
+  createdAt: string; // ISO
+}
+
+export interface CreateReplyResponse {
+  success: boolean;
+  data: Reply;
+  message?: string;
+  errorCode?: string;
+}
+
+/** 댓글 작성: POST /community/posts/{postId}/replies?userId=xx */
+export async function createCommunityReply(
+  postId: number,
+  userId: number,
+  payload: CreateReplyPayload
+) {
+  const { data } = await api.post<CreateReplyResponse>(
+    `/community/posts/${postId}/replies`,
+    payload,
+    { params: { userId } }
+  );
+  return data;
+}
+
+/* ---------- 댓글 삭제 ---------- */
+export interface DeleteReplyResponse {
+  success: boolean;
+  data: any; // {}
+  message?: string;
+  errorCode?: string;
+}
+
+/** 댓글 삭제: DELETE /community/replies/{replyId}?userId=xx */
+export async function deleteCommunityReply(replyId: number, userId: number) {
+  const { data } = await api.delete<DeleteReplyResponse>(
+    `/community/replies/${replyId}`,
+    { params: { userId } }
+  );
+  return data;
+}
+
+/* ---------- 댓글 조회 ---------- */
+export interface GetRepliesResponse {
+  success: boolean;
+  data: Reply[];
+  message?: string;
+  errorCode?: string;
+}
+
+/** 댓글 조회: GET /community/posts/{postId}/replies */
+export async function getCommunityReplies(postId: number) {
+  const { data } = await api.get<GetRepliesResponse>(
+    `/community/posts/${postId}/replies`
+  );
+  return data;
+}

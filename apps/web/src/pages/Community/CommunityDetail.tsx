@@ -4,14 +4,20 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import styles from "./CommunityDetail.module.css";
+import Swal from "sweetalert2";
 
 import api from "../../api/axiosInstance";
 import {
   getCommunityPostDetail,
   deleteCommunityPost,
+  likeCommunityPost,
+  unlikeCommunityPost,
+  getCommunityReplies,
+  createCommunityReply,
+  deleteCommunityReply,
   type PostDetail as ApiPostDetail,
+  type Reply,
 } from "../../api/community";
-import Swal from "sweetalert2";
 
 /* ───────────────── 공통: 모바일 판별 ───────────────── */
 function useIsMobile(breakpoint = 768) {
@@ -39,6 +45,7 @@ type DetailPost = {
   views: number;
   comments: number;
   likes: number;
+  liked: boolean;
   thumbnail?: string | null;
   body: string;
 };
@@ -90,6 +97,7 @@ function mapToDetailView(p: ApiPostDetail): DetailPost {
     views: (p as any).viewCount ?? 0,
     comments: p.replyCount ?? 0,
     likes: p.likeCount ?? 0,
+    liked: p.liked ?? false,
     thumbnail: p.imageUrl ?? null,
     body: p.body ?? "",
   };
@@ -108,6 +116,9 @@ export default function CommunityDetail() {
   const [post, setPost] = useState<DetailPost | null>(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  const [replies, setReplies] = useState<Reply[]>([]);
+  const [replyInput, setReplyInput] = useState("");
 
   /* 로그인 사용자(userId) 조회 */
   useEffect(() => {
@@ -144,28 +155,86 @@ export default function CommunityDetail() {
     })();
   }, [pid, userId]);
 
-  /* 게시글 삭제 핸들러 */
-  async function handleDelete() {
-    if (!post || !userId) return;
+  /* 댓글 목록 불러오기 */
+  useEffect(() => {
+    if (!Number.isFinite(pid)) return;
+    (async () => {
+      try {
+        const data = await getCommunityReplies(pid);
+        setReplies(data.data);
+      } catch (e) {
+        console.error("댓글 불러오기 실패", e);
+      }
+    })();
+  }, [pid]);
 
-    const result = await Swal.fire({
-      title: "정말 삭제하시겠습니까?",
-      text: "삭제한 글은 되돌릴 수 없습니다.",
+  /* 좋아요 토글 */
+  async function onToggleLike() {
+    if (!post || !userId) return;
+    try {
+      if (post.liked) {
+        await unlikeCommunityPost(post.id, userId);
+        setPost({ ...post, liked: false, likes: post.likes - 1 });
+      } else {
+        await likeCommunityPost(post.id, userId);
+        setPost({ ...post, liked: true, likes: post.likes + 1 });
+      }
+    } catch (e) {
+      console.error("좋아요 토글 실패", e);
+    }
+  }
+
+  /* 게시글 삭제 */
+  async function onDeletePost() {
+    if (!post || !userId) return;
+    const confirm = await Swal.fire({
+      title: "삭제하시겠습니까?",
+      text: "삭제한 글은 복구할 수 없습니다.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "삭제",
       cancelButtonText: "취소",
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
     });
-
-    if (result.isConfirmed) {
+    if (confirm.isConfirmed) {
       try {
         await deleteCommunityPost(post.id, userId);
         await Swal.fire("삭제 완료", "게시글이 삭제되었습니다.", "success");
         nav("/community", { replace: true });
       } catch (e) {
-        Swal.fire("오류", "삭제 중 문제가 발생했습니다.", "error");
+        Swal.fire("오류", "삭제에 실패했습니다.", "error");
+      }
+    }
+  }
+
+  /* 댓글 작성 */
+  async function onAddReply() {
+    if (!replyInput.trim() || !userId || !pid) return;
+    try {
+      await createCommunityReply(pid, userId, { body: replyInput.trim() });
+      setReplyInput("");
+      const data = await getCommunityReplies(pid);
+      setReplies(data.data);
+    } catch (e) {
+      console.error("댓글 작성 실패", e);
+    }
+  }
+
+  /* 댓글 삭제 */
+  async function onDeleteReply(replyId: number) {
+    if (!userId) return;
+    const confirm = await Swal.fire({
+      title: "댓글을 삭제하시겠습니까?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "삭제",
+      cancelButtonText: "취소",
+    });
+    if (confirm.isConfirmed) {
+      try {
+        await deleteCommunityReply(replyId, userId);
+        setReplies(replies.filter((r) => r.replyId !== replyId));
+      } catch (e) {
+        Swal.fire("오류", "댓글 삭제 실패", "error");
       }
     }
   }
@@ -241,12 +310,16 @@ export default function CommunityDetail() {
                   <div className={styles.actionBar}>
                     <button
                       type="button"
-                      className={`${styles.chip} ${styles.chipPrimary}`}
+                      className={`${styles.chip} ${
+                        post.liked ? styles.chipPrimary : ""
+                      }`}
+                      onClick={onToggleLike}
                     >
-                      좋아요 <b>{post.likes}</b>
+                      {post.liked ? "좋아요 취소" : "좋아요"}{" "}
+                      <b>{post.likes}</b>
                     </button>
                     <button type="button" className={styles.chip}>
-                      댓글 <b>{post.comments}</b>
+                      댓글 <b>{replies.length}</b>
                     </button>
                     <div className={styles.rightStats}>
                       <span>조회 {post.views}</span>
@@ -258,11 +331,49 @@ export default function CommunityDetail() {
               <section className={styles.commentCard} aria-label="댓글">
                 <div className={styles.commentHead}>
                   <strong>댓글</strong>
-                  <span className={styles.count}>({post.comments})</span>
+                  <span className={styles.count}>({replies.length})</span>
                 </div>
+
+                <div style={{ margin: "8px 0" }}>
+                  <textarea
+                    className={styles.textarea}
+                    placeholder="댓글을 입력하세요"
+                    value={replyInput}
+                    onChange={(e) => setReplyInput(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className={styles.chip}
+                    onClick={onAddReply}
+                    disabled={!replyInput.trim()}
+                  >
+                    등록
+                  </button>
+                </div>
+
+                <ul style={{ marginTop: "12px" }}>
+                  {replies.map((r) => (
+                    <li key={r.replyId} style={{ marginBottom: "8px" }}>
+                      <div>
+                        <b>{r.authorNickname}</b> ·{" "}
+                        <small>{timeAgo(r.createdAt)}</small>
+                      </div>
+                      <div>{r.body}</div>
+                      {userId === r.authorId && (
+                        <button
+                          type="button"
+                          className={styles.chip}
+                          onClick={() => onDeleteReply(r.replyId)}
+                        >
+                          삭제
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
               </section>
 
-              {/* 작성자일 때만 수정/삭제 버튼 노출 */}
+              {/* 작성자 전용 수정/삭제 버튼 */}
               {userId && post.authorId === userId && (
                 <div style={{ marginTop: "12px", display: "flex", gap: "8px" }}>
                   <button
@@ -276,8 +387,8 @@ export default function CommunityDetail() {
                   </button>
                   <button
                     type="button"
-                    className={`${styles.chip} ${styles.chipPrimary}`}
-                    onClick={handleDelete}
+                    className={styles.chip}
+                    onClick={onDeletePost}
                   >
                     삭제하기
                   </button>
