@@ -1,6 +1,5 @@
-// src/pages/Community/CommunityDetail.tsx
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import styles from "./CommunityDetail.module.css";
@@ -25,13 +24,14 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
-/* ───────────────── 뷰 모델(기존 UI 구조 유지) ───────────────── */
+/* ───────────────── 뷰 모델 ───────────────── */
 type DetailPost = {
   id: number;
   category: "CHECKLIST" | "FREE" | "QNA";
   badge: string;
   title: string;
   author: string;
+  authorId: number;
   createdAgo: string;
   views: number;
   comments: number;
@@ -82,8 +82,9 @@ function mapToDetailView(p: ApiPostDetail): DetailPost {
     badge: categoryBadge(p.category),
     title: p.title,
     author: p.authorNickname,
+    authorId: p.authorId,
     createdAgo: timeAgo(p.createdAt),
-    views: (p as any).viewCount ?? 0, // 스웨거에 없으면 0 처리
+    views: (p as any).viewCount ?? 0,
     comments: p.replyCount ?? 0,
     likes: p.likeCount ?? 0,
     thumbnail: p.imageUrl ?? null,
@@ -98,6 +99,7 @@ export default function CommunityDetail() {
 
   const { postId } = useParams();
   const pid = Number(postId);
+  const nav = useNavigate();
 
   const [userId, setUserId] = useState<number | null>(null);
   const [post, setPost] = useState<DetailPost | null>(null);
@@ -141,7 +143,6 @@ export default function CommunityDetail() {
 
   return (
     <div className={styles.container}>
-      {/* 모바일: 사이드바 + 햄버거 */}
       {isMobile ? (
         <>
           <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />
@@ -162,7 +163,6 @@ export default function CommunityDetail() {
         {isMobile ? null : <Header />}
 
         <div className={styles.pageContent}>
-          {/* 로딩/에러 처리 */}
           {loading && (
             <section className={styles.headCard}>불러오는 중…</section>
           )}
@@ -172,7 +172,6 @@ export default function CommunityDetail() {
             </section>
           )}
 
-          {/* 상단: 제목/메타 */}
           {post && !loading && !err && (
             <>
               <section className={styles.headCard} aria-label="게시글 헤더">
@@ -194,7 +193,6 @@ export default function CommunityDetail() {
                 </div>
               </section>
 
-              {/* 본문 */}
               <article className={styles.bodyCard} aria-label="본문">
                 <div className={styles.bodyInner}>
                   <div className={styles.hero}>
@@ -211,7 +209,6 @@ export default function CommunityDetail() {
 
                   <pre className={styles.bodyText}>{post.body}</pre>
 
-                  {/* 액션칩 */}
                   <div className={styles.actionBar}>
                     <button
                       type="button"
@@ -229,18 +226,30 @@ export default function CommunityDetail() {
                 </div>
               </article>
 
-              {/* 댓글 영역 (API 연결 전: 자리만 유지) */}
               <section className={styles.commentCard} aria-label="댓글">
                 <div className={styles.commentHead}>
                   <strong>댓글</strong>
                   <span className={styles.count}>({post.comments})</span>
                 </div>
-                {/* 실제 댓글 API 붙이면 여기 채우기 */}
               </section>
+
+              {/* 작성자일 때만 수정 버튼 노출 */}
+              {userId && post.authorId === userId && (
+                <div style={{ marginTop: "12px" }}>
+                  <button
+                    type="button"
+                    className={styles.chip}
+                    onClick={() =>
+                      nav(`/community/write?edit=1&postId=${post.id}`)
+                    }
+                  >
+                    수정하기
+                  </button>
+                </div>
+              )}
             </>
           )}
 
-          {/* 뒤로가기 */}
           <div className={styles.bottomNav}>
             <Link to="/community" className={styles.linkBack}>
               ← 목록으로

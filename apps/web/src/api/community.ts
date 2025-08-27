@@ -79,6 +79,7 @@ export interface PostDetail {
   category: Cat | string;
   countryCode: string;
   universityId: number;
+  authorId: number;
   authorNickname: string;
   likeCount: number;
   replyCount: number;
@@ -102,6 +103,34 @@ export async function getCommunityPostDetail(postId: number, userId?: number) {
     {
       params: { userId },
     }
+  );
+  return data;
+}
+
+/* ---------- 게시글 수정 ---------- */
+export interface UpdateCommunityPostPayload {
+  title: string;
+  body: string;
+  category: Cat;
+}
+
+export interface UpdateCommunityPostResponse {
+  success: boolean;
+  data: PostDetail; // 수정 후 결과 반환
+  message?: string;
+  errorCode?: string;
+}
+
+/** 게시글 수정: PATCH /community/posts/{postId}?userId=xx */
+export async function updateCommunityPost(
+  postId: number,
+  payload: UpdateCommunityPostPayload,
+  userId: number
+) {
+  const { data } = await api.patch<UpdateCommunityPostResponse>(
+    `/community/posts/${postId}`,
+    payload,
+    { params: { userId } }
   );
   return data;
 }

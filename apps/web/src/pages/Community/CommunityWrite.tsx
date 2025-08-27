@@ -1,4 +1,3 @@
-// src/pages/Community/CommunityWrite.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar/Sidebar";
@@ -13,9 +12,11 @@ import {
 } from "../../api/university";
 import {
   createCommunityPost,
+  updateCommunityPost,
+  getCommunityPostDetail,
   type CommunityPostPayload,
 } from "../../api/community";
-import api from "../../api/axiosInstance"; // ✅ /auth/me 호출용
+import api from "../../api/axiosInstance";
 
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(false);
@@ -36,9 +37,10 @@ export default function CommunityWrite() {
   const toggleSidebar = () => setIsSidebarOpen((p) => !p);
   const nav = useNavigate();
   const [search] = useSearchParams();
+  const editMode = search.get("edit") === "1";
+  const postId = Number(search.get("postId"));
   const initialCat = (search.get("cat") as Cat) || "CHECKLIST";
 
-  // form
   const [cat, setCat] = useState<Cat>(initialCat);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -46,24 +48,20 @@ export default function CommunityWrite() {
   const [preview, setPreview] = useState<string | null>(null);
   const [err, setErr] = useState("");
 
-  // country / university
   const [countries, setCountries] = useState<CountryItem[]>([]);
   const [countryCode, setCountryCode] = useState<string>("");
   const [universities, setUniversities] = useState<UniversityItem[]>([]);
   const [univId, setUnivId] = useState<number>(0);
 
   const [userId, setUserId] = useState<number | null>(null);
-
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // 로그인된 유저 정보 불러오기
   useEffect(() => {
     (async () => {
       try {
         const res = await api.get("/auth/me", { withCredentials: true });
-        setUserId(res.data.userId); // swagger: { message, email, userId }
-      } catch (e) {
-        console.error("유저 정보 불러오기 실패", e);
+        setUserId(res.data.userId);
+      } catch {
         setUserId(null);
       }
     })();
@@ -109,6 +107,28 @@ export default function CommunityWrite() {
     return () => URL.revokeObjectURL(url);
   }, [file]);
 
+  // --- 수정 모드일 때 기존 값 불러오기 ---
+  useEffect(() => {
+    if (editMode && Number.isFinite(postId)) {
+      (async () => {
+        try {
+          const data = await getCommunityPostDetail(
+            postId,
+            userId ?? undefined
+          );
+          const p = data.data;
+          setTitle(p.title);
+          setContent(p.body);
+          setCat(p.category as Cat);
+          setCountryCode(p.countryCode);
+          setUnivId(p.universityId);
+        } catch (e) {
+          console.error("수정 모드 초기값 불러오기 실패", e);
+        }
+      })();
+    }
+  }, [editMode, postId, userId]);
+
   const isValid =
     title.trim().length > 0 &&
     content.trim().length >= 5 &&
@@ -151,12 +171,27 @@ export default function CommunityWrite() {
     };
 
     try {
-      // 파일은 일단 제외하고 JSON 스펙대로 전송
-      await createCommunityPost(payload, userId);
+      if (editMode && Number.isFinite(postId)) {
+        await updateCommunityPost(
+          postId,
+          {
+            title: payload.title,
+            body: payload.body,
+            category: payload.category,
+          },
+          userId
+        );
+      } else {
+        await createCommunityPost(payload, userId);
+      }
       nav("/community", { replace: true });
     } catch (e) {
       console.error(e);
-      setErr("등록 중 오류가 발생했습니다.");
+      setErr(
+        editMode
+          ? "수정 중 오류가 발생했습니다."
+          : "등록 중 오류가 발생했습니다."
+      );
     }
   }
 
@@ -185,9 +220,7 @@ export default function CommunityWrite() {
         <div className={styles.page}>
           <h1 className={styles.title}>COMMUNITY</h1>
 
-          {/* 단일 래퍼 */}
           <form className={styles.card} onSubmit={onSubmit}>
-            {/* 제목 */}
             <label className={styles.field}>
               <span className={styles.label}>제목을 입력하세요</span>
               <input
@@ -199,7 +232,6 @@ export default function CommunityWrite() {
               />
             </label>
 
-            {/* 내용 */}
             <label className={styles.field}>
               <span className={styles.label}>내용</span>
               <textarea
@@ -211,7 +243,6 @@ export default function CommunityWrite() {
               />
             </label>
 
-            {/* 파일 업로드 (선택) */}
             <div className={styles.field}>
               <span className={styles.label}>파일 업로드</span>
               <div className={styles.fileRow}>
@@ -239,7 +270,6 @@ export default function CommunityWrite() {
               </div>
             </div>
 
-            {/* 카테고리 */}
             <div className={styles.field}>
               <span className={styles.label}>카테고리</span>
               <div className={styles.pills}>
@@ -260,7 +290,6 @@ export default function CommunityWrite() {
               </div>
             </div>
 
-            {/* 국가/학교 */}
             <div className={styles.field}>
               <span className={styles.label}>국가 / 학교명</span>
               <div className={styles.row2}>
@@ -296,7 +325,6 @@ export default function CommunityWrite() {
 
             {err && <p className={styles.error}>{err}</p>}
 
-            {/* 액션 */}
             <div className={styles.actions}>
               <button
                 type="button"
@@ -310,7 +338,7 @@ export default function CommunityWrite() {
                 className={styles.btnPrimary}
                 disabled={!isValid}
               >
-                등록하기
+                {editMode ? "수정하기" : "등록하기"}
               </button>
             </div>
           </form>
