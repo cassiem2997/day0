@@ -78,16 +78,12 @@ export default function LoginPage() {
         password: loginForm.password,
       };
 
+      // ★ 서버가 HttpOnly 쿠키로 토큰 내려줌 (응답 바디엔 message/email/userId 정도)
       const res = await login(payload);
-
-      localStorage.setItem("accessToken", res.accessToken);
-      if (res.refreshToken) {
-        localStorage.setItem("refreshToken", res.refreshToken);
-      }
 
       await Swal.fire({
         title: "로그인 성공!",
-        text: "환영합니다.",
+        text: res?.message || "환영합니다.",
         icon: "success",
         confirmButtonText: "확인",
         confirmButtonColor: "#a8d5ff",
@@ -143,8 +139,7 @@ export default function LoginPage() {
       password: signUpForm.password,
       gender: (signUpForm.gender || "MALE") as Gender,
       birth: signUpForm.birth,
-      homeUniversityId: 0,
-      destUniversityId: 0,
+      homeUniversityId: 1,
     };
 
     try {
