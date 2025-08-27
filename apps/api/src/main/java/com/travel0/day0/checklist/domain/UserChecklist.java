@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,4 +64,7 @@ public class UserChecklist {
 
     @OneToMany(mappedBy = "userChecklist", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserChecklistItem> items;
+
+    @Column(name = "linked_amount", precision = 18, scale = 2)
+    private BigDecimal linkedAmount;
 }
