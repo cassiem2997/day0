@@ -27,7 +27,7 @@ const DEFAULT_ITEMS: ChecklistItem[] = [
 export default function MyPageChecklist({ items = DEFAULT_ITEMS }: Props) {
   return (
     <section className={styles.wrap} aria-label="체크리스트 목록">
-      <h2 className={styles.title}>헤이 - 체크</h2>
+      <h2 className={styles.title}>헤이-체크</h2>
 
       <div
         className={styles.tableCard}
