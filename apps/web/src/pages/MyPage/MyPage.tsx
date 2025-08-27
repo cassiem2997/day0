@@ -1,9 +1,12 @@
+// src/pages/MyPage/MyPage.tsx
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import styles from "./MyPage.module.css";
 import MyPageChecklist from "./MyPageChecklist";
 import MyPageSavings from "./MyPageSavings";
+import MyPageExchange from "./MyPageExchange";
+import MyPageProfile from "./MyPageProfile"; 
 
 /* 모바일 판별 */
 function useIsMobile(breakpoint = 768) {
@@ -19,12 +22,12 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
-type MyTab = "checklists" | "saving" | "exchange";
+type MyTab = "profile" | "checklists" | "saving" | "exchange";
 
 export default function MyPage() {
   const isMobile = useIsMobile(768);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [tab, setTab] = useState<MyTab>("checklists");
+  const [tab, setTab] = useState<MyTab>("profile"); 
 
   const toggleSidebar = () => setIsSidebarOpen((p) => !p);
 
@@ -61,6 +64,17 @@ export default function MyPage() {
             <button
               type="button"
               role="tab"
+              aria-selected={tab === "profile"}
+              className={`${styles.pill} ${
+                tab === "profile" ? styles.pillActive : styles.pillIdle
+              }`}
+              onClick={() => setTab("profile")}
+            >
+              Profile
+            </button>
+            <button
+              type="button"
+              role="tab"
               aria-selected={tab === "checklists"}
               className={`${styles.pill} ${
                 tab === "checklists" ? styles.pillActive : styles.pillIdle
@@ -93,69 +107,11 @@ export default function MyPage() {
             </button>
           </div>
 
-          {/* 프로필 카드 */}
-          <section className={styles.profileCard} aria-label="프로필 요약">
-            {/* 왼쪽: 아바타 + 기본정보 */}
-            <div className={styles.profileLeft}>
-              <div className={styles.avatarBox}>
-                <span className={styles.avatarText}>이미지</span>
-              </div>
-
-              <div className={styles.profileText}>
-                <h2 className={styles.nick}>닉네임</h2>
-                <p className={styles.subInfo}>
-                  국내대학이름
-                  <br />
-                </p>
-              </div>
-
-              <div className={styles.leftBottom}>
-                <button type="button" className={styles.editBtn}>
-                  수정
-                </button>
-              </div>
-            </div>
-
-            {/* 오른쪽: D-Day + 출국/국가/대학 */}
-            <div className={styles.profileRight}>
-              <div className={styles.hangingBadgeWrap}>
-                <div className={styles.hangingBadge}>
-                  <span className={styles.badgeLabel}>D − 51</span>
-                </div>
-              </div>
-
-              <div className={styles.fieldGroup}>
-                <div className={styles.fieldKey}>출국일</div>
-                <div className={styles.fieldVal}>
-                  <span className={styles.valText}>2025. 08. 31(일)</span>
-                </div>
-              </div>
-
-              <div className={styles.fieldGroup}>
-                <div className={styles.fieldKey}>국가</div>
-                <div className={styles.fieldVal}>
-                  <span className={styles.valText}>대학교이름(JPN)</span>
-                </div>
-              </div>
-            </div>
-          </section>
-
           {/* 탭별 콘텐츠 */}
+          {tab === "profile" && <MyPageProfile />}
           {tab === "checklists" && <MyPageChecklist />}
-
           {tab === "saving" && <MyPageSavings />}
-
-          {tab === "exchange" && (
-            <section
-              style={{ marginTop: 18, padding: "12px 4px" }}
-              aria-label="환전 섹션"
-            >
-              <h2 style={{ margin: 0, fontWeight: 900 }}>Exchange</h2>
-              <p style={{ marginTop: 8, color: "#60646c" }}>
-                환전 탭 콘텐츠 영역 (준비중)
-              </p>
-            </section>
-          )}
+          {tab === "exchange" && <MyPageExchange />}
         </div>
       </main>
     </div>
