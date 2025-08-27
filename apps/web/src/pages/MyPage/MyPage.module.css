@@ -1,0 +1,279 @@
+/* ===== 레이아웃 ===== */
+.container {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  background: #f1f7fb;
+}
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.pageContent {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 40px 48px;
+  box-sizing: border-box;
+}
+
+/* ===== 타이틀 ===== */
+.myPageTitle {
+  margin: 20px 0 12px 0;
+  font-size: clamp(36px, 6.4vw, 64px);
+  font-weight: 500;
+  line-height: 1.05;
+  color: #111;
+  letter-spacing: 4px;
+  text-align: left;
+  font-family: "Mungyeong-Gamhong-Apple";
+}
+
+/* ===== pill 탭 (커뮤니티 우측 상단 스타일) ===== */
+.pillTabs {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 6px 6px 10px; /* 우측 상단으로 붙임 */
+}
+.pill {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 4px solid #121212;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+.pillIdle {
+  background: #fff;
+  color: #111;
+}
+.pillActive {
+  background: #5a5df6;
+  color: #fff;
+}
+.pill:hover {
+  transform: translateY(-1px);
+}
+.pill:active {
+  transform: translateY(0);
+}
+
+/* ===== 프로필 카드 ===== */
+.profileCard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0; /* 가운데 보더로 분리 */
+  background: #e9f1ff;
+  border: 6px solid #121212;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.profileLeft {
+  position: relative;
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 14px 16px;
+  padding: 22px 24px;
+  align-items: center;
+  background: #e9f1ff;
+}
+.avatarBox {
+  grid-row: 1 / span 3;
+  width: 160px;
+  height: 160px;
+  border: 6px solid #121212;
+  border-radius: 24px;
+  background: #d6e7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatarText {
+  font-family: "EF_jejudoldam";
+  font-weight: 900;
+  font-size: 36px;
+  color: #111;
+}
+.profileText {
+  align-self: start;
+}
+.nick {
+  margin: 0;
+  font-weight: 900;
+  font-size: clamp(26px, 3.6vw, 42px);
+  letter-spacing: 2px;
+}
+.subInfo {
+  margin: 10px 0 0 0;
+  color: #1c1c1c;
+  font-weight: 800;
+  line-height: 1.4;
+  white-space: pre-line;
+}
+.leftBottom {
+  grid-column: 2 / -1;
+  align-self: end;
+}
+.editBtn {
+  padding: 8px 18px;
+  border: 5px solid #121212;
+  border-radius: 12px;
+  background: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+}
+
+/* 가운데 세로 보더 */
+.profileCard::before {
+  content: "";
+  position: absolute;
+}
+.profileCard > .profileRight {
+  border-left: 6px solid #121212;
+}
+
+/* 오른쪽 영역 */
+.profileRight {
+  position: relative;
+  padding: 22px 24px;
+  background: #eef4ff;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.hangingBadgeWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 2px;
+  margin-bottom: 6px;
+}
+.hangingBadge {
+  position: relative;
+  padding: 10px 22px;
+  border: 6px solid #121212;
+  border-radius: 999px;
+  background: #5a5df6;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.25);
+}
+.hangingBadge::before,
+.hangingBadge::after {
+  content: "";
+  position: absolute;
+  top: -26px;
+  width: 4px;
+  height: 26px;
+  background: #121212;
+}
+.hangingBadge::before {
+  left: 35%;
+}
+.hangingBadge::after {
+  right: 35%;
+}
+
+.badgeLabel {
+  font-family: "EF_jejudoldam";
+  font-weight: 900;
+  font-size: clamp(22px, 3.4vw, 36px);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  -webkit-text-stroke: 8px #121212;
+  paint-order: stroke fill;
+  line-height: 1;
+}
+
+/* 키-값 필드 */
+.fieldGroup {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+.fieldKey {
+  padding: 10px 12px;
+  border: 5px solid #121212;
+  border-radius: 12px;
+  background: #d9e7ff;
+  font-weight: 500;
+  text-align: center;
+  font-family: "EF_jejudoldam";
+}
+.fieldVal {
+  padding: 10px 14px;
+  border: 5px solid #121212;
+  border-radius: 14px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.06);
+}
+.valText {
+  font-family: "EF_jejudoldam";
+  font-weight: 500;
+  font-size: clamp(18px, 2.8vw, 28px);
+}
+
+/* 모바일 햄버거 */
+.mobileHamburger {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 60;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.mobileHamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #212529;
+}
+@media (min-width: 768px) {
+  .mobileHamburger {
+    display: none;
+  }
+}
+
+/* 반응형 보정 */
+@media (max-width: 980px) {
+  .profileCard {
+    grid-template-columns: 1fr;
+  }
+  .profileCard > .profileRight {
+    border-left: 0;
+    border-top: 6px solid #121212;
+  }
+  .profileLeft {
+    grid-template-columns: 120px 1fr;
+  }
+  .avatarBox {
+    width: 120px;
+    height: 120px;
+  }
+}
+@media (max-width: 768px) {
+  .pageContent {
+    padding: 0 16px 24px;
+  }
+  .pillTabs {
+    justify-content: center;
+    gap: 10px;
+  } /* 모바일에서는 가운데 정렬 */
+}
