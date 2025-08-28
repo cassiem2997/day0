@@ -1,6 +1,7 @@
 package com.travel0.day0.departures.controller;
 
 import com.travel0.day0.auth.service.PrincipalDetails;
+import com.travel0.day0.common.enums.DepartureStatus;
 import com.travel0.day0.departures.dto.DepartureCreateRequest;
 import com.travel0.day0.departures.dto.DepartureInfoResponse;
 import com.travel0.day0.departures.dto.DepartureUpdateRequest;
@@ -40,9 +41,10 @@ public class DepartureController {
     @GetMapping
     @Operation(summary = "출국정보 목록 조회", description = "사용자의 출국 정보 목록 조회")
     public ResponseEntity<List<DepartureInfoResponse>> getDepartureInfoList(
+            @RequestParam(required = false) DepartureStatus status,
             @RequestParam Long userId
             ){
-        List<DepartureInfoResponse> response = departureService.getDepartureInfoList(userId);
+        List<DepartureInfoResponse> response = departureService.getDepartureInfoList(userId, status);
         return ResponseEntity.ok(response);
     }
 

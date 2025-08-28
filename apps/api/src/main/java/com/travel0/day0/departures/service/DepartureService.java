@@ -1,5 +1,6 @@
 package com.travel0.day0.departures.service;
 
+import com.travel0.day0.common.enums.DepartureStatus;
 import com.travel0.day0.departures.domain.DepartureInfo;
 import com.travel0.day0.departures.dto.DepartureCreateRequest;
 import com.travel0.day0.departures.dto.DepartureInfoResponse;
@@ -62,9 +63,10 @@ public class DepartureService {
         return convertToResponse(departureInfo);
     }
 
-    public List<DepartureInfoResponse> getDepartureInfoList(Long userId) {
+    public List<DepartureInfoResponse> getDepartureInfoList(Long userId, DepartureStatus status) {
         List<DepartureInfo> departureInfoList = departureInfoRepo.findByUser_UserId(userId);
         return departureInfoList.stream()
+                .filter(departure -> status == null || departure.getStatus() == status) // status 필터링
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
