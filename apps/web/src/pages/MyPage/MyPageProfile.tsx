@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./MyPageProfile.module.css";
 import formStyles from "../Checklist/ChecklistMaking.module.css"; // 폼 컨트롤 스타일 재사용
 import {
@@ -74,11 +74,6 @@ export default function MyPageProfile() {
   const [universitiesLoading, setUniversitiesLoading] = useState(false);
   const uniCacheRef = useRef<Record<string, UniversityItem[]>>({}); // countryCode → list 캐시
 
-  const countryNameByCode = useMemo(() => {
-    const map: Record<string, string> = {};
-    countries.forEach((c) => (map[c.countryCode] = c.countryName));
-    return map;
-  }, [countries]);
 
   /** 최초 프로필 */
   useEffect(() => {
