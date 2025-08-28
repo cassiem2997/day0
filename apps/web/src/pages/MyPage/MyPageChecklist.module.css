@@ -165,3 +165,17 @@
     box-shadow: none;
   }
 }
+
+.emptyRow {
+  display: flex;
+  justify-content: center; /* 수평 가운데 */
+  align-items: center; /* 수직 가운데 */
+  padding: 20px 0;
+}
+
+.emptyCell {
+  flex: 1; /* 전체 행 폭 차지 */
+  text-align: center;
+  color: #555;
+  font-size: 15px;
+}
