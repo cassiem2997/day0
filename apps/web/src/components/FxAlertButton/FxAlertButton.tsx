@@ -67,7 +67,7 @@ export default function FxAlertButton({
     // 드롭다운 옵션 생성
     const currencyOptions = SUPPORTED_CURRENCIES.map(currency => 
       `<option value="${currency.code}" ${currency.code === defaultBaseCcy ? 'selected' : ''}>
-        ${currency.code} - ${currency.name}
+        ${currency.code}
        </option>`
     ).join('');
 
