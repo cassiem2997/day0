@@ -95,7 +95,7 @@ public class SavingTxnService {
     }
 
     @Transactional
-    void executeBatchInternal(Instant asOf, int limit) {
+    public void executeBatchInternal(Instant asOf, int limit) {
         var due = scheduleRepository.claimDueForUpdateSkipLocked(asOf, limit);
         for (var ps : due) {
             executeOne(ps.getScheduleId());
