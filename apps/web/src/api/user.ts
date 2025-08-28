@@ -1,4 +1,3 @@
-// src/api/user.ts
 import api from "./axiosInstance";
 
 /* =======================
@@ -101,7 +100,7 @@ export interface UserProfile {
   destUnivId?: number;
 }
 
-/** 서버가 래핑해서 줄 수도 있고( success/data ), 바로 UserProfile을 줄 수도 있음 */
+/** 서버가 래핑해서 줄 수도 있고(success/data), 바로 UserProfile을 줄 수도 있음 */
 export interface GetUserProfileResponse {
   success: boolean;
   data: UserProfile;
@@ -120,20 +119,18 @@ export async function getUserProfile(
     }
   );
 
-  // 래핑 응답 처리
+  // 래핑 응답
   if ((data as any)?.success !== undefined) {
     const res = data as GetUserProfileResponse;
-    if (!res.success || !res.data) {
+    if (!res.success || !res.data)
       throw new Error(res.message ?? "프로필 조회 실패");
-    }
     return res;
   }
 
-  // 비래핑(plain) 응답 처리
+  // 비래핑 응답
   const u = data as UserProfile;
-  if (!u || typeof u !== "object" || u.userId == null) {
+  if (!u || typeof u !== "object" || u.userId == null)
     throw new Error("프로필 조회 실패");
-  }
   return { success: true, data: u };
 }
 
@@ -153,7 +150,9 @@ export interface UpdateUserProfileResponse {
   errorCode?: string;
 }
 
-/** 프로필 수정: PATCH /users/profile?userId=xx (multipart/form-data) */
+/** 프로필 수정: PATCH /users/profile?userId=xx (multipart/form-data)
+ *  → 응답이 래핑/비래핑 어떤 형태든 항상 { success, data }로 정규화해서 반환
+ */
 export async function updateUserProfile(
   userId: number,
   user: UpdateUserProfileBody,
@@ -166,7 +165,7 @@ export async function updateUserProfile(
   formData.append("user", userBlob);
   if (profileImage) formData.append("profileImage", profileImage);
 
-  const { data } = await api.patch<UpdateUserProfileResponse>(
+  const { data } = await api.patch<UpdateUserProfileResponse | UserProfile>(
     "/users/profile",
     formData,
     {
@@ -174,5 +173,18 @@ export async function updateUserProfile(
       headers: { "Content-Type": "multipart/form-data" },
     }
   );
-  return data;
+
+  // 래핑 응답
+  if ((data as any)?.success !== undefined) {
+    const res = data as UpdateUserProfileResponse;
+    if (!res.success || !res.data)
+      throw new Error(res.message ?? "프로필 수정 실패");
+    return res;
+  }
+
+  // 비래핑 응답
+  const u = data as UserProfile;
+  if (!u || typeof u !== "object" || u.userId == null)
+    throw new Error("프로필 수정 실패");
+  return { success: true, data: u };
 }
