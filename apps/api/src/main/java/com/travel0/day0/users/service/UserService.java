@@ -52,8 +52,9 @@ public class UserService {
                 .birth(user.getBirth())
                 .profileImage(user.getProfileImage())
                 .mileage(user.getMileage())
-                .homeUnivId(user.getHomeUniversity() != null ? user.getHomeUniversity().getUniversityId() : null)
-                .destUnivId(user.getDestUniversity() != null ? user.getDestUniversity().getUniversityId() : null)
+                .homeUniv(user.getHomeUniversity() != null ? user.getHomeUniversity().getName() : null)
+                .destUniv(user.getDestUniversity() != null ? user.getDestUniversity().getName() : null)
+                .departureDate(user.getCurrentDepartureInfo() != null ? user.getCurrentDepartureInfo().getStartDate() : null)
                 .build();
     }
 
@@ -106,8 +107,9 @@ public class UserService {
                 .birth(user.getBirth())
                 .profileImage(user.getProfileImage())
                 .mileage(user.getMileage())
-                .homeUnivId(user.getHomeUniversity() != null ? user.getHomeUniversity().getUniversityId() : null)
-                .destUnivId(user.getDestUniversity() != null ? user.getDestUniversity().getUniversityId() : null)
+                .homeUniv(user.getHomeUniversity() != null ? user.getHomeUniversity().getName() : null)
+                .destUniv(user.getDestUniversity() != null ? user.getDestUniversity().getName() : null)
+                .departureDate(user.getCurrentDepartureInfo() != null ? user.getCurrentDepartureInfo().getStartDate() : null)
                 .build();
     }
 }
