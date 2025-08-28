@@ -36,7 +36,7 @@ public class SavingTxn {
     @Column(name = "txn_type", nullable = false, length = 20)
     private SavingTxnType txnType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "source_uci_id")
     private UserChecklistItem sourceChecklistItem;
 

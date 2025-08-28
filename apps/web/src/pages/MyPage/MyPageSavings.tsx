@@ -42,6 +42,9 @@ export default function MyPageSavings() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [selected, setSelected] = useState<AccountRow | null>(null);
+  const [rows, setRows] = useState<AccountRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // 등록 모달
   const [open, setOpen] = useState(false);
@@ -162,6 +165,54 @@ export default function MyPageSavings() {
       setCreating(false);
     }
   }
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [plans, accounts] = await Promise.all([
+          getMySavingsPlans(),
+          getMyAccounts(),
+        ]);
+
+        if (!alive) return;
+
+        // 적금 플랜 → AccountRow
+        const savingRows: AccountRow[] = plans.map((p) => ({
+          id: `saving-${p.planId}`,
+          type: "SAVING",
+          title: `적금 플랜 #${p.planId}`,
+          number: String(p.savingAccountId),
+          balance: `${p.goalAmount.toLocaleString("ko-KR")} KRW`, // 혹은 현재 잔액 API
+        }));
+
+        // 입출금 계좌 → AccountRow
+        const depositRows: AccountRow[] = accounts.map((a, idx) => {
+          const isFx = a.currency !== "KRW";
+          return {
+            id: `acct-${idx}`,
+            type: isFx ? "FX" : "DEPOSIT",
+            title: a.accountName ?? a.accountTypeName,
+            number: a.accountNo,
+            balance: isFx
+              ? `${a.accountBalance.toLocaleString("en-US")} ${a.currency}`
+              : `${a.accountBalance.toLocaleString("ko-KR")} KRW`,
+          };
+        });
+
+        setRows([...savingRows, ...depositRows]);
+      } catch (e: any) {
+        if (!alive) return;
+        setError(e?.response?.data?.message || e?.message || "계좌 정보를 불러오지 못했습니다.");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
 
   if (selected) {
     const numericKRW = /KRW/.test(selected.balance)
