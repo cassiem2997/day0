@@ -53,7 +53,7 @@
 ## 🏗️ 시스템 아키텍처
 - **Frontend**: React  
 - **Backend**: Spring Boot (Java 17, JPA, MySQL)  
-- **AI Engine**: Python FastAPI (TF-IDF, LSA, PCA, K-means 기반 추천)  
+- **AI Engine**: Python FastAPI
 - **Infra**: Railway (Backend, DB), Vercel (Frontend)
 
 ---

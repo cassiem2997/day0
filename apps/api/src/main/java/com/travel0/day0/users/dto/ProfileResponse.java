@@ -23,6 +23,7 @@ public class ProfileResponse {
     private LocalDate birth;
     private String profileImage;
     private Long mileage;
+    private String country;
     private String homeUniv;
     private String destUniv;
     private Instant departureDate;
