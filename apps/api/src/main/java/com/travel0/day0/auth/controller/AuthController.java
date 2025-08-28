@@ -150,7 +150,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> getCurrentUser(@AuthenticationPrincipal PrincipalDetails userDetails) {
         if (userDetails != null) {
             String email = userDetails.getUsername();
-            return ResponseEntity.ok(new AuthResponse("인증된 사용자", email, null));
+            return ResponseEntity.ok(new AuthResponse("인증된 사용자", email, userDetails.getUserId()));
         }
         return ResponseEntity.status(401)
                 .body(new AuthResponse("인증되지 않은 사용자"));

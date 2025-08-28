@@ -1,7 +1,9 @@
 // src/api/user.ts
 import api from "./axiosInstance";
 
-// ---------------- 회원가입 ----------------
+/* =======================
+ * 회원가입 (multipart/form-data)
+ * ======================= */
 export type Gender = "MALE" | "FEMALE";
 
 export interface SignUpPayload {
@@ -12,10 +14,18 @@ export interface SignUpPayload {
   gender: Gender;
   birth: string;
   homeUniversityId: number;
-  destUniversityId: number;
 }
 
-export async function signUp(user: SignUpPayload, profileImage?: File | Blob) {
+export interface SignUpResponse {
+  message: string;
+  email?: string;
+  userId?: number;
+}
+
+export async function signUp(
+  user: SignUpPayload,
+  profileImage?: File | Blob
+): Promise<SignUpResponse> {
   const formData = new FormData();
 
   const userBlob = new Blob([JSON.stringify(user)], {
@@ -27,22 +37,120 @@ export async function signUp(user: SignUpPayload, profileImage?: File | Blob) {
     formData.append("profileImage", profileImage);
   }
 
-  const res = await api.post("/auth/register", formData);
-  return res.data;
+  const { data } = await api.post<SignUpResponse>("/auth/register", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
 }
 
-// ---------------- 로그인 ----------------
+/* =======================
+ * 로그인 (쿠키 기반)
+ *  - 백엔드가 accessToken/refreshToken 을 HttpOnly 쿠키로 내려줌
+ *  - 응답 바디에는 메시지/이메일/유저ID 정도만 옴
+ * ======================= */
 export interface LoginPayload {
   email: string;
   password: string;
 }
 
 export interface LoginResponse {
-  accessToken: string;
-  refreshToken?: string;
+  message: string;
+  email?: string;
+  userId?: number;
 }
 
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
-  const res = await api.post<LoginResponse>("/auth/login", payload);
-  return res.data;
+  const { data } = await api.post<LoginResponse>("/auth/login", payload);
+  return data;
+}
+
+/* =======================
+ * 로그아웃 / 내 정보 / 리프레시 (옵션)
+ * ======================= */
+export interface LogoutResponse {
+  message: string;
+  email?: string;
+  userId?: number;
+}
+
+export async function logout(): Promise<LogoutResponse> {
+  const { data } = await api.post<LogoutResponse>("/auth/logout");
+  return data;
+}
+
+/* =======================
+ * 사용자 프로필 조회 / 수정
+ * ======================= */
+export interface UserProfile {
+  userId: number;
+  name: string;
+  email: string;
+  nickname: string;
+  gender: Gender | string;
+  birth: string; // ISO (YYYY-MM-DD)
+  profileImage?: string | null; // 이미지 URL
+  mileage?: number;
+  homeUnivId?: number;
+  destUnivId?: number;
+}
+
+export interface GetUserProfileResponse {
+  success: boolean;
+  data: UserProfile;
+  message?: string;
+  errorCode?: string;
+}
+
+/** 프로필 조회: GET /users/profile?userId=xx */
+export async function getUserProfile(userId: number) {
+  const { data } = await api.get<GetUserProfileResponse>("/users/profile", {
+    params: { userId },
+  });
+  return data;
+}
+
+export interface UpdateUserProfileBody {
+  name?: string;
+  nickname?: string;
+  gender?: Gender;
+  birth?: string; // YYYY-MM-DD
+  homeUnivId?: number;
+  destUnivId?: number;
+  deleteProfileImage?: boolean; // 프로필 사진 삭제 시 true
+}
+
+export interface UpdateUserProfileResponse {
+  success: boolean;
+  data: UserProfile;
+  message?: string;
+  errorCode?: string;
+}
+
+/** 프로필 수정: PATCH /users/profile?userId=xx (multipart/form-data) */
+export async function updateUserProfile(
+  userId: number,
+  user: UpdateUserProfileBody,
+  profileImage?: File | Blob | null
+) {
+  const formData = new FormData();
+
+  // JSON 본문을 Blob 으로 넣어줌
+  const userBlob = new Blob([JSON.stringify(user)], {
+    type: "application/json",
+  });
+  formData.append("user", userBlob);
+
+  if (profileImage) {
+    formData.append("profileImage", profileImage);
+  }
+
+  const { data } = await api.patch<UpdateUserProfileResponse>(
+    "/users/profile",
+    formData,
+    {
+      params: { userId },
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
+  return data;
 }

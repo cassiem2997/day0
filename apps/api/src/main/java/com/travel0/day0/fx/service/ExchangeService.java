@@ -1,12 +1,16 @@
 package com.travel0.day0.fx.service;
 
+import com.travel0.day0.account.domain.UserAccount;
+import com.travel0.day0.account.repository.UserAccountRepository;
 import com.travel0.day0.fx.port.ExchangeExternalPort;
+import com.travel0.day0.savings.service.LedgerService;
 import com.travel0.day0.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.travel0.day0.users.domain.User;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -19,6 +23,8 @@ public class ExchangeService {
 
     private final ExchangeExternalPort exchangeExternalPort;
     private final UserRepository userRepository;
+    private final LedgerService ledgerService;
+    private final UserAccountRepository accountRepository;
 
     // 환전 예상 금액 조회
     public EstimateExchangeInfo estimateExchange(String fromCurrency, String toCurrency, Double amount) {
@@ -48,6 +54,22 @@ public class ExchangeService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         try {
             var result = exchangeExternalPort.createExchange(user.getUserKey(), accountNo, exchangeCurrency, exchangeAmount);
+
+            UserAccount krwAccount = accountRepository.findByAccountNo(accountNo)
+                    .orElseThrow(() -> new IllegalArgumentException("account not found: " + accountNo));
+            BigDecimal krwDebit = toDecimalOr(result.accountAmount(), exchangeAmount);
+            String extTxId = null;
+            String idem   = "FX-" + accountNo + "-" + exchangeCurrency + "-" + krwDebit.toPlainString();
+            ledgerService.postTxn(
+                    krwAccount,
+                    false,            // 출금
+                    krwDebit,
+                    "출금(환전)",    // summary
+                    "환전 신청",             // memo
+                    null,                  // counterAccountNo (상대계좌가 없으면 null)
+                    extTxId,                  // 외부 거래번호
+                    idem                   // 멱등키
+            );
 
             return new ExchangeTransactionInfo(
                     result.exchangeCurrency(),
@@ -134,5 +156,16 @@ public class ExchangeService {
             Double exchangeRate,
             String created
     ) {}
+
+    private BigDecimal toDecimalOr(Object preferred, String fallbackStr) {
+        if (preferred != null) return toDecimal(preferred);
+        return new BigDecimal(fallbackStr);
+    }
+
+    private BigDecimal toDecimal(Object v) {
+        if (v instanceof BigDecimal b) return b;
+        if (v instanceof Number n) return BigDecimal.valueOf(n.doubleValue());
+        return new BigDecimal(String.valueOf(v));
+    }
 }
 
