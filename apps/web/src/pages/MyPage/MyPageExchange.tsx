@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import styles from "./MyPageExchange.module.css";
 import { fetchFxTransactions, type FxTransaction } from "../../api/fx";
 import { me } from "../../api/user";
+import { fetchMyAccounts, type AccountSummary } from "../../api/account";
 
 /* 포맷 헬퍼 */
 function fmtDate(d: Date) {
@@ -52,21 +53,49 @@ export default function MyPageExchange() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  // 조회 폼 상태
+  // 계좌 목록/선택
+  const [accounts, setAccounts] = useState<AccountSummary[]>([]);
   const [accountNo, setAccountNo] = useState<string>(
     () => localStorage.getItem("fx:accountNo") || ""
   );
+
+  // 기간
   const init = defaultRange();
   const [startDate, setStartDate] = useState<string>(init.start);
   const [endDate, setEndDate] = useState<string>(init.end);
 
-  // 최초 자동 조회: 계좌번호가 저장돼 있으면 바로 불러오기
   useEffect(() => {
     (async () => {
-      if (!accountNo) return;
-      await handleSearch();
+      try {
+        setErr(null);
+        const auth = await me();
+        if (!auth?.userId) {
+          setErr("로그인이 필요합니다.");
+          return;
+        }
+
+        const list = await fetchMyAccounts({ userId: auth.userId });
+        setAccounts(list);
+
+        let initial = accountNo;
+        const numbers = new Set(list.map((a) => a.number));
+        if (!initial || !numbers.has(initial)) {
+          const fx = list.find((a) => a.type === "FX");
+          initial = fx?.number || list[0]?.number || "";
+          setAccountNo(initial);
+        }
+
+        if (initial) {
+          await handleSearchInternal(auth.userId, initial, startDate, endDate);
+        }
+      } catch (e: any) {
+        const message =
+          e?.response?.data?.message ||
+          e?.message ||
+          "계좌 목록을 불러오지 못했습니다.";
+        setErr(message);
+      }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleSearch(e?: React.FormEvent) {
@@ -76,19 +105,11 @@ export default function MyPageExchange() {
     try {
       const auth = await me();
       if (!auth?.userId) throw new Error("로그인이 필요합니다.");
+      if (!accountNo) throw new Error("조회할 계좌를 선택하세요.");
 
-      // 계좌번호 기억
-      if (accountNo) localStorage.setItem("fx:accountNo", accountNo);
+      localStorage.setItem("fx:accountNo", accountNo);
 
-      const list = await fetchFxTransactions({
-        userId: auth.userId,
-        accountNo,
-        startDate,
-        endDate,
-      });
-      // 최신일자 먼저 보이도록 내림차순 정렬
-      list.sort((a, b) => (a.at < b.at ? 1 : -1));
-      setRows(list);
+      await handleSearchInternal(auth.userId, accountNo, startDate, endDate);
     } catch (e: any) {
       const message =
         e?.response?.data?.message ||
@@ -99,6 +120,23 @@ export default function MyPageExchange() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleSearchInternal(
+    userId: number,
+    accountNo_: string,
+    start: string,
+    end: string
+  ) {
+    const list = await fetchFxTransactions({
+      userId,
+      accountNo: accountNo_,
+      startDate: start,
+      endDate: end,
+    });
+    // 최신일자 우선
+    list.sort((a, b) => (a.at < b.at ? 1 : -1));
+    setRows(list);
   }
 
   const viewRows = useMemo(() => rows, [rows]);
@@ -119,20 +157,28 @@ export default function MyPageExchange() {
         }}
       >
         <label style={{ fontWeight: 800 }}>
-          계좌번호
-          <input
-            type="text"
+          계좌
+          <select
             value={accountNo}
             onChange={(e) => setAccountNo(e.target.value)}
-            placeholder="예: 110-123-456789"
             style={{
               marginLeft: 8,
               padding: "8px 10px",
               border: "3px solid #121212",
               borderRadius: 10,
+              minWidth: 260,
             }}
-            required
-          />
+          >
+            {accounts.length === 0 ? (
+              <option value="">계좌가 없습니다</option>
+            ) : (
+              accounts.map((a) => (
+                <option key={a.id} value={a.number}>
+                  {a.productName} · {a.number}
+                </option>
+              ))
+            )}
+          </select>
         </label>
 
         <label style={{ fontWeight: 800 }}>
@@ -188,6 +234,8 @@ export default function MyPageExchange() {
           </span>
         ) : null}
       </form>
+
+      
 
       <div className={styles.tableCard}>
         {/* 헤더 */}
