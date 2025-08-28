@@ -1,15 +1,14 @@
 // src/pages/MyPage/MyPageProfile.tsx
 import { useEffect, useState } from "react";
 import styles from "./MyPageProfile.module.css";
-import api from "../../api/axiosInstance";
-import { getUserProfile, type UserProfile } from "../../api/user";
+import { me, getUserProfile, type UserProfile } from "../../api/user";
 
 /** 화면 표현용 타입 (UI 유지) */
 type ProfileVM = {
   nickname: string;
   homeUniversity: string;
-  departureDate: string; 
-  destinationLabel: string; 
+  departureDate: string;
+  destinationLabel: string;
   profileImage?: string | null;
 };
 
@@ -50,12 +49,11 @@ export default function MyPageProfile() {
       setLoading(true);
       setErr(null);
       try {
-        // 1) 로그인 사용자 확인
-        const me = await api.get("/auth/me", { withCredentials: true });
-        const userId = me?.data?.userId as number | undefined;
+        // 1) 로그인 사용자 확인 (쿠키 기반)
+        const auth = await me();
+        const userId = auth?.userId;
         if (!userId) {
           setErr("로그인이 필요합니다.");
-          setLoading(false);
           return;
         }
 
@@ -67,14 +65,17 @@ export default function MyPageProfile() {
         const vm: ProfileVM = {
           nickname: u.nickname || u.name || "사용자",
           homeUniversity: u.homeUnivId ? `#${u.homeUnivId}` : "-",
-          // 아래 2개는 스웨거에 아직 없어서 임시값 처리
-          departureDate: "-", // 추후 API 필드 생기면 교체
+          departureDate: "-", // 추후 실제 필드 나오면 교체
           destinationLabel: u.destUnivId ? `#${u.destUnivId}` : "-",
           profileImage: u.profileImage ?? null,
         };
         setPf(vm);
       } catch (e: any) {
-        setErr(e?.response?.data?.message || "프로필을 불러오지 못했어요.");
+        const msg =
+          e?.response?.data?.message ||
+          e?.message ||
+          "프로필을 불러오지 못했어요.";
+        setErr(msg);
       } finally {
         setLoading(false);
       }
@@ -103,7 +104,6 @@ export default function MyPageProfile() {
         <div className={styles.profileLeft}>
           <div className={styles.avatarBox}>
             {pf.profileImage ? (
-              // 프로필 이미지가 URL로 내려온다면 이렇게 표시
               <img
                 src={pf.profileImage}
                 alt="프로필"
