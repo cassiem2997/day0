@@ -154,3 +154,19 @@ export async function updateUserProfile(
   );
   return data;
 }
+
+export interface MeResponse {
+  message: string;
+  email?: string;
+  userId?: number;
+}
+
+export async function me(): Promise<MeResponse> {
+  const { data } = await api.get<MeResponse>("/auth/me");
+  return data;
+}
+
+/* (선택) 토큰/세션 갱신 */
+export async function refresh(): Promise<void> {
+  await api.post("/auth/refresh");
+}
