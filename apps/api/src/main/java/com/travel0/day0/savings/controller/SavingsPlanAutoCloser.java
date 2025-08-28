@@ -20,8 +20,8 @@ public class SavingsPlanAutoCloser {
     private final SavingsPlanRepository planRepo;
     private final SavingsPlanService planService;
 
-    // 매 시 정각에 실행 (KST)
-    @Scheduled(cron = "0 0 * * * *", zone = "Asia/Seoul")
+    // 매일 3시 정각에 실행 (KST)
+    @Scheduled(cron = "0 0 15 * * *", zone = "Asia/Seoul")
     public void closeExpiredPlansHourly() {
         Instant now = Instant.now();
         List<SavingsPlan> targets = planRepo.findByActiveTrueAndEndDateBefore(now);

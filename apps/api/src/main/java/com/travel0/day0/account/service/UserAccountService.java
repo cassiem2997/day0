@@ -180,9 +180,9 @@ public class UserAccountService {
         // 조회
         List<AccountTransaction> list = (
                 "A".equalsIgnoreCase(transactionType)
-                        ? transactionRepository.findByAccountIdAndTransactionDateBetween(
+                        ? transactionRepository.findByAccount_AccountIdAndTransactionDateBetween(
                         ua.getAccountId(), startDate, endDate, sort)
-                        : transactionRepository.findByAccountIdAndTransactionTypeAndTransactionDateBetween(
+                        : transactionRepository.findByAccount_AccountIdAndTransactionTypeAndTransactionDateBetween(
                         ua.getAccountId(), transactionType, startDate, endDate, sort)
         );
 

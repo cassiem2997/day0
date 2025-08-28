@@ -1,5 +1,6 @@
 package com.travel0.day0.account.domain;
 
+import com.travel0.day0.users.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -17,8 +18,9 @@ public class AccountTransaction {
     @Column(name="tx_id")
     private Long txId;
 
-    @Column(name="account_id", nullable=false)
-    private Long accountId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="account_id", nullable=false)
+    private UserAccount account;
 
     // 외부/원본 식별자
     @Column(name="transaction_unique_no", nullable=false)
