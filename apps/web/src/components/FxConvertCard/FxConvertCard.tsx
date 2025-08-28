@@ -45,6 +45,7 @@ const sanitizeNumericString = (input: string, fraction: number) => {
 type Props = {
   currencies?: string[];
   defaultTo?: string;
+  rate?: number;
 };
 
 export default function FxConvertCard({
@@ -179,9 +180,6 @@ ${formatByCcy(fromCurrency, fromAmount)} ${fromCurrency}가 필요합니다.`,
           />
         </div>
       </div>
-
-      {loading && <div className={styles.hint}>계산 중…</div>}
-      {err && <div className={styles.error}>{err}</div>}
 
       <div className={styles.ctaWrap}>
         <button type="button" className={styles.applyBtn} onClick={onApply}>
