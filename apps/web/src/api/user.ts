@@ -67,23 +67,15 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
 /* =======================
  * 로그아웃 / 내 정보 / 리프레시 (옵션)
  * ======================= */
-export async function logout(): Promise<void> {
-  await api.post("/auth/logout"); // 서버가 쿠키 삭제
-}
-
-export interface MeResponse {
+export interface LogoutResponse {
   message: string;
   email?: string;
   userId?: number;
 }
 
-export async function me(): Promise<MeResponse> {
-  const { data } = await api.get<MeResponse>("/auth/me");
+export async function logout(): Promise<LogoutResponse> {
+  const { data } = await api.post<LogoutResponse>("/auth/logout");
   return data;
-}
-
-export async function refresh(): Promise<void> {
-  await api.post("/auth/refresh");
 }
 
 /* =======================
