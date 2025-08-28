@@ -9,25 +9,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f4f4f7;
+  background: linear-gradient(to bottom, #a8d5ff 0%, #f9f9f9 100%);
   padding: 24px;
   font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial,
     sans-serif;
 }
 
-/* 컨테이너(슬라이드 구조 유지) */
 .container {
   background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 22px 60px rgba(0, 0, 0, 0.15);
   position: relative;
   overflow: hidden;
-  width: 1100px; /* 웹 뷰 기준 */
+  width: 1100px;
   max-width: 100%;
   min-height: 600px;
 }
 
-/* 공통 폼 패널 */
 .form-container {
   position: absolute;
   top: 0;
@@ -42,6 +40,7 @@
   background: #a8d5ff;
 }
 
+/* 기본: 로그인 패널 등 전역은 예전 레이아웃 유지 */
 form {
   width: 100%;
   height: 100%;
@@ -55,7 +54,7 @@ form {
   font-family: "SBAggroB";
   font-weight: 800;
   font-size: 40px;
-  margin: 0 0 8px;
+  margin: 30px 0 8px;
   color: #111;
 }
 
@@ -63,8 +62,29 @@ form {
   width: 100%;
   max-width: 520px;
   display: grid;
-  gap: 16px; /* 입력창 사이 간격 */
+  gap: 16px;
   padding: 0 32px;
+  overflow: visible;
+}
+
+/* 회원가입 패널에만 스크롤 적용 */
+.sign-up-container form {
+  grid-template-rows: auto 1fr;
+  align-content: stretch;
+  row-gap: 16px;
+}
+.sign-up-container .form {
+  padding: 0 32px 24px;
+  overflow-y: auto;
+  min-height: 0;
+  align-content: start;
+  align-items: start;
+  grid-auto-rows: max-content;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.sign-up-container .panelTitle {
+  margin: 16px 0 8px;
 }
 
 .input {
@@ -85,13 +105,12 @@ form {
   border: none;
   border-radius: 28px;
   background: #f1f2f3;
-  color: "black";
+  color: black;
   font-weight: 800;
   letter-spacing: 0.3px;
   cursor: pointer;
 }
 
-/* 위치 */
 .sign-in-container {
   left: 0;
   width: 50%;
@@ -113,6 +132,7 @@ form {
   z-index: 5;
   animation: show 0.6s;
 }
+
 @keyframes show {
   0%,
   49.99% {
@@ -126,7 +146,6 @@ form {
   }
 }
 
-/* 오버레이 */
 .overlay-container {
   position: absolute;
   top: 0;
@@ -182,7 +201,6 @@ form {
   right: 0;
 }
 
-/* 카피/버튼 */
 .headline {
   font-family: "Mungyeong-Gamhong-Apple";
   font-weight: 800;
@@ -194,14 +212,15 @@ form {
   color: tomato;
   font-size: 64px;
 }
+
 .subcopy {
   font-family: "ONE-Mobile-POP";
-
   margin: 0 0 24px;
   color: #222;
   line-height: 1.7;
   font-size: 20px;
 }
+
 .ghost {
   height: 44px;
   padding: 0 24px;
@@ -214,7 +233,6 @@ form {
   cursor: pointer;
 }
 
-/* 캐릭터 */
 .mascotBox {
   width: 100%;
   display: flex;
@@ -228,36 +246,26 @@ form {
   height: auto;
 }
 
-/* 제목만 살짝 아래로 내릴 때 사용하는 보조 클래스 */
 .mtTight {
-  margin-top: 12px; /* 필요 시 숫자만 조절 */
+  margin-top: 12px;
 }
 
-/* 성별 + 생년월일 2열 */
 .inline2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-
-/* 모바일/좁은 폭에서는 1열로 */
 @media (max-width: 560px) {
   .inline2 {
     grid-template-columns: 1fr;
   }
 }
 
-/* select도 input과 동일한 룩으로 맞추기 */
 select.input {
-  background-color: #f1f2f3; /* .input과 동일 */
+  background-color: #f1f2f3;
   line-height: 56px;
   cursor: pointer;
 }
-
 input[type="date"].input {
   line-height: 56px;
-}
-
-.page {
-  background: linear-gradient(to bottom, #a8d5ff 0%, #f9f9f9 100%);
 }

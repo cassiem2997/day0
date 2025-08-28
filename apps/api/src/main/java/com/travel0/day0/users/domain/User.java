@@ -1,7 +1,9 @@
 package com.travel0.day0.users.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.travel0.day0.common.enums.DepartureStatus;
 import com.travel0.day0.common.enums.Gender;
+import com.travel0.day0.departures.domain.DepartureInfo;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -10,6 +12,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -71,4 +75,14 @@ public class User {
 
     @Column(name = "user_key",unique = true, length = 64)
     private String userKey;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<DepartureInfo> departureInfos;
+
+    public DepartureInfo getCurrentDepartureInfo() {
+        return departureInfos.stream()
+                .filter(dep -> dep.getStatus() == DepartureStatus.PLANNED)
+                .findFirst()
+                .orElse(null);
+    }
 }
