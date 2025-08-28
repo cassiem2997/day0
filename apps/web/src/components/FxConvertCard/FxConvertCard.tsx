@@ -44,38 +44,36 @@ const sanitizeNumericString = (input: string, fraction: number) => {
 
 type Props = {
   currencies?: string[];
-  defaultFrom?: string; // 보낼 통화(입력)
-  defaultTo?: string;   // 받을 통화(결과)
+  defaultTo?: string;
 };
 
 export default function FxConvertCard({
-  currencies = ["USD", "KRW", "JPY", "EUR"],
-  defaultFrom = "USD",
-  defaultTo = "KRW",
+  currencies = ["USD", "JPY", "EUR"],
+  defaultTo = "USD",
 }: Props) {
-  const [fromCurrency, setFromCurrency] = useState(defaultFrom); // 보낼 통화
-  const [toCurrency, setToCurrency] = useState(defaultTo);       // 받을 통화
+  const [fromCurrency] = useState("KRW");
+  const [toCurrency, setToCurrency] = useState(defaultTo);
 
-  // 위쪽(보낼 금액) 입력 문자열
-  const [fromInput, setFromInput] = useState<string>("1");
-  // 아래쪽(받을 금액) 숫자 값(readOnly)
-  const [toAmount, setToAmount] = useState<number>(0);
+  // 위쪽 입력: 받고 싶은 외화 금액
+  const [toInput, setToInput] = useState<string>("1");
+  // 아래쪽 결과: 필요한 KRW 금액
+  const [fromAmount, setFromAmount] = useState<number>(0);
 
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const fromFraction = getMeta(fromCurrency).fraction;
-  const parsedFrom = useMemo(
-    () => parseFloat(stripCommas(fromInput)) || 0,
-    [fromInput]
+  const toFraction = getMeta(toCurrency).fraction;
+  const parsedTo = useMemo(
+    () => parseFloat(stripCommas(toInput)) || 0,
+    [toInput]
   );
 
-  // 보낼 통화 바뀔 때 현재 입력을 자리수 규칙으로 정리
+  // 받고 싶은 통화 바뀔 때 입력 정리
   useEffect(() => {
-    setFromInput((prev) => sanitizeNumericString(prev, fromFraction));
-  }, [fromCurrency]);
+    setToInput((prev) => sanitizeNumericString(prev, toFraction));
+  }, [toCurrency]);
 
-  // 요청 순서 가드(경쟁 상태 방지)
+  // 요청 순서 가드
   const debounceRef = useRef<number | null>(null);
   const seqRef = useRef(0);
 
@@ -87,45 +85,29 @@ export default function FxConvertCard({
         setLoading(true);
         setErr(null);
 
-        // ── 로그: 요청 시작 ─────────────────────────────────────────
-        console.groupCollapsed(
-          "%c[FxConvertCard] /fx/estimate request",
-          "color:#888"
-        );
+        console.groupCollapsed("[FxConvertCard] /fx/estimate request");
         console.log("params", {
           fromCurrency,
           toCurrency,
-          amount: parsedFrom,
+          amount: parsedTo,
         });
-        console.time("[FxConvertCard] /fx/estimate latency");
+        console.time("[FxConvertCard] latency");
 
-        // 서버 응답을 fromAmount/toAmount로 정규화해서 사용
-        const { fromAmount, toAmount, raw } = await getFxEstimate({
-          fromCurrency,
-          toCurrency,
-          amount: parsedFrom, // 사용자가 친 값(from 통화 기준)
+        const raw = await getFxEstimate({
+          fromCurrency, // "KRW"
+          toCurrency,   // "USD" 등
+          amount: parsedTo, // 받고 싶은 외화 금액
         });
 
-        // ── 로그: 응답 수신 ─────────────────────────────────────────
-        console.timeEnd("[FxConvertCard] /fx/estimate latency");
-        console.log("response.normalized", { fromAmount, toAmount });
-        console.log("response.raw", raw);
+        console.timeEnd("[FxConvertCard] latency");
+        console.log("response.amount (필요한 KRW)", raw.amount);
+        console.log("response", raw);
         console.groupEnd();
-        // ───────────────────────────────────────────────────────────
 
-        // 입력칸은 사용자가 친 값 유지(반올림 동기화 원하면 아래 주석 해제)
-        // setFromInput(sanitizeNumericString(String(fromAmount), fromFraction));
-
-        if (mySeq === seqRef.current) setToAmount(toAmount);
+        if (mySeq === seqRef.current) setFromAmount(raw.amount);
       } catch (e: any) {
-        console.groupCollapsed(
-          "%c[FxConvertCard] /fx/estimate error",
-          "color:#c00"
-        );
         console.error(e);
-        console.groupEnd();
-
-        setToAmount(0);
+        setFromAmount(0);
         setErr(e?.message ?? "환율 조회 실패");
       } finally {
         if (seqRef.current === mySeq) setLoading(false);
@@ -135,11 +117,10 @@ export default function FxConvertCard({
     return () => {
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
-  }, [fromCurrency, toCurrency, parsedFrom, fromFraction]);
+  }, [fromCurrency, toCurrency, parsedTo, toFraction]);
 
-  const onChangeFromInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    setFromInput(sanitizeNumericString(raw, fromFraction));
+  const onChangeToInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setToInput(sanitizeNumericString(e.target.value, toFraction));
   };
 
   const onApply = async () => {
@@ -147,19 +128,20 @@ export default function FxConvertCard({
       icon: "success",
       title: "환전 신청",
       text: `${formatByCcy(
-        fromCurrency,
-        parseFloat(stripCommas(fromInput)) || 0
-      )} ${fromCurrency} → 약 ${formatByCcy(toCurrency, toAmount)} ${toCurrency}`,
+        toCurrency,
+        parseFloat(stripCommas(toInput)) || 0
+      )} ${toCurrency} 받기 위해
+${formatByCcy(fromCurrency, fromAmount)} ${fromCurrency}가 필요합니다.`,
       confirmButtonText: "확인",
     });
   };
 
   return (
     <section className={styles.convertCard}>
-      {/* 줄 1: (드롭다운만 교체) 받을 통화 드롭다운 + 기존 입력칸(보낼 금액 입력) */}
+      {/* 줄 1: 환전하고 싶은 통화 + 받고 싶은 금액 입력 */}
       <div className={styles.row}>
         <select
-          aria-label="보낼 통화"
+          aria-label="환전하고 싶은 통화"
           value={toCurrency}
           onChange={(e) => setToCurrency(e.target.value)}
           className={`${styles.ccyPill} ${styles.ccyPillSelect}`}
@@ -169,46 +151,37 @@ export default function FxConvertCard({
           ))}
         </select>
 
-        {/* 기존 그대로: 보낼 금액 입력칸 (fromInput) */}
         <div className={styles.inputBox}>
           <input
             type="text"
-            inputMode={fromFraction === 0 ? "numeric" : "decimal"}
-            value={fromInput}
-            onChange={onChangeFromInput}
+            inputMode={toFraction === 0 ? "numeric" : "decimal"}
+            value={toInput}
+            onChange={onChangeToInput}
             className={styles.amountInput}
-            aria-label="보낼 금액"
-            placeholder={`0${fromFraction > 0 ? ".00" : ""}`}
+            aria-label="받고 싶은 금액"
+            placeholder={`0${toFraction > 0 ? ".00" : ""}`}
           />
         </div>
       </div>
 
       <hr className={styles.hr} />
 
-      {/* 줄 2: (드롭다운만 교체) 보낼 통화 드롭다운 + 기존 결과칸(받을 금액 readOnly) */}
+      {/* 줄 2: 고정 KRW + 필요한 금액 표시 */}
       <div className={styles.row}>
-        <select
-          aria-label="보낼 통화"
-          value={fromCurrency}
-          onChange={(e) => setFromCurrency(e.target.value)}
-          className={`${styles.ccyPill} ${styles.ccyPillSelect}`}
-        >
-          {currencies.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-
-        {/* 기존 그대로: 받을 금액 결과칸 (toAmount) */}
+        <div className={styles.ccyPill}>KRW</div>
         <div className={styles.inputBox}>
           <input
             type="text"
             readOnly
-            value={formatByCcy(toCurrency, toAmount)}
+            value={formatByCcy("KRW", fromAmount)}
             className={styles.amountInput}
-            aria-label="받을 금액(자동 계산)"
+            aria-label="필요한 KRW 금액"
           />
         </div>
       </div>
+
+      {loading && <div className={styles.hint}>계산 중…</div>}
+      {err && <div className={styles.error}>{err}</div>}
 
       <div className={styles.ctaWrap}>
         <button type="button" className={styles.applyBtn} onClick={onApply}>
