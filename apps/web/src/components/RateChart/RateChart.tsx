@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -7,11 +8,14 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
+import { getExchangeRateChart} from "../../api/fx";
+import { getPlannedTripCurrency } from '../../api/departure';
+import type { RatePoint } from "../../api/fx";
+import { me } from "../../api/user";
 import styles from "./RateChart.module.css";
 
-export type RatePoint = { date: string; value: number };
-
-export default function RateChart({ data }: { data: RatePoint[] }) {
+// 기본 차트 컴포넌트
+function RateChart({ data, currency }: { data: RatePoint[]; currency?: string }) {
   return (
     <div className={styles.chartWrap}>
       <ResponsiveContainer width="100%" height={280}>
@@ -38,7 +42,7 @@ export default function RateChart({ data }: { data: RatePoint[] }) {
             domain={["dataMin - 10", "dataMax + 10"]}
           />
           <Tooltip
-            formatter={(v: any) => [`${Number(v).toLocaleString()}원`, "환율"]}
+            formatter={(v: any) => [`${Number(v).toLocaleString()}원`, currency ? `${currency}/KRW` : "환율"]}
             labelFormatter={(label) => `${label}`}
           />
           <Area
@@ -51,6 +55,76 @@ export default function RateChart({ data }: { data: RatePoint[] }) {
           />
         </AreaChart>
       </ResponsiveContainer>
+    </div>
+  );
+}
+
+export function SmartRateChart() {
+  const [currency, setCurrency] = useState<string>('USD');
+  const [data, setData] = useState<RatePoint[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      let targetCurrency = 'USD'; // 기본값
+      
+      try {
+        // 현재 사용자 정보 조회
+        const userInfo = await me();
+        console.log('현재 사용자:', userInfo);
+        
+        if (userInfo.userId) {
+          const plannedCurrency = await getPlannedTripCurrency(userInfo.userId);
+          console.log('받은 plannedCurrency:', plannedCurrency);
+          
+          if (plannedCurrency && plannedCurrency !== 'undefined') {
+            targetCurrency = plannedCurrency;
+          }
+        }
+      } catch (err) {
+        console.warn('계획된 여행 통화 조회 실패, USD 사용:', err);
+      }
+      
+      setCurrency(targetCurrency);
+      console.log('최종 사용할 currency:', targetCurrency);
+      
+      const chartData = await getExchangeRateChart(targetCurrency);
+      setData(chartData);
+    } catch (err) {
+      console.error('차트 데이터 로드 실패:', err);
+      setError('환율 데이터를 불러올 수 없습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <div>환율 데이터 로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div>오류: {error}</div>;
+  }
+
+  return (
+    <div>
+      <div style={{ 
+        marginBottom: '16px', 
+        textAlign: 'center',
+        fontSize: '14px',
+        color: '#666'
+      }}>
+        {currency}/KRW 환율
+      </div>
+      <RateChart data={data} currency={currency} />
     </div>
   );
 }

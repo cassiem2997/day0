@@ -42,15 +42,30 @@ export async function createFxAlert(alertData: FxAlertRequest) {
   return response.data;
 }
 
-// 현재 사용자 정보 타입 (실제 API 응답에 맞춤)
-export type UserInfo = {
-  userId: number;
-  email: string;
-  message: string;
+export type ExchangeRateChartResponse = {
+  success: boolean;
+  currency: string;
+  chartData: RatePoint[];
+  count: number;
+  message?: string;
 };
 
-// 현재 사용자 정보 가져오기 API
-export async function getCurrentUser(): Promise<UserInfo> {
-  const response = await api.get<UserInfo>("/auth/me");
-  return response.data; // .data.data가 아니라 .data만 반환
+export type RatePoint = { date: string; value: number };
+
+export async function getExchangeRateChart(
+  currency: string, 
+  days?: number
+): Promise<RatePoint[]> {
+  const params = days ? { days } : {};
+  
+  const response = await api.get<ExchangeRateChartResponse>(
+    `/exchange/rates/chart/${currency}`,
+    { params }
+  );
+  
+  if (!response.data.success) {
+    throw new Error(response.data.message || '차트 데이터 조회 실패');
+  }
+  
+  return response.data.chartData;
 }
