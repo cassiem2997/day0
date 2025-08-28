@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import Swal from "sweetalert2";
 import styles from "./Header.module.css";
-
+import { logout } from "../../api/user";
 type User = { name: string; avatarUrl?: string };
 
 const NAV = [
@@ -43,8 +43,12 @@ export default function Header() {
   }, []);
 
   async function handleLogout() {
-    // 보호 라우트 차단용 토큰 제거
-    localStorage.removeItem("accessToken");
+    try {
+      await logout(); // 서버에 로그아웃 요청 (쿠키 삭제)
+    } catch (err) {
+      console.error("로그아웃 실패:", err);
+    }
+
     setOpen(false);
 
     // 알림 후 로그인 페이지로 이동
@@ -54,6 +58,7 @@ export default function Header() {
       confirmButtonText: "확인",
       confirmButtonColor: "#a8d5ff",
     });
+
     navigate("/login", { replace: true });
   }
 
