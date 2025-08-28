@@ -79,9 +79,7 @@ export default function ExchangeRatePage() {
           {/* 버튼 헤더 (우측 정렬) */}
           <div className={styles.chartHeader}>
             <FxAlertButton
-              baseCcy="USD"
               quoteCcy="KRW"
-              current={latest}
             ></FxAlertButton>
           </div>
 

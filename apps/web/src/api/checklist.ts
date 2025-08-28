@@ -26,14 +26,24 @@ export interface GetChecklistItemsParams {
   dueBefore?: string; // 'YYYY-MM-DD'
   departureId?: number;
 }
-export async function getUserChecklistItems(
-  checklistId: number | string,
-  params?: GetChecklistItemsParams
-) {
-  const res = await api.get(`/user-checklists/${checklistId}/items`, {
-    params,
-  });
-  return res.data; // { items: [...] } 가정
+export interface UserChecklistItem {
+  uciId: number;
+  userChecklistId: number;
+  templateItemId: number;
+  title: string;
+  description: string;
+  dueDate: string;   // ISO
+  status: "TODO" | "DONE" | string;
+  completedAt: string | null;
+  tag: string;
+  linkedAmount: number;
+  isFixed: boolean;
+  createdAt: string;
+}
+
+export async function getUserChecklistItems(checklistId: number): Promise<UserChecklistItem[]> {
+  const { data } = await api.get(`/user-checklists/${checklistId}/items`);
+  return data;
 }
 
 /** POST /user-checklists/{checklistId}/items */
