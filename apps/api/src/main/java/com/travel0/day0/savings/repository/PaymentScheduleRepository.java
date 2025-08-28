@@ -33,4 +33,14 @@ public interface PaymentScheduleRepository extends JpaRepository<PaymentSchedule
                    @Param("skipped") PaymentStatus skipped,
                    @Param("reason") String reason);
 
+    @Query(value = """
+        SELECT * FROM payment_schedule
+         WHERE status = 'PENDING'
+           AND plan_date <= :nowTs
+         ORDER BY plan_date ASC
+         LIMIT :limit
+         FOR UPDATE SKIP LOCKED
+        """, nativeQuery = true)
+    List<PaymentSchedule> claimDueForUpdateSkipLocked(@Param("nowTs") Instant nowTs,
+                                                      @Param("limit") int limit);
 }

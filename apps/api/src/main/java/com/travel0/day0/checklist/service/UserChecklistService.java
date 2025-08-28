@@ -16,6 +16,7 @@ import com.travel0.day0.common.enums.ChecklistVisibility;
 
 import com.travel0.day0.departures.domain.DepartureInfo;
 import com.travel0.day0.departures.repository.DepartureInfoRepository;
+import com.travel0.day0.savings.service.SavingTxnService;
 import com.travel0.day0.users.domain.User;
 import com.travel0.day0.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,7 @@ public class UserChecklistService {
     private final UserRepository userRepository;
     private final DepartureInfoRepository departureInfoRepository;
     private final ItemCollectStatRepository collectStatRepository;
+    private final SavingTxnService savingTxnService;
 
     @Transactional
     public UserChecklistResponse createUserChecklistFromTemplate(Long userId, CreateUserChecklistRequest request) {
@@ -207,6 +209,7 @@ public class UserChecklistService {
     public UserChecklistItemResponse updateUserChecklistItem(Long itemId, Long userId, UpdateUserChecklistItemRequest request) {
         UserChecklistItem item = userChecklistItemRepository.findByUciIdAndUserChecklistUserUserId(itemId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("User checklist item not found"));
+        boolean becameDone = false;
 
         if (request.getTitle() != null) {
             item.setTitle(request.getTitle());
@@ -221,6 +224,7 @@ public class UserChecklistService {
             item.setStatus(request.getStatus());
             if (request.getStatus() == ChecklistItemStatus.DONE) {
                 item.setCompletedAt(Instant.now());
+                becameDone = true;
             } else {
                 item.setCompletedAt(null);
             }
@@ -236,6 +240,11 @@ public class UserChecklistService {
         }
 
         item = userChecklistItemRepository.save(item);
+
+        // DONE 전환이면 미션적금 이체 실행
+        if (becameDone) {
+            savingTxnService.missionDeposit(userId, item);
+        }
         return convertToItemResponse(item);
     }
 
