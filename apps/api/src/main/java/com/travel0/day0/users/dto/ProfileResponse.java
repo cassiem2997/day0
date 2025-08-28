@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Data
@@ -22,6 +23,8 @@ public class ProfileResponse {
     private LocalDate birth;
     private String profileImage;
     private Long mileage;
-    private Long homeUnivId;
-    private Long destUnivId;
+    private String country;
+    private String homeUniv;
+    private String destUniv;
+    private Instant departureDate;
 }

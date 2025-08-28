@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -43,6 +44,13 @@ public class UserService {
     public ProfileResponse getProfile(Long userId) {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        String countryName = null;
+        if (user.getCurrentDepartureInfo() != null && user.getCurrentDepartureInfo().getCountryCode() != null) {
+            String countryCode = user.getCurrentDepartureInfo().getCountryCode();
+            countryName = new Locale("", countryCode).getDisplayCountry(Locale.KOREAN);
+        }
+
         return ProfileResponse.builder()
                 .userId(user.getUserId())
                 .name(user.getName())
@@ -52,8 +60,10 @@ public class UserService {
                 .birth(user.getBirth())
                 .profileImage(user.getProfileImage())
                 .mileage(user.getMileage())
-                .homeUnivId(user.getHomeUniversity() != null ? user.getHomeUniversity().getUniversityId() : null)
-                .destUnivId(user.getDestUniversity() != null ? user.getDestUniversity().getUniversityId() : null)
+                .country(countryName)
+                .homeUniv(user.getHomeUniversity() != null ? user.getHomeUniversity().getName() : null)
+                .destUniv(user.getDestUniversity() != null ? user.getDestUniversity().getName() : null)
+                .departureDate(user.getCurrentDepartureInfo() != null ? user.getCurrentDepartureInfo().getStartDate() : null)
                 .build();
     }
 
@@ -90,10 +100,11 @@ public class UserService {
                             .orElseThrow(() -> new RuntimeException("대학을 찾을 수 없습니다."));
             user.setHomeUniversity(univ);
         }
-        if(request.getDestUnivId() != null){
-            University univ = universityRepo.findById(request.getDestUnivId())
-                    .orElseThrow(() -> new RuntimeException("대학을 찾을 수 없습니다."));
-            user.setDestUniversity(univ);
+
+        String countryName = null;
+        if (user.getCurrentDepartureInfo() != null && user.getCurrentDepartureInfo().getCountryCode() != null) {
+            String countryCode = user.getCurrentDepartureInfo().getCountryCode();
+            countryName = new Locale("", countryCode).getDisplayCountry(Locale.KOREAN);
         }
 
         userRepo.save(user);
@@ -106,8 +117,10 @@ public class UserService {
                 .birth(user.getBirth())
                 .profileImage(user.getProfileImage())
                 .mileage(user.getMileage())
-                .homeUnivId(user.getHomeUniversity() != null ? user.getHomeUniversity().getUniversityId() : null)
-                .destUnivId(user.getDestUniversity() != null ? user.getDestUniversity().getUniversityId() : null)
+                .country(countryName)
+                .homeUniv(user.getHomeUniversity() != null ? user.getHomeUniversity().getName() : null)
+                .destUniv(user.getDestUniversity() != null ? user.getDestUniversity().getName() : null)
+                .departureDate(user.getCurrentDepartureInfo() != null ? user.getCurrentDepartureInfo().getStartDate() : null)
                 .build();
     }
 }

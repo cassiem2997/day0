@@ -30,6 +30,7 @@ import java.math.RoundingMode;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +44,9 @@ public class SavingsPlanService {
     private final DemandDepositExternalPort externalPort;
     private final FinOpenApiProperties finOpenApiProperties;
     private final PaymentScheduleRepository scheduleRepo;
+    private final UserAccountRepository userAccountRepository;
+    private final SavingTxnService savingTxnService;
+    private final LedgerService ledgerService;
 
     private static final ZoneId ZONE = ZoneId.of("Asia/Seoul");
 
@@ -323,6 +327,22 @@ public class SavingsPlanService {
 
             saving.setActive(false);
             saving.setAccountExpireDate(ZonedDateTime.ofInstant(now, ZONE).toLocalDate());
+
+            UserAccount ua = userAccountRepository
+                    .findByAccountIdAndUser_UserId(plan.getSavingAccount().getAccountId(), plan.getUser().getUserId())
+                    .orElseThrow(() -> new IllegalArgumentException("계좌 없음 or 권한 없음"));
+            ua.setActive(false);
+
+            // 입금 + 거래 내역 업데이트
+            BigDecimal refundAmount = BigDecimal.valueOf(dddar.getREC().getAccountBalance());
+            String extTxId = dddar.getHeader().getInstitutionTransactionUniqueNo();
+            String idem = "PLAN-REFUND-" + plan.getPlanId();
+
+            UserAccount refundTo = plan.getWithdrawAccount(); // 환급받을 계좌
+            ledgerService.postTxn(refundTo, true, refundAmount,
+                    "입금(적금해지환급)", "적금 해지 환급", plan.getSavingAccount().getAccountNo(),
+                    extTxId, idem);
+
         }
     }
 
@@ -331,7 +351,7 @@ public class SavingsPlanService {
     }
 
     // ----- 유틸 -----
-    private static String nvl(String v, String def) {
+    static String nvl(String v, String def) {
         return (v == null || v.isBlank()) ? def : v;
     }
     private static String nvlUpper(String v, String def) {
