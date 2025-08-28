@@ -23,20 +23,25 @@ public record SavingTxnDto(
         Long postingTxId
 ) {
     public static SavingTxnDto from(SavingTxn e) {
+        Long planId = (e.getPlan() != null) ? e.getPlan().getPlanId() : null;
+        Long scheduleId = (e.getSchedule() != null) ? e.getSchedule().getScheduleId() : null;
+        Long sourceUciId = (e.getSourceChecklistItem() != null) ? e.getSourceChecklistItem().getUciId() : null;
+        Long postingTxId = (e.getPostingTx() != null) ? e.getPostingTx().getTxId() : null;
+
         return new SavingTxnDto(
                 e.getTxnId(),
-                e.getPlan().getPlanId(),
-                e.getSchedule().getScheduleId(),
-                e.getTxnType(),
-                e.getSourceChecklistItem().getUciId(),
+                planId,
+                scheduleId,
+                e.getTxnType(),          // enum: null 허용이면 그대로 둠
+                sourceUciId,
                 e.getRequestedAt(),
                 e.getProcessedAt(),
                 e.getAmount(),
-                e.getStatus(),
+                e.getStatus(),           // enum: null 허용이면 그대로 둠
                 e.getIdempotencyKey(),
                 e.getExternalTxId(),
                 e.getFailureReason(),
-                e.getPostingTx().getTxId()
+                postingTxId
         );
     }
 }
