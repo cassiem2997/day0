@@ -1,11 +1,14 @@
 // src/pages/Savings/SavingsPage.tsx
 import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import styles from "./SavingsPage.module.css";
 import SavingsMission, { type Mission as MissionType } from "./SavingsMission";
 import SavingsDetail from "./SavingsDetail";
 import savingDetailSvg from "../../assets/savingDetail.svg";
+import { getSavingsPlan, type SavingsPlanDetail } from "../../api/savings";
+import { getUserChecklistItems, type UserChecklistItem } from "../../api/checklist";
 
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState<boolean>(() => {
@@ -32,23 +35,27 @@ function formatAmount(n: number) {
 }
 
 export default function SavingsPage() {
+  // TO DO: 적금 플랜 생성 하면 planId 주석처럼 써야함
+  const planId = "5"; // const { planId } = useParams<{ planId: string }>();
+  const checklistId = 1; // TO DO : 일단 임의의 유저별 체크리스트 ID 주입되어있음
   const isMobile = useIsMobile(768);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // 탭 상태: mission | detail
   const [activeTab, setActiveTab] = useState<"mission" | "detail">("mission");
 
-  // ── 데모 값 (API 연동 시 교체) ───────────────────────────────────────────
-  const goalAmount = 2_500_000;
-  const [currentAmount, setCurrentAmount] = useState<number>(1_741_500);
+  // API 데이터 상태
+  const [plan, setPlan] = useState<SavingsPlanDetail | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // 파생 상태
+  const goalAmount = plan?.goalAmount ?? 0;
+  const [currentAmount, setCurrentAmount] = useState<number>(0);
 
   // 체크리스트에서 넘어온 완료 내역이라고 가정
-  const [missions, setMissions] = useState<MissionType[]>([
-    { id: 1, text: "이건 첫 번째 레슨", completed: true, credited: false },
-    { id: 2, text: "이제 두번째 레슨", completed: false, credited: false },
-    { id: 3, text: "좀 더 강해져야 돼 ~", completed: false, credited: false },
-  ]);
-  const rewardPerMission = 5_000;
+  const [missions, setMissions] = useState<MissionType[]>([]);
+  const rewardPerMission = missions.linkedAmount ?? 5000;
 
   const percent = useMemo(() => {
     if (!goalAmount || goalAmount <= 0) return 0;
@@ -60,6 +67,62 @@ export default function SavingsPage() {
     setIsSidebarOpen((prev) => !prev);
   }
 
+  // 플랜 상세 조회
+  useEffect(() => {
+    if (!planId) {
+      setLoadError("planId가 없습니다.");
+      return;
+    }
+    const id = Number(planId);
+    if (Number.isNaN(id) || id <= 0) {
+      setLoadError("유효하지 않은 planId 입니다.");
+      return;
+    }
+
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setLoadError(null);
+        const data = await getSavingsPlan(id);
+        if (!alive) return;
+        setPlan(data);
+        // 현재 적립액 = savingAccount.accountBalance
+        setCurrentAmount(Math.max(0, data?.savingAccount?.accountBalance ?? 0));
+      } catch (e: any) {
+        if (!alive) return;
+        setLoadError(
+          e?.response?.data?.message || e?.message || "플랜 정보를 불러오지 못했습니다."
+        );
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [planId]);
+
+  // 체크리스트 불러오기
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const items: UserChecklistItem[] = await getUserChecklistItems(checklistId);
+        if (!alive) return;
+        // API → MissionType 변환
+        const mapped: MissionType[] = items.map((item) => ({
+          id: item.uciId,
+          text: item.title,
+          completed: item.status === "DONE",
+          credited: false, // TODO: 적금 입금 내역과 연동하면 true로 변경
+        }));
+        setMissions(mapped);
+      } catch (e) {
+        console.error("체크리스트 로딩 실패", e);
+      }
+    })();
+    return () => { alive = false; };
+  }, [checklistId]);
+
   // 미션 컴포넌트에서 호출하는 입금 처리
   async function handleRequestDeposit(missionIds: number[], amount: number) {
     // TODO: 실제 API 연동
@@ -70,6 +133,13 @@ export default function SavingsPage() {
       )
     );
     return true;
+  }
+
+  if (loading) {
+    return <div className={styles.container}><main className={styles.main}><div className={styles.pageContent}><h1 className={styles.title}>SAVINGS</h1><p>불러오는 중…</p></div></main></div>;
+  }
+  if (loadError) {
+    return <div className={styles.container}><main className={styles.main}><div className={styles.pageContent}><h1 className={styles.title}>SAVINGS</h1><p role="alert">{loadError}</p></div></main></div>;
   }
 
   return (
@@ -184,7 +254,7 @@ export default function SavingsPage() {
               onRequestDeposit={handleRequestDeposit}
             />
           ) : (
-            <SavingsDetail />
+            <SavingsDetail planId={plan?.planId} />
           )}
         </div>
       </main>

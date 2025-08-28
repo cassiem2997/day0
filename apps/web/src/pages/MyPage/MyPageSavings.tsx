@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./MyPageSavings.module.css";
 import MyPageSavingsDetail from "./MyPageSavingsDetail";
+import { getMySavingsPlans, type SavingsPlanSummary } from "../../api/savings";
+import { getMyAccounts, type DepositAccount } from "../../api/accounts";
 
 type AccountType = "SAVING" | "DEPOSIT" | "FX";
 
@@ -50,6 +52,9 @@ function TypeBadge({ t }: { t: AccountType }) {
 
 export default function MyPageSavings() {
   const [selected, setSelected] = useState<AccountRow | null>(null);
+  const [rows, setRows] = useState<AccountRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // 상세로 넘길 샘플 거래내역
   const txns = [
@@ -86,6 +91,54 @@ export default function MyPageSavings() {
       runningBalance: 10000,
     },
   ];
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [plans, accounts] = await Promise.all([
+          getMySavingsPlans(),
+          getMyAccounts(),
+        ]);
+
+        if (!alive) return;
+
+        // 적금 플랜 → AccountRow
+        const savingRows: AccountRow[] = plans.map((p) => ({
+          id: `saving-${p.planId}`,
+          type: "SAVING",
+          title: `적금 플랜 #${p.planId}`,
+          number: String(p.savingAccountId),
+          balance: `${p.goalAmount.toLocaleString("ko-KR")} KRW`, // 혹은 현재 잔액 API
+        }));
+
+        // 입출금 계좌 → AccountRow
+        const depositRows: AccountRow[] = accounts.map((a, idx) => {
+          const isFx = a.currency !== "KRW";
+          return {
+            id: `acct-${idx}`,
+            type: isFx ? "FX" : "DEPOSIT",
+            title: a.accountName ?? a.accountTypeName,
+            number: a.accountNo,
+            balance: isFx
+              ? `${a.accountBalance.toLocaleString("en-US")} ${a.currency}`
+              : `${a.accountBalance.toLocaleString("ko-KR")} KRW`,
+          };
+        });
+
+        setRows([...savingRows, ...depositRows]);
+      } catch (e: any) {
+        if (!alive) return;
+        setError(e?.response?.data?.message || e?.message || "계좌 정보를 불러오지 못했습니다.");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
 
   if (selected) {
     return (
@@ -130,7 +183,7 @@ export default function MyPageSavings() {
         </div>
 
         <div className={styles.body}>
-          {DUMMY.map((row) => (
+          {rows.map((row) => (
             <div
               key={row.id}
               className={`${styles.row} ${styles.rowClickable}`}
