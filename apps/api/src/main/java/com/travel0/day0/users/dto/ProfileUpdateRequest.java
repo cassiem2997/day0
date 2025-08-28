@@ -18,8 +18,6 @@ public class ProfileUpdateRequest {
     private String nickname;
     private Gender gender;
     private LocalDate birth;
-    private String profileImage;
     private Long homeUnivId;
-    private Long destUnivId;
     private Boolean deleteProfileImage;
 }
