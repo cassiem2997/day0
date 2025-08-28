@@ -128,7 +128,7 @@ export default function SavingsMission({
             ))}
           </ul>
 
-          <div className={styles.missionFooter}>
+          {/* <div className={styles.missionFooter}>
             <div className={styles.pendingInfo}>
               대기 중: {pendingCount}건 · {formatAmount(pendingReward)}원
             </div>
@@ -140,7 +140,7 @@ export default function SavingsMission({
             >
               미션 완료비 입금하기
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>
