@@ -2,8 +2,8 @@
   margin-top: 18px;
 }
 
-/* 프로필 카드 */
 .profileCard {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   background: #eaf0ff;
@@ -12,11 +12,13 @@
   padding: 20px;
   gap: 16px;
 }
+
 .profileLeft {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
+
 .avatarBox {
   width: 220px;
   height: 220px;
@@ -27,27 +29,33 @@
   align-items: center;
   justify-content: center;
 }
+
 .avatarText {
   font-weight: 900;
   font-size: 28px;
   color: #111;
 }
+
 .profileText {
   margin-top: 4px;
 }
+
 .nick {
   margin: 0;
   font-size: 56px;
   font-weight: 900;
 }
+
 .subInfo {
   margin: 6px 0 0;
   color: #333;
   font-weight: 700;
 }
+
 .leftBottom {
   margin-top: auto;
 }
+
 .editBtn {
   padding: 10px 18px;
   border: 6px solid #121212;
@@ -57,16 +65,46 @@
   box-shadow: 0 6px 0 rgba(0, 0, 0, 0.15);
 }
 
+.editFab {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  z-index: 2;
+}
+
+.mileageBox {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #fff;
+  border: 6px solid #121212;
+  border-radius: 14px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.15);
+}
+
+.mileageKey {
+  font-weight: 900;
+  color: #111;
+}
+
+.mileageVal {
+  font-weight: 900;
+  font-size: 18px;
+}
+
 .profileRight {
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
+
 .hangingBadgeWrap {
   display: flex;
   justify-content: center;
 }
+
 .hangingBadge {
   background: #5b5bf7;
   border: 8px solid #121212;
@@ -74,6 +112,7 @@
   padding: 16px 28px;
   box-shadow: 0 10px 0 rgba(0, 0, 0, 0.18);
 }
+
 .badgeLabel {
   color: #fff;
   font-weight: 900;
@@ -85,6 +124,7 @@
   align-items: center;
   gap: 12px;
 }
+
 .fieldKey {
   min-width: 120px;
   text-align: center;
@@ -94,6 +134,7 @@
   padding: 12px 14px;
   font-weight: 900;
 }
+
 .fieldVal {
   flex: 1;
   background: #fff;
@@ -101,18 +142,19 @@
   border-radius: 18px;
   padding: 14px 18px;
 }
+
 .valText {
   font-weight: 900;
   font-size: 28px;
 }
 
-/* 활동 카드 그리드 */
 .activityGrid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
   margin-top: 18px;
 }
+
 .card {
   background: #fff;
   border: 6px solid #121212;
@@ -120,11 +162,13 @@
   padding: 14px;
   box-shadow: 0 6px 0 rgba(0, 0, 0, 0.08);
 }
+
 .cardTitle {
   margin: 0 0 10px;
   font-weight: 900;
   font-size: 22px;
 }
+
 .list {
   list-style: none;
   padding: 0;
@@ -133,6 +177,7 @@
   flex-direction: column;
   gap: 10px;
 }
+
 .item {
   display: flex;
   justify-content: space-between;
@@ -142,13 +187,16 @@
   border-radius: 12px;
   background: #fdfdff;
 }
+
 .itemTitle {
   font-weight: 800;
 }
+
 .itemDate {
   color: #6c7280;
   font-size: 12px;
 }
+
 .empty {
   color: #6c7280;
   margin: 4px 0 10px;
@@ -159,6 +207,7 @@
   justify-content: flex-end;
   margin-top: 10px;
 }
+
 .moreBtn {
   padding: 8px 12px;
   border: 5px solid #121212;
@@ -194,7 +243,7 @@
 
 .modal {
   width: min(860px, 96%);
-  max-height: min(90vh, 860px); /* 세로 스크롤 */
+  max-height: min(90vh, 860px);
   background: #f6fbff;
   border: 6px solid #111;
   border-radius: 18px;
@@ -229,7 +278,7 @@
 
 .modalBody {
   padding: 16px;
-  overflow-y: auto; /* 스크롤 영역 */
+  overflow-y: auto;
 }
 
 @media (max-width: 640px) {
