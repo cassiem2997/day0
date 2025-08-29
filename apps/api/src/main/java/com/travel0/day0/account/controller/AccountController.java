@@ -1,5 +1,6 @@
 package com.travel0.day0.account.controller;
 
+import com.travel0.day0.account.ProductRequestDto;
 import com.travel0.day0.savings.controller.DemandDepositController.*;
 import com.travel0.day0.account.service.UserAccountService;
 import com.travel0.day0.auth.service.PrincipalDetails;
@@ -26,7 +27,7 @@ public class AccountController {
     // 상품 목록 조회
     @GetMapping("/products")
     @Operation(summary = "상품 목록 조회")
-    public ResponseEntity<List<Rec>> listProducts() {
+    public ResponseEntity<List<ProductRequestDto>> listProducts() {
         return ResponseEntity.ok(userAccountService.listProducts());
     }
 

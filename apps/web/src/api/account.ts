@@ -19,6 +19,8 @@ export type AccountProduct = {
   type: AccountType;
   currency: "KRW" | "USD";
   description?: string;
+
+  productIdNum?: number;
 };
 
 type Wrapped<T> = {
@@ -88,6 +90,13 @@ function normalizeOne(item: any, idx: number): AccountNormalized {
 
 function normalizeProduct(x: any, i: number): AccountProduct {
   const id = s(x?.id ?? x?.productId ?? `prod_${Date.now()}_${i}`);
+  
+  const rawNum = x?.productId ?? x?.id ?? null;
+  const productIdNum =
+    rawNum != null && Number.isFinite(Number(rawNum))
+      ? Number(rawNum)
+      : undefined;
+
   const bankName = s(x?.bankName ?? "상품");
   const accountName = s(x?.accountName ?? "통장");
 
@@ -102,7 +111,7 @@ function normalizeProduct(x: any, i: number): AccountProduct {
   const currency: "KRW" | "USD" = c.includes("USD") ? "USD" : "KRW";
 
   const description = s(x?.accountDescription ?? x?.desc ?? "");
-  return { id, bankName, accountName, type, currency, description };
+  return { id, bankName, accountName, type, currency, description, productIdNum };
 }
 
 /** 원본 형태로 계좌 목록 조회 (정규화 반환) */
@@ -129,7 +138,7 @@ export async function fetchAccountProducts(): Promise<AccountProduct[]> {
 
 /** 계좌 생성 */
 export async function createAccount(body: {
-  productId: string | number;
+  productId: number;
   title?: string;
   initialAmount?: number;
 }): Promise<AccountNormalized> {

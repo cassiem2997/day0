@@ -1,5 +1,6 @@
 package com.travel0.day0.account.service;
 
+import com.travel0.day0.account.ProductRequestDto;
 import com.travel0.day0.account.domain.AccountTransaction;
 import com.travel0.day0.account.domain.Product;
 import com.travel0.day0.account.domain.UserAccount;
@@ -46,12 +47,13 @@ public class UserAccountService {
 
     // 상품 목록 조회
     @Transactional(readOnly = true)
-    public List<Rec> listProducts() {
+    public List<ProductRequestDto> listProducts() {
         // DB에서 엔티티 목록 조회
         List<Product> products = productRepository.findAll();
 
         return products.stream()
-                .map(p -> DemandDepositDtos.Rec.builder()
+                .map(p -> ProductRequestDto.builder()
+                        .productId(p.getId())
                         .accountTypeUniqueNo(p.getAccountTypeUniqueNo())
                         .bankCode(p.getBankCode())
                         .bankName(p.getBankName())

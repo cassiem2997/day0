@@ -254,6 +254,7 @@ export default function LoginPage() {
                   value={signUpForm.birth}
                   onChange={handleChange}
                   placeholder="생년월일"
+                  max={new Date().toISOString().split("T")[0]} 
                 />
               </div>
 

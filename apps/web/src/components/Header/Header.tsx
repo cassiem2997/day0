@@ -4,7 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import Swal from "sweetalert2";
 import styles from "./Header.module.css";
 import { logout, me, getUserProfile, type UserProfile } from "../../api/user";
+import logoUrl from "../.././assets/logo.svg";
+
 type User = { name: string; avatarUrl?: string };
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+function absUrlMaybe(path?: string | null) {
+  if (!path) return null;
+  if (path.startsWith("/")) return `${API_BASE}${path}`;
+  return path;
+}
 
 const NAV = [
   { label: "체크리스트", href: "/checklist" },
@@ -60,7 +69,7 @@ export default function Header() {
         if (mounted) {
           setUser({
             name: u.nickname || "사용자",
-            avatarUrl: u.profileImage ?? undefined,
+            avatarUrl: absUrlMaybe(u.profileImage) ?? undefined,
           });
         }
       } catch (err: any) {
@@ -99,7 +108,11 @@ export default function Header() {
     <header className={styles.header}>
       <div className={styles.brand}>
         <NavLink to="/" className={styles.logoLink}>
-          <img src="/logo.svg" alt="logo" className={styles.logo}></img>
+          <img
+            src={logoUrl}
+            alt="logo"
+            className={styles.logo}
+          />
         </NavLink>
       </div>
 

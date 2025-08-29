@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,7 +114,7 @@ public class ExchangeRateService {
         try {
             var allRates = getCurrentExchangeRates();
             LocalDate today = LocalDate.now();
-            Instant now = Instant.now();
+            LocalDateTime now = LocalDateTime.now();
 
             for (var rate : allRates) {
                 ExchangeRateHistory history = ExchangeRateHistory.builder()
