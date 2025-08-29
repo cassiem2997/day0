@@ -1,8 +1,10 @@
+// src/pages/Community/CommunityWrite.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import styles from "./CommunityWrite.module.css";
+import Swal from "sweetalert2";
 
 import {
   fetchCountryCodes,
@@ -30,6 +32,19 @@ function useIsMobile(breakpoint = 768) {
 }
 
 type Cat = "CHECKLIST" | "FREE" | "QNA";
+
+function toNum(v: any): number | undefined {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+function idFromLocationHeader(headers: any): number | undefined {
+  const loc: string | undefined = headers?.location || headers?.Location;
+  if (!loc) return;
+  // 예: ".../community/posts/123", "/api/v1/posts/123?foo=bar"
+  const m = String(loc).match(/(\d+)(?:\/)?(?:\?.*)?$/);
+  return m ? toNum(m[1]) : undefined;
+}
 
 export default function CommunityWrite() {
   const isMobile = useIsMobile(768);
@@ -107,7 +122,7 @@ export default function CommunityWrite() {
     return () => URL.revokeObjectURL(url);
   }, [file]);
 
-  // --- 수정 모드일 때 기존 값 불러오기 ---
+  // 수정 모드일 때 기존 값 불러오기
   useEffect(() => {
     if (editMode && Number.isFinite(postId)) {
       (async () => {
@@ -181,16 +196,52 @@ export default function CommunityWrite() {
           },
           userId
         );
+
+        await Swal.fire({
+          title: "수정 완료",
+          text: "게시글이 수정되었습니다.",
+          icon: "success",
+          confirmButtonText: "확인",
+        });
+
+        nav(`/community/${postId}`, { replace: true });
       } else {
-        await createCommunityPost(payload, userId);
+        const res = await createCommunityPost(payload, userId);
+
+        // 다양한 응답 형태에서 새 글 ID 추출
+        const newId =
+          toNum((res as any)?.data?.data?.postId) ??
+          toNum((res as any)?.data?.data?.id) ??
+          toNum((res as any)?.data?.postId) ??
+          toNum((res as any)?.data?.id) ??
+          toNum((res as any)?.postId) ??
+          toNum((res as any)?.id) ??
+          toNum((res as any)?.headers?.["x-resource-id"]) ??
+          idFromLocationHeader((res as any)?.headers);
+
+        await Swal.fire({
+          title: "등록 완료",
+          text: "게시글이 등록되었습니다.",
+          icon: "success",
+          confirmButtonText: "확인",
+        });
+
+        if (newId) {
+          nav(`/community/${newId}`, { replace: true });
+        } else {
+          // 정말로 ID를 못 받았을 때만 목록으로
+          nav("/community", { replace: true });
+        }
       }
-      nav("/community", { replace: true });
-    } catch (e) {
-      console.error(e);
-      setErr(
-        editMode
-          ? "수정 중 오류가 발생했습니다."
-          : "등록 중 오류가 발생했습니다."
+    } catch (e: any) {
+      await Swal.fire(
+        "오류",
+        e?.response?.data?.message ||
+          e?.message ||
+          (editMode
+            ? "수정 중 오류가 발생했습니다."
+            : "등록 중 오류가 발생했습니다."),
+        "error"
       );
     }
   }
