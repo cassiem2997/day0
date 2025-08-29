@@ -1,5 +1,5 @@
-// src/pages/Savings/NoSavings.tsx
-import styles from "./NoSavings.module.css";
+// src/pages/Savings/Nosavings.tsx
+import styles from "./Nosavings.module.css";
 import bg from "../../assets/noChecklist.svg"; // 필요시 전용 이미지로 교체 가능
 
 type Props = {
