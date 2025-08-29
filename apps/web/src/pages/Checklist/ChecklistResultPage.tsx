@@ -35,36 +35,37 @@
 //   const [newDesc, setNewDesc] = useState("");
 //   const [newTag, setNewTag] = useState<Item["tag"]>("NONE");
 
-//   useEffect(() => {
-//     if (!Number.isFinite(id)) {
-//       navigate("/checklist");
-//       return;
-//     }
-//     (async () => {
-//       try {
-//         const [list, listItems] = await Promise.all([
-//           getUserChecklist(id),
-//           getUserChecklistItems(id),
-//         ]);
-//         setTitle(list?.title ?? "체크리스트");
-//         setItems(
-//           (listItems?.items ?? []).map((it: any) => ({
-//             uciId: it.uciId ?? it.id,
-//             title: it.title,
-//             description: it.description,
-//             tag: it.tag ?? "NONE",
-//             status: it.status ?? "TODO",
-//           }))
-//         );
-//       } catch (e) {
-//         console.error(e);
-//         alert("체크리스트를 불러오지 못했습니다.");
-//         navigate("/checklist");
-//       } finally {
-//         setLoading(false);
-//       }
-//     })();
-//   }, [id, navigate]);
+  useEffect(() => {
+    if (!Number.isFinite(id)) {
+      navigate("/checklist");
+      return;
+    }
+    (async () => {
+      try {
+        const [list, listItems] = await Promise.all([
+          getUserChecklist(id),
+          getUserChecklistItems(id),
+        ]);
+        setTitle(list?.title ?? "체크리스트");
+        setItems(
+          (listItems ?? []).map((it: any) => ({
+            uciId: it.uciId ?? it.id,
+            title: it.title,
+            description: it.description,
+            tag: it.tag ?? "NONE",
+            status: it.status ?? "TODO",
+          }))
+        );
+      } catch (e) {
+        console.error(e);
+        alert("체크리스트를 불러오지 못했습니다.");
+        navigate("/checklist");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [id, navigate]);
+
 
 //   const toggleDone = async (item: Item) => {
 //     const next = item.status === "DONE" ? "TODO" : "DONE";
