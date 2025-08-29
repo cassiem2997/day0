@@ -21,7 +21,6 @@ import {
   type Reply,
 } from "../../api/community";
 
-/* ───────────────── 공통: 모바일 판별 ───────────────── */
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
@@ -35,7 +34,6 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
-/* ───────────────── 뷰 모델 ───────────────── */
 type DetailPost = {
   id: number;
   category: "CHECKLIST" | "FREE" | "QNA";
@@ -52,7 +50,6 @@ type DetailPost = {
   body: string;
 };
 
-/* createdAt → "n분 전" 포맷 */
 function timeAgo(iso?: string) {
   if (!iso) return "-";
   const d = new Date(iso);
@@ -72,7 +69,6 @@ function timeAgo(iso?: string) {
   return `${y}년`;
 }
 
-/* 카테고리 → 뱃지 라벨 */
 function categoryBadge(cat?: string) {
   switch (cat) {
     case "CHECKLIST":
@@ -86,7 +82,6 @@ function categoryBadge(cat?: string) {
   }
 }
 
-/* API 응답 → 뷰 모델 매핑 */
 function mapToDetailView(p: ApiPostDetail): DetailPost {
   return {
     id: p.postId,
@@ -122,7 +117,6 @@ export default function CommunityDetail() {
   const [replies, setReplies] = useState<Reply[]>([]);
   const [replyInput, setReplyInput] = useState("");
 
-  /* 로그인 사용자(userId) 조회 */
   useEffect(() => {
     (async () => {
       try {
@@ -135,7 +129,6 @@ export default function CommunityDetail() {
     })();
   }, []);
 
-  /* 게시글 상세 로드 */
   useEffect(() => {
     if (!Number.isFinite(pid)) return;
     (async () => {
@@ -156,7 +149,6 @@ export default function CommunityDetail() {
     })();
   }, [pid, userId]);
 
-  /* 댓글 목록 불러오기 */
   useEffect(() => {
     if (!Number.isFinite(pid)) return;
     (async () => {
@@ -169,7 +161,6 @@ export default function CommunityDetail() {
     })();
   }, [pid]);
 
-  /* 좋아요 토글 */
   async function onToggleLike() {
     if (!post || !userId) return;
     try {
@@ -185,7 +176,6 @@ export default function CommunityDetail() {
     }
   }
 
-  /* 게시글 삭제 */
   async function onDeletePost() {
     if (!post || !userId) return;
     const confirm = await Swal.fire({
@@ -207,7 +197,6 @@ export default function CommunityDetail() {
     }
   }
 
-  /* 댓글 작성 */
   async function onAddReply() {
     if (!replyInput.trim() || !userId || !pid) return;
     try {
@@ -220,7 +209,6 @@ export default function CommunityDetail() {
     }
   }
 
-  /* 댓글 삭제 */
   async function onDeleteReply(replyId: number) {
     if (!userId) return;
     const confirm = await Swal.fire({
@@ -240,11 +228,9 @@ export default function CommunityDetail() {
     }
   }
 
-  /* ---------- 채택/취소 (QNA + 글 작성자 + 타인 댓글만 채택) ---------- */
   const isQna = post?.category === "QNA";
   const isPostAuthor = !!post && userId === post.authorId;
 
-  // 백엔드가 isAdopted를 주고, 과거 호환을 위해 adopted로 줄 수도 있으니 둘 다 처리
   const isAdopted = (r: Reply) =>
     (r as any).isAdopted ?? (r as any).adopted ?? false;
 
@@ -306,7 +292,6 @@ export default function CommunityDetail() {
     }
   }
 
-  // 반복 렌더 함수 (채택/취소 버튼 조건 포함)
   const renderReply = (r: Reply) => {
     const adopted = isAdopted(r);
     const canAdoptThis =
@@ -351,7 +336,6 @@ export default function CommunityDetail() {
             </button>
           ) : null}
 
-          {/* 본인 댓글이면 삭제 가능 */}
           {userId === r.authorId && (
             <button
               type="button"
@@ -459,16 +443,16 @@ export default function CommunityDetail() {
                   <span className={styles.count}>({replies.length})</span>
                 </div>
 
-                <div style={{ margin: "8px 0" }}>
+                <div className={styles.replyForm}>
                   <textarea
-                    className={styles.textarea}
+                    className={styles.replyTextarea}
                     placeholder="댓글을 입력하세요"
                     value={replyInput}
                     onChange={(e) => setReplyInput(e.target.value)}
                   />
                   <button
                     type="button"
-                    className={styles.chip}
+                    className={styles.replyButton}
                     onClick={onAddReply}
                     disabled={!replyInput.trim()}
                   >
@@ -480,13 +464,11 @@ export default function CommunityDetail() {
                   <ul style={{ marginTop: 12 }}>{renderReply(adoptedReply)}</ul>
                 ) : null}
 
-                {/* 나머지 댓글 */}
                 <ul style={{ marginTop: adoptedReply ? 12 : 12 }}>
                   {otherReplies.map(renderReply)}
                 </ul>
               </section>
 
-              {/* 작성자 전용 수정/삭제 버튼 */}
               {userId && post.authorId === userId && (
                 <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
                   <button
