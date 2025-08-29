@@ -1,0 +1,559 @@
+.screen {
+  align-items: start;
+  background-color: #f3fbff;
+  display: grid;
+  justify-items: center;
+  width: 100vw;
+}
+
+.screen .div {
+  background-color: #f3fbff;
+  height: 1024px;
+  position: relative;
+  width: 1440px;
+}
+
+.screen .line {
+  height: 7px;
+  left: 32px;
+  position: absolute;
+  top: 32px;
+  width: 58px;
+}
+
+.screen .img {
+  height: 7px;
+  left: 32px;
+  position: absolute;
+  top: 46px;
+  width: 58px;
+}
+
+.screen .line-2 {
+  height: 7px;
+  left: 32px;
+  position: absolute;
+  top: 60px;
+  width: 58px;
+}
+
+.screen .iconly-light-outline {
+  height: 35px;
+  left: 1371px;
+  position: absolute;
+  top: 33px;
+  width: 43px;
+}
+
+.screen .frame {
+  background-color: #a8d5ff;
+  border: 10px solid;
+  border-color: #000000;
+  height: 585px;
+  left: 110px;
+  position: absolute;
+  top: 351px;
+  width: 1219px;
+}
+
+.screen .union {
+  height: 69px;
+  left: 1055px;
+  position: absolute;
+  top: 161px;
+  width: 164px;
+}
+
+.screen .overlap {
+  height: 76px;
+  left: 233px;
+  position: absolute;
+  top: 36px;
+  width: 957px;
+}
+
+.screen .union-2 {
+  height: 69px;
+  left: 730px;
+  position: absolute;
+  top: 7px;
+  width: 227px;
+}
+
+.screen .text-wrapper {
+  -webkit-text-stroke: 5px #000000;
+  color: #ffffff;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 75px;
+  font-weight: 400;
+  height: 73px;
+  left: 0;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 0;
+  width: 744px;
+}
+
+.screen .overlap-group {
+  height: 397px;
+  left: 26px;
+  position: absolute;
+  top: 150px;
+  width: 1002px;
+}
+
+.screen .union-3 {
+  height: 69px;
+  left: 0;
+  position: absolute;
+  top: 20px;
+  width: 227px;
+}
+
+.screen .frame-2 {
+  background-color: #ffffff99;
+  border: 5px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 397px;
+  left: 166px;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  width: 836px;
+}
+
+.screen .div-wrapper {
+  background-color: #ffffff99;
+  border: 3px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 66px;
+  left: 19px;
+  position: absolute;
+  top: 26px;
+  width: 136px;
+}
+
+.screen .text-wrapper-2 {
+  color: #000000;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 24px;
+  left: 19px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 14px;
+  white-space: nowrap;
+}
+
+.screen .overlap-2 {
+  background-color: #ffffff99;
+  border: 3px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 66px;
+  left: 169px;
+  position: absolute;
+  top: 26px;
+  width: 650px;
+}
+
+.screen .text-wrapper-3 {
+  color: #4758fc;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 24px;
+  left: 3px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 14px;
+  width: 367px;
+}
+
+.screen .text-wrapper-4 {
+  color: #4758fc;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 24px;
+  left: 260px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: right;
+  top: 14px;
+  width: 367px;
+}
+
+.screen .overlap-group-2 {
+  background-color: #ffffff99;
+  border: 3px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 66px;
+  left: 19px;
+  position: absolute;
+  top: 119px;
+  width: 136px;
+}
+
+.screen .text-wrapper-5 {
+  color: #000000;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 24px;
+  left: 14px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 14px;
+  white-space: nowrap;
+}
+
+.screen .overlap-3 {
+  background-color: #ffffff99;
+  border: 3px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 66px;
+  left: 494px;
+  position: absolute;
+  top: 120px;
+  width: 110px;
+}
+
+.screen .text-wrapper-6 {
+  color: #000000;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 24px;
+  left: 14px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 13px;
+  white-space: nowrap;
+}
+
+.screen .overlap-4 {
+  background-color: #fefefe1a;
+  border: 3px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 66px;
+  left: 175px;
+  position: absolute;
+  top: 119px;
+  width: 306px;
+}
+
+.screen .overlap-5 {
+  background-color: #ffffff99;
+  border: 3px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 46px;
+  left: 163px;
+  position: absolute;
+  top: 10px;
+  width: 125px;
+}
+
+.screen .text-wrapper-7 {
+  color: #000000;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 24px;
+  left: 34px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 4px;
+  white-space: nowrap;
+}
+
+.screen .overlap-6 {
+  background-color: #4758fc;
+  border: 3px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 46px;
+  left: 17px;
+  position: absolute;
+  top: 11px;
+  width: 125px;
+}
+
+.screen .text-wrapper-8 {
+  color: #ffffff;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 24px;
+  left: 35px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 3px;
+  white-space: nowrap;
+}
+
+.screen .overlap-7 {
+  background-color: #ffffff99;
+  border: 3px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 66px;
+  left: 624px;
+  position: absolute;
+  top: 119px;
+  width: 195px;
+}
+
+.screen .text-wrapper-9 {
+  color: #4758fc;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 24px;
+  left: 70px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 14px;
+  white-space: nowrap;
+}
+
+.screen .overlap-8 {
+  background-color: #ffffff99;
+  border: 3px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 66px;
+  left: 494px;
+  position: absolute;
+  top: 214px;
+  width: 110px;
+}
+
+.screen .text-wrapper-10 {
+  color: #000000;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 24px;
+  left: 30px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 13px;
+  white-space: nowrap;
+}
+
+.screen .overlap-9 {
+  background-color: #4758fc;
+  border: 3px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 66px;
+  left: 335px;
+  position: absolute;
+  top: 299px;
+  width: 167px;
+}
+
+.screen .text-wrapper-11 {
+  color: #ffffff;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 30px;
+  font-weight: 400;
+  height: 29px;
+  left: 28px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 13px;
+  white-space: nowrap;
+}
+
+.screen .overlap-10 {
+  background-color: #ffffff99;
+  border: 3px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 66px;
+  left: 624px;
+  position: absolute;
+  top: 212px;
+  width: 193px;
+}
+
+.screen .text-wrapper-12 {
+  color: #000000;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 24px;
+  left: 117px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 15px;
+  white-space: nowrap;
+}
+
+.screen .text-wrapper-13 {
+  color: #4758fc;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 24px;
+  left: 31px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 15px;
+  width: 66px;
+}
+
+.screen .overlap-11 {
+  background-color: #ffffff99;
+  border: 3px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 66px;
+  left: 175px;
+  position: absolute;
+  top: 212px;
+  width: 306px;
+}
+
+.screen .text-wrapper-14 {
+  color: #4758fc;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 24px;
+  left: 44px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: right;
+  top: 15px;
+  width: 156px;
+}
+
+.screen .text-wrapper-15 {
+  color: #000000;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 24px;
+  left: 233px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  text-align: center;
+  top: 14px;
+  white-space: nowrap;
+}
+
+.screen .overlap-12 {
+  background-color: #ffffff99;
+  border: 3px solid;
+  border-color: #000000;
+  border-radius: 20px;
+  height: 66px;
+  left: 19px;
+  position: absolute;
+  top: 214px;
+  width: 136px;
+}
+
+.screen .p {
+  color: transparent;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 25px;
+  font-weight: 400;
+  height: 43px;
+  left: 25px;
+  letter-spacing: 0;
+  line-height: 20px;
+  position: absolute;
+  text-align: center;
+  top: 8px;
+}
+
+.screen .span {
+  color: #000000;
+}
+
+.screen .text-wrapper-16 {
+  color: #7d7d7d;
+  font-size: 14px;
+}
+
+.screen .union-4 {
+  height: 69px;
+  left: 0;
+  position: absolute;
+  top: 19px;
+  width: 173px;
+}
+
+.screen .overlap-13 {
+  background-image: url(../../../static/img/vector-15-3.svg);
+  background-size: 100% 100%;
+  height: 30px;
+  left: 102px;
+  position: absolute;
+  top: 113px;
+  width: 284px;
+}
+
+.screen .text-wrapper-17 {
+  color: #000000;
+  font-family: "EF_jejudoldam-Regular", Helvetica;
+  font-size: 20px;
+  font-weight: 400;
+  left: 17px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 4px;
+  white-space: nowrap;
+}
+
+.screen .text-wrapper-18 {
+  color: #000000;
+  font-family: "Mungyeong Gamhong Apple-Regular", Helvetica;
+  font-size: 100px;
+  font-weight: 400;
+  left: 102px;
+  letter-spacing: 15.00px;
+  line-height: normal;
+  position: absolute;
+  top: 168px;
+  width: 834px;
+}
