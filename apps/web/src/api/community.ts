@@ -5,6 +5,7 @@ import api from "./axiosInstance";
 export type Cat = "CHECKLIST" | "FREE" | "QNA";
 export type CommunitySort = "latest" | "popular";
 
+/* ---------- 글 작성 ---------- */
 export interface CommunityPostPayload {
   title: string;
   body: string;
@@ -13,7 +14,7 @@ export interface CommunityPostPayload {
   universityId: number;
 }
 
-/** 글 작성: application/json + query(userId) */
+/** 글 작성: POST /community/posts  (query: userId) */
 export async function createCommunityPost(
   payload: CommunityPostPayload,
   userId: number
@@ -100,9 +101,7 @@ export interface GetPostDetailResponse {
 export async function getCommunityPostDetail(postId: number, userId?: number) {
   const { data } = await api.get<GetPostDetailResponse>(
     `/community/posts/${postId}`,
-    {
-      params: { userId },
-    }
+    { params: { userId } }
   );
   return data;
 }
@@ -138,7 +137,7 @@ export async function updateCommunityPost(
 /* ---------- 게시글 삭제 ---------- */
 export interface DeleteCommunityPostResponse {
   success: boolean;
-  data: any; // 보통 빈 객체 {} 반환
+  data: any; // {}
   message?: string;
   errorCode?: string;
 }
@@ -155,7 +154,7 @@ export async function deleteCommunityPost(postId: number, userId: number) {
 /* ---------- 게시글 좋아요 ---------- */
 export interface LikePostResponse {
   success: boolean;
-  data: any; // 보통 빈 객체 {} 반환
+  data: any; // {}
   message?: string;
   errorCode?: string;
 }
@@ -179,7 +178,7 @@ export async function unlikeCommunityPost(postId: number, userId: number) {
   return data;
 }
 
-/* ---------- 댓글 작성 ---------- */
+/* ---------- 댓글 작성/조회/삭제 ---------- */
 export interface CreateReplyPayload {
   body: string;
 }
@@ -191,6 +190,8 @@ export interface Reply {
   authorNickname: string;
   body: string;
   createdAt: string; // ISO
+  adopted?: boolean; // 채택 여부 (백엔드 필드명과 맞춰 사용)
+  adoptedAt?: string; // 선택
 }
 
 export interface CreateReplyResponse {
@@ -214,7 +215,21 @@ export async function createCommunityReply(
   return data;
 }
 
-/* ---------- 댓글 삭제 ---------- */
+export interface GetRepliesResponse {
+  success: boolean;
+  data: Reply[];
+  message?: string;
+  errorCode?: string;
+}
+
+/** 댓글 조회: GET /community/posts/{postId}/replies */
+export async function getCommunityReplies(postId: number) {
+  const { data } = await api.get<GetRepliesResponse>(
+    `/community/posts/${postId}/replies`
+  );
+  return data;
+}
+
 export interface DeleteReplyResponse {
   success: boolean;
   data: any; // {}
@@ -231,18 +246,29 @@ export async function deleteCommunityReply(replyId: number, userId: number) {
   return data;
 }
 
-/* ---------- 댓글 조회 ---------- */
-export interface GetRepliesResponse {
+/* ---------- 댓글 채택/취소 ---------- */
+export interface AdoptReplyResponse {
   success: boolean;
-  data: Reply[];
+  data: any; // {}
   message?: string;
   errorCode?: string;
 }
 
-/** 댓글 조회: GET /community/posts/{postId}/replies */
-export async function getCommunityReplies(postId: number) {
-  const { data } = await api.get<GetRepliesResponse>(
-    `/community/posts/${postId}/replies`
+/** 댓글 채택: POST /community/replies/{replyId}/adopt?userId=xx */
+export async function adoptReply(replyId: number, userId: number) {
+  const { data } = await api.post<AdoptReplyResponse>(
+    `/community/replies/${replyId}/adopt`,
+    {},
+    { params: { userId } }
+  );
+  return data;
+}
+
+/** 댓글 채택 취소: DELETE /community/replies/{replyId}/adopt?userId=xx */
+export async function cancelAdoptReply(replyId: number, userId: number) {
+  const { data } = await api.delete<AdoptReplyResponse>(
+    `/community/replies/${replyId}/adopt`,
+    { params: { userId } }
   );
   return data;
 }
