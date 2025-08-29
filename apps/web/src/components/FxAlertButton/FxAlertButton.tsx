@@ -5,33 +5,8 @@ import { me } from "../../api/user";
 
 // 간단 유틸
 const stripCommas = (s: string) => s.replace(/,/g, "");
-const fmtUSDString = (s: string) => {
-  const hasDot = s.includes(".");
-  const [i, f = ""] = s.split(".");
-  const intFmt = (parseInt(i || "0", 10) || 0).toLocaleString("en-US");
-  return hasDot ? `${intFmt}.${f}` : intFmt;
-};
 const fmtKRWString = (s: string) =>
   (parseInt(s || "0", 10) || 0).toLocaleString("ko-KR");
-const sanitizeUsd = (s: string) => {
-  s = s.replace(/[^\d.]/g, "");
-  if (s.startsWith(".")) s = "0" + s;
-  const firstDot = s.indexOf(".");
-  if (firstDot !== -1) {
-    const head = s.slice(0, firstDot);
-    const tail = s.slice(firstDot + 1).replace(/\./g, "");
-    s = head + "." + tail;
-  }
-  if (!s.startsWith("0.")) {
-    s = s.replace(/^0+(?=\d)/, "");
-    if (s === "") s = "0";
-  }
-  if (s.includes(".")) {
-    const [i, f] = s.split(".");
-    s = i + "." + f.slice(0, 2); // 소수 2자리
-  }
-  return s;
-};
 const sanitizeKrw = (s: string) => {
   s = s.replace(/[^\d]/g, "");
   s = s.replace(/^0+(?=\d)/, "");
@@ -56,68 +31,88 @@ export default function FxAlertButton({
   userId,
 }: {
   quoteCcy?: string;
-  rates?: Record<string, number>; // 통화별 환율 정보
+  rates?: Record<string, number>;
   userId?: number;
 }) {
   const openModal = async () => {
     const defaultBaseCcy = "USD";
     const initRate = rates[defaultBaseCcy] || 1398;
-    const initKrw = fmtKRWString(String(Math.round(initRate * 1)));
+    const initKrw = fmtKRWString(String(Math.round(initRate)));
 
-    // 드롭다운 옵션 생성
-    const currencyOptions = SUPPORTED_CURRENCIES.map(currency => 
-      `<option value="${currency.code}" ${currency.code === defaultBaseCcy ? 'selected' : ''}>
-        ${currency.code}
-       </option>`
-    ).join('');
+    const currencyOptions = SUPPORTED_CURRENCIES.map((c) => 
+      `<option value="${c.code}" ${c.code === defaultBaseCcy ? "selected" : ""}>
+        ${c.code}
+      </option>`
+    ).join("");
 
     await Swal.fire({
       width: 580,
       padding: 0,
       showConfirmButton: false,
       html: `
-<div id="fxa" style="font-family: 'EF_jejudoldam', system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;">
-  <div style="margin: 18px; background:#f3f9ff; border:4px solid #111; border-radius:18px; padding:22px 22px 26px;">
-    <div style="display:flex; justify-content:center; margin-bottom:16px;">
-      <div style="background:#fff; border:4px solid #111; border-radius:999px; padding:10px 20px; font-weight:900; font-size:22px;">알림 신청</div>
+<div id="fxa" style="font-family:'EF_jejudoldam',system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans KR','Apple SD Gothic Neo',sans-serif;">
+  <div style="margin:18px;background:#f3f9ff;border:4px solid #111;border-radius:18px;padding:22px 22px 26px;">
+    <div style="display:flex;justify-content:center;margin-bottom:16px;">
+      <div style="background:#fff;border:4px solid #111;border-radius:999px;padding:10px 20px;font-weight:900;font-size:22px;">알림 신청</div>
     </div>
-    <!-- 외화 선택 및 고정값 1 -->
-    <div style="display:flex; align-items:center; gap:16px; margin-top:8px;">
-      <select id="fxa-currency" 
-        style="min-width:160px; text-align:center; background:#4758FC; color:#fff; border:4px solid #111; border-radius:24px; padding:12px 14px; font-weight:900; font-size:18px; cursor:pointer;">
-        ${currencyOptions}
-      </select>
-      <div style="flex:1; border:4px solid #111; border-radius:24px; background:#f0f0f0; padding:10px 16px; display:flex; align-items:center; justify-content:center;">
-        <span style="font-weight:900; font-size:26px; color:#666;">1</span>
+
+    <!-- 외화 선택 + 고정값 1 -->
+    <div style="display:flex;align-items:center;gap:16px;margin-top:8px;">
+      <!-- 드롭다운: KRW 뱃지와 동일한 사이즈로 강제 -->
+      <div style="flex:0 0 160px;position:relative;">
+        <select id="fxa-currency"
+          style="
+            width:160px;height:56px;box-sizing:border-box;
+            background:#4758FC;color:#fff;border:4px solid #111;border-radius:24px;
+            padding:12px 36px 12px 16px; /* 화살표 공간 확보 */
+            font-weight:900;font-size:20px;letter-spacing:2px;
+            text-align-last:center;line-height:1;
+            appearance:none;-webkit-appearance:none;-moz-appearance:none;
+            cursor:pointer;">
+          ${currencyOptions}
+        </select>
+        <span style="
+          position:absolute;right:12px;top:50%;transform:translateY(-50%);
+          pointer-events:none;font-weight:900;font-size:18px;color:#fff;">▾</span>
+      </div>
+
+      <div style="flex:1;border:4px solid #111;border-radius:24px;background:#f0f0f0;padding:10px 16px;display:flex;align-items:center;justify-content:center;height:56px;box-sizing:border-box;">
+        <span style="font-weight:900;font-size:26px;color:#666;">1</span>
       </div>
     </div>
 
-    <div style="height:2px; background:#e8edf3; margin:14px 6px;"></div>
+    <div style="height:2px;background:#e8edf3;margin:14px 6px;"></div>
 
     <!-- KRW -->
-    <div style="display:flex; align-items:center; gap:16px; margin-top:4px;">
-      <span style="min-width:160px; text-align:center; background:#4758FC; color:#fff; border:4px solid #111; border-radius:24px; padding:12px 14px; font-weight:900; font-size:20px; letter-spacing:2px;">
+    <div style="display:flex;align-items:center;gap:16px;margin-top:4px;">
+      <span style="
+        flex:0 0 160px;height:56px;box-sizing:border-box;
+        display:flex;align-items:center;justify-content:center;
+        background:#4758FC;color:#fff;border:4px solid #111;border-radius:24px;
+        padding:0 14px;font-weight:900;font-size:20px;letter-spacing:2px;">
         ${quoteCcy}
       </span>
-      <div style="flex:1; border:4px solid #111; border-radius:24px; background:#fff; padding:10px 16px; display:flex; align-items:center; justify-content:flex-end;">
+      <div style="flex:1;border:4px solid #111;border-radius:24px;background:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:flex-end;height:56px;box-sizing:border-box;">
         <input id="fxa-krw" type="text" inputmode="numeric"
           value="${initKrw}"
-          style="width:100%; text-align:right; border:none; outline:none; background:transparent; font-weight:900; font-size:26px; color:#4758fc;" />
+          style="width:100%;text-align:right;border:none;outline:none;background:transparent;font-weight:900;font-size:26px;color:#4758fc;" />
       </div>
     </div>
 
+<<<<<<< HEAD
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:22px;">
       <!-- 왼쪽 여백 -->
       <div style="width: 120px;"></div>
       
       <!-- 신청하기 버튼 (중앙) -->
+=======
+    <div style="display:flex;justify-content:center;margin-top:22px;">
+>>>>>>> origin/develop
       <button id="fxa-submit"
         style="
-          border:none; cursor:pointer;
-          padding:12px 24px; border-radius:999px;
-          background:#4758FC; color:#fff; font-weight:900; font-size:18px;
-          box-shadow:0 4px 0 #111; border:3px solid #111;
-          transition: all 0.1s ease;">
+          border:none;cursor:pointer;padding:12px 24px;border-radius:999px;
+          background:#4758FC;color:#fff;font-weight:900;font-size:18px;
+          box-shadow:0 4px 0 #111;border:3px solid #111;transition:all .1s ease;">
         신청하기
       </button>
       
@@ -139,14 +134,12 @@ export default function FxAlertButton({
         const submitEl = document.getElementById("fxa-submit") as HTMLButtonElement;
         const historyEl = document.getElementById("fxa-history") as HTMLButtonElement;
 
-        // 통화 변경 시 KRW 값 업데이트
         const updateKrwValue = () => {
           const selectedCcy = currencyEl.value;
-          const rate = rates[selectedCcy] || 1398;
-          krwEl.value = fmtKRWString(String(Math.round(rate * 1)));
+          const rate = rates[selectedCcy] ?? 1398;
+          krwEl.value = fmtKRWString(String(Math.round(rate)));
         };
 
-        // KRW 입력 시 포맷팅
         const onKrwInput = () => {
           const raw = stripCommas(krwEl.value);
           const s = sanitizeKrw(raw);
@@ -482,123 +475,66 @@ export default function FxAlertButton({
         };
 
         const submit = async () => {
-          const selectedBaseCcy = currencyEl.value;
-          const krw = parseInt(stripCommas(krwEl.value) || "0", 10) || 0;
-          
+          const selectedCcy = currencyEl.value;                                  // 사용자가 고른 외화
+          const krw = parseInt(stripCommas(krwEl.value) || "0", 10) || 0;        // KRW 임계값
+
           if (krw <= 0) {
-            await Swal.fire({
-              icon: "warning",
-              title: "값을 확인하세요",
-              text: "0보다 큰 값을 입력해 주세요.",
-              confirmButtonText: "확인",
-            });
+            await Swal.fire({ icon:"warning", title:"값을 확인하세요", text:"0보다 큰 값을 입력해 주세요.", confirmButtonText:"확인" });
             return;
           }
 
-          // 로딩 상태 표시
           submitEl.disabled = true;
           submitEl.textContent = "처리중...";
           submitEl.style.opacity = "0.6";
 
           try {
-            // userId가 없으면 API를 호출해서 현재 사용자 정보 가져오기
             let currentUserId = userId;
-            console.log('초기 userId:', currentUserId);
-            
             if (!currentUserId) {
-              try {
-                console.log('/auth/me API 호출 시작...');
-                const userInfo = await me(); // auth API의 me 함수 사용
-                console.log('사용자 정보:', userInfo);
-                
-                if (!userInfo.userId) {
-                  throw new Error('사용자 ID를 찾을 수 없습니다');
-                }
-                
-                currentUserId = userInfo.userId;
-                console.log('추출된 userId:', currentUserId);
-              } catch (authError: any) {
-                // 인증 실패 시
-                console.error('/auth/me API 실패:', authError);
-                console.error('에러 메시지:', authError.message);
-                console.error('에러 응답:', authError.response?.data);
-                
-                await Swal.fire({
-                  icon: "warning", 
-                  title: "로그인이 필요합니다",
-                  text: `인증에 실패했습니다: ${authError.message || '알 수 없는 오류'}`,
-                  confirmButtonText: "확인",
-                });
-                return;
-              }
+              const meRes = await me();
+              if (!meRes?.userId) throw new Error("사용자 ID를 찾을 수 없습니다");
+              currentUserId = meRes.userId;
             }
 
-            if (!currentUserId) {
-              console.error('currentUserId가 여전히 null/undefined');
-              await Swal.fire({
-                icon: "warning", 
-                title: "사용자 정보 오류",
-                text: "사용자 ID를 가져올 수 없습니다.",
-                confirmButtonText: "확인",
-              });
-              return;
-            }
-
-            // 방향은 항상 "이하"로 고정
-            const direction = "LTE"; // LTE = Less Than or Equal (이하)
-
-            console.log('알림 등록 데이터:', {
-              userId: currentUserId,
-              baseCcy: selectedBaseCcy,
-              currency: quoteCcy,
-              targetRate: krw,
-              direction: direction
-            });
-
-            // API 호출
+            // ✅ base는 항상 KRW, currency는 선택한 외화
             const alertData: FxAlertRequest = {
-              userId: currentUserId,
-              baseCcy: selectedBaseCcy,
-              currency: quoteCcy,
+              userId: currentUserId!,
+              baseCcy: "KRW",
+              currency: selectedCcy,
               targetRate: krw,
-              direction: "LTE", // 항상 "이하"로 설정
+              direction: "LTE",
             };
 
-            const result = await createFxAlert(alertData);
-            console.log('알림 등록 성공:', result);
+            await createFxAlert(alertData);
 
-            // 성공 메시지
             await Swal.fire({
               icon: "success",
               title: "알림 신청 완료",
-              text: `${selectedBaseCcy} 1 = ${krw.toLocaleString("ko-KR")} ${quoteCcy} 이하일 때 알림을 받으실 수 있어요.`,
+              text: `${selectedCcy} 1 = ${krw.toLocaleString("ko-KR")} ${quoteCcy} 이하일 때 알림을 받으실 수 있어요.`,
               confirmButtonText: "확인",
               confirmButtonColor: "#4758FC",
             });
-
-          } catch (error: any) {
-            // 에러 처리
-            console.error('알림 등록 실패:', error);
-            console.error('에러 응답:', error.response?.data);
-            
+          } catch (err: any) {
             await Swal.fire({
               icon: "error",
               title: "알림 신청 실패",
-              text: error.message || "알림 신청 중 오류가 발생했어요. 다시 시도해 주세요.",
+              text: err?.message || "알림 신청 중 오류가 발생했어요. 다시 시도해 주세요.",
               confirmButtonText: "확인",
               confirmButtonColor: "#ff4444",
             });
           } finally {
-            // 버튼 상태 복구
             submitEl.disabled = false;
             submitEl.textContent = "신청하기";
             submitEl.style.opacity = "1";
           }
         };
 
+<<<<<<< HEAD
         currencyEl.addEventListener("change", updateKrwValue);
         krwEl.addEventListener("input", onKrwInput);
         submitEl.addEventListener("click", submit);
+=======
+        document.getElementById("fxa-submit")!.addEventListener("click", submit);
+>>>>>>> origin/develop
         krwEl.addEventListener("keydown", (e) => e.key === "Enter" && submit());
         historyEl.addEventListener("click", showHistory);
       },

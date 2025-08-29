@@ -26,7 +26,7 @@
 - 알림/피드백 메시지 제공
 
 ### 3. 캠퍼스 기반 커뮤니티
-- 같은 국가/학교 사용자 매칭
+- 같은 국가/학교 사용자 매칭 기반 
 - **Q&A 게시판, 체크리스트 공유, 후기 작성**
 - 활동 시 **마일리지 적립 (질문·답변·공유)** → 금융 인센티브(환전 쿠폰, 보험 할인) 전환 가능
 
@@ -37,7 +37,7 @@
 
 ### 5. 환율 조회 & 환전
 - 목표 환율 알림, 최근 2주 추이 그래프
-- 환전 신청 시 외화 계좌 자동 이체 or 창구 수령
+- 환전 신청 시 외화 계좌 자동 이체
 - 금융 API와 직접 연계된 환전 기능
 
 ---
@@ -60,7 +60,7 @@
 ## Day0 Monorepo 프로젝트 구조:
 - apps/web : React (Vite)
 - apps/api : Spring Boot
-- apps/ai  : FastAPI (optional)
+- apps/ai  : FastAPI 
 - packages : 공용 유틸 (타입, 모델, 문서)
 - .github/workflows : CI/CD 워크플로우
 
@@ -71,15 +71,14 @@
 - `DepartureController` : 출국 정보 입력 및 루틴 자동 생성
 - `AiController` : AI 추천 엔진 연동 (누락 항목 추천, 우선순위 재정렬)
 - `CommunityController` : Q&A, 댓글, 좋아요, 마일리지 적립 로직
-- `AccountController`, `BankController`, `DemandDepositController`, `SavingsPlanController` : 금융 API 연동 (계좌 생성, 적금, 환전, 거래내역 조회 등)
+- `AccountController`, `BankController`, `DemandDepositController`, `SavingsPlanController` : 금융 API 연동 (계좌 생성, 환전, 거래내역 조회 등)
 
 ---
 
 ## 🔗 활용 금융 API
-- **적금**: 상품 조회, 계좌 생성, 납입 회차 조회, 만기/중도 해지 이자 조회  
+- **수시입출금**: 상품 조회, 계좌 생성, 계좌 목록 조회, 계좌 단건 조회, 입금, 잔액 조회, 이체, 거래 내역 조회 , 계좌 해지
 - **환율**: 전체 조회, 단건 조회  
 - **환전**: 예상 금액 조회, 신청, 내역 조회  
-- **수시입출금 & 외화계좌**: 계좌 생성, 입출금, 잔액 조회, 이체, 거래 내역 조회  
 
 ---
 
@@ -98,6 +97,31 @@
 
 ---
 
+## 🚩 빌드 방법
+### Backend (Spring Boot)
+```bash
+cd apps/api
+./gradlew clean build
+```
+
+### Frontend (React)
+```bash
+cd apps/web
+npm install
+npm run build
+```
+
+### AI Engine (FastAPI)
+```bash
+cd apps/ai
+python -m venv .venv
+source .venv/bin/activate    # Windows: .venv\Scripts\activate
+pip install -U pip wheel
+pip install -r requirements.txt
+```
+
+---
+
 ## ⚙️ 실행 방법
 ### Backend (Spring Boot)
 ```bash
@@ -107,7 +131,7 @@ cd apps/api
 
 ### Frontend (React)
 ```bash
-cd apps/frontend
+cd apps/web
 npm install
 npm start
 ```

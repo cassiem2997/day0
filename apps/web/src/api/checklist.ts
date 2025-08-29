@@ -1,7 +1,9 @@
 // src/api/checklist.ts
 import api from "./axiosInstance";
 
-/** POST /user-checklists */
+/* =======================
+ * Create User Checklist
+ * ======================= */
 export interface CreateUserChecklistPayload {
   userId: number;
   departureId: number;
@@ -24,24 +26,12 @@ export interface UserChecklistResponse {
 
 export async function createUserChecklist(payload: CreateUserChecklistPayload) {
   const res = await api.post("/user-checklists", payload);
-  return res.data; // { userChecklistId, ... } 형태라고 가정
+  return res.data; // { userChecklistId, ... } 가정
 }
 
-/** GET /user-checklists - departureId로 체크리스트 조회 */
-export async function getUserChecklistByDepartureId(departureId: number): Promise<UserChecklistResponse | null> {
-  // 일반적인 GET은 쿼리스트링으로 전달
-  try {
-    const res = await api.get('/user-checklists', {
-      params: { departureId },
-    });
-    return res.data ?? null;
-  } catch (error) {
-    // 404 또는 비어있는 경우 null 반환하도록 관용 처리
-    return null;
-  }
-}
-
-/** GET /user-checklists/{checklistId} */
+/* =======================
+ * Get One User Checklist
+ * ======================= */
 export async function getUserChecklist(checklistId: number | string) {
   const res = await api.get(`/user-checklists/${checklistId}`);
   return res.data;
@@ -81,6 +71,9 @@ export async function updateChecklistLinkedAmount(
 }
 
 /** GET /user-checklists/{checklistId}/items` with filters */
+/* =======================
+ * Get Checklist Items (with filters)
+ * ======================= */
 export interface GetChecklistItemsParams {
   status?: "TODO" | "DOING" | "DONE" | "SKIP";
   dueBefore?: string; // 'YYYY-MM-DD'
@@ -119,6 +112,9 @@ export interface ChecklistItemResponse {
 
 
 /** POST /user-checklists/{checklistId}/items */
+/* =======================
+ * Add Checklist Item
+ * ======================= */
 export interface AddChecklistItemPayload {
   title: string;
   description?: string;
@@ -148,19 +144,15 @@ export async function addUserChecklistItem(
 }
 
 /** PATCH /user-checklists/items/{uciId} */
+/* =======================
+ * Patch Checklist Item
+ * ======================= */
 export interface PatchChecklistItemPayload {
   title?: string;
   description?: string;
   status?: "TODO" | "DOING" | "DONE" | "SKIP";
   dueDate?: string | null;
-  linkedAmount?: number;
-  tag?:
-    | "NONE"
-    | "SAVING"
-    | "EXCHANGE"
-    | "INSURANCE"
-    | "DOCUMENT"
-    | "ETC";
+  tag?: "NONE" | "SAVING" | "EXCHANGE" | "INSURANCE" | "DOCUMENT" | "ETC";
 }
 export async function patchUserChecklistItem(
   uciId: number | string,
@@ -173,5 +165,104 @@ export async function patchUserChecklistItem(
 /** DELETE /user-checklists/items/{uciId} */
 export async function deleteUserChecklistItem(uciId: number | string) {
   const res = await api.delete(`/user-checklists/items/${uciId}`);
+  return res.data;
+}
+
+
+export interface ListUserChecklistsParams {
+  departureId?: number;
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
+/** 서버 원본(예상 스키마: Swagger Example 기준) */
+export interface UserChecklistItemRaw {
+  ucid: number;
+  userChecklistId: number;
+  templateItemId?: number | null;
+  title: string;
+  description?: string | null;
+  dueDate?: string | null; // ISO
+  status: "TODO" | "DOING" | "DONE" | "SKIP";
+  completedAt?: string | null; // ISO
+  tag: "NONE" | "SAVING" | "EXCHANGE" | "INSURANCE" | "DOCUMENT" | "ETC";
+  linkedAmount?: number | null;
+  isFixed?: boolean;
+  createdAt: string; // ISO
+}
+
+export interface UserChecklistSummaryRaw {
+  userChecklistId: number;
+  userId: number;
+  departureId: number;
+  templateId?: number | null;
+  title: string;
+  visibility: "PUBLIC" | "PRIVATE" | "UNLISTED";
+  createdAt: string; // ISO
+  items: UserChecklistItemRaw[];
+  amount?: number; // 예시 상 존재
+}
+
+/** 화면에서 바로 쓸 타입 (MyPageChecklist props와 동일 구조) */
+export type ChecklistListItemUI = {
+  id: number;
+  visibility: "Public" | "Private";
+  title: string;
+  status: "완료" | "진행중" | "미완료";
+};
+
+function toVisibilityLabel(
+  v: UserChecklistSummaryRaw["visibility"]
+): "Public" | "Private" {
+  if (v === "PRIVATE") return "Private";
+  // UNLISTED는 일단 공개 배지로 취급(팀 정책에 맞춰 조정 가능)
+  return "Public";
+}
+
+function toStatusFromItems(
+  items: UserChecklistItemRaw[]
+): "완료" | "진행중" | "미완료" {
+  if (items.some((it) => it.status === "DOING")) return "진행중";
+  if (items.length > 0 && items.every((it) => it.status === "DONE"))
+    return "완료";
+  return "미완료";
+}
+
+function sortByStatus(a: ChecklistListItemUI, b: ChecklistListItemUI) {
+  const rank = (s: ChecklistListItemUI["status"]) =>
+    s === "진행중" ? 0 : s === "미완료" ? 1 : 2; 
+  return rank(a.status) - rank(b.status);
+}
+
+export async function listUserChecklists(
+  params: ListUserChecklistsParams
+): Promise<ChecklistListItemUI[]> {
+  const { data } = await api.get<UserChecklistSummaryRaw[]>(
+    "/user-checklists",
+    {
+      params,
+    }
+  );
+
+  const normalized: ChecklistListItemUI[] = Array.isArray(data)
+    ? data.map((r) => ({
+        id: r.userChecklistId,
+        title: r.title,
+        visibility: toVisibilityLabel(r.visibility),
+        status: toStatusFromItems(r.items || []),
+      }))
+    : [];
+
+  return normalized.sort(sortByStatus);
+}
+
+/* =======================
+ * Get User Checklist by Departure ID
+ * ======================= */
+export async function getUserChecklistByDepartureId(departureId: number) {
+  const res = await api.get(`/user-checklists`, {
+    params: { departureId }
+  });
   return res.data;
 }

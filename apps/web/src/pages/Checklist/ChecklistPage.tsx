@@ -100,6 +100,12 @@ export default function ChecklistPage() {
     };
   }, [navigate]);
 
+  // items 상태를 올바른 형식으로 초기화
+  useEffect(() => {
+    // 임시로 빈 배열로 초기화 (실제로는 API에서 가져온 데이터를 변환해야 함)
+    setItems([]);
+  }, []);
+
   return (
     <div className={styles.container}>
       {isMobile ? (

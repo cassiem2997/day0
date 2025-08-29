@@ -31,8 +31,8 @@ export interface SavingsPlanDetail {
   userId: number;
   withdrawAccountId: number;
   savingAccount: SavingsAccount;
-  startDate: string;     // ISO
-  endDate: string;       // ISO
+  startDate: string; // ISO
+  endDate: string; // ISO
   frequency: string;
   amountPerPeriod: number;
   goalAmount: number;
@@ -44,8 +44,8 @@ export interface SavingsTxn {
   scheduleId: number;
   txnType: TxnType;
   sourceUciId: number;
-  requestedAt: string;   // ISO
-  processedAt: string;   // ISO
+  requestedAt: string; // ISO
+  processedAt: string; // ISO
   amount: number;
   status: TxnStatus;
   idempotencyKey: string;
@@ -97,8 +97,10 @@ export async function listTransactions(params: {
   return data;
 }
 
-export async function getSavingsPlan(planId: number): Promise<SavingsPlanDetail> {
-    const { data } = await api.get(`/savings/plans/${planId}`);
+export async function getSavingsPlan(
+  planId: number
+): Promise<SavingsPlanDetail> {
+  const { data } = await api.get(`/savings/plans/${planId}`);
   return data;
 }
 
@@ -109,19 +111,18 @@ export async function getMySavingsPlans(): Promise<SavingsPlanSummary[]> {
   return data;
 }
 
-// 적금 플랜 생성
-export interface CreateSavingsPlanRequest {
+export interface CreateSavingsPlanPayload {
   userId: number;
   departureId: number;
   withdrawAccountId: number;
-  endDate: string;
-  frequency: "MONTHLY" | "WEEKLY";
-  amountPerPeriod: number;
-  depositDay?: number;
-  depositWeekday?: number;
+  endDate: string; // "YYYY-MM-DD"
+  frequency: "DAILY" | "WEEKLY" | "MONTHLY";
+  amountPerPeriod: number; // 숫자
+  depositDay?: number; // (월별) 1~31
+  depositWeekday?: number; // (주별) 1~7 (월=1 가정)
 }
 
-export async function createSavingsPlan(request: CreateSavingsPlanRequest): Promise<SavingsPlanSummary> {
-  const { data } = await api.post("/savings/plans", request);
-  return data;
+export async function createSavingsPlan(payload: CreateSavingsPlanPayload) {
+  const { data } = await api.post("/savings/plans", payload);
+  return data; // { planId, ... }
 }

@@ -163,8 +163,9 @@ public class AuthController {
 
     private void setAccessTokenCookie(HttpServletResponse response, String accessToken) {
         Cookie accessCookie = new Cookie("accessToken", accessToken);
-        accessCookie.setHttpOnly(true);
-        accessCookie.setSecure(false); // 개발환경에서는 false
+        accessCookie.setHttpOnly(false); // 배포: false, 개발: true
+        accessCookie.setSecure(true); // 배포: true, 개발: false
+        accessCookie.setAttribute("SameSite", "None"); // 배포 - 크로스 도메인 허용
         accessCookie.setPath("/");
         accessCookie.setMaxAge(24 * 60 * 60); // 24시간
         response.addCookie(accessCookie);
@@ -172,8 +173,9 @@ public class AuthController {
 
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(false); // 개발환경에서는 false
+        refreshCookie.setHttpOnly(false); // 배포: false, 개발: true
+        refreshCookie.setSecure(true); // 배포: true, 개발: false
+        refreshCookie.setAttribute("SameSite", "None"); // 배포 - 크로스 도메인 허용
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(14 * 24 * 60 * 60); // 14일
         response.addCookie(refreshCookie);

@@ -117,7 +117,7 @@ const FxConvertCard = forwardRef<FxConvertCardRef, Props>(({
 
         const raw = await getFxEstimate({
           fromCurrency, // "KRW"
-          toCurrency,   // "USD" 등
+          toCurrency, // "USD" 등
           amount: parsedTo, // 받고 싶은 외화 금액
         });
 
@@ -213,7 +213,9 @@ const FxConvertCard = forwardRef<FxConvertCardRef, Props>(({
           className={`${styles.ccyPill} ${styles.ccyPillSelect}`}
         >
           {currencies.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>
+              {c}
+            </option>
           ))}
         </select>
 
@@ -250,8 +252,16 @@ const FxConvertCard = forwardRef<FxConvertCardRef, Props>(({
       <div className={styles.infoMessage}>
         <p>환전은 100 단위부터 가능하며, 10 단위로만 가능합니다.</p>
       </div>
+      <span hidden aria-hidden="true">
+        {loading ? "…" : ""}
+        {err ?? ""}
+      </span>
     </section>
   );
+<<<<<<< HEAD
 });
 
 export default FxConvertCard;
+=======
+}
+>>>>>>> origin/develop

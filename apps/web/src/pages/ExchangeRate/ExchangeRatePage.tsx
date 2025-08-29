@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useEffect, useMemo, useState, useRef } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
@@ -18,6 +19,15 @@ import ExchangeAlerts, { type ExchangeAlertsRef } from "./ExchangeAlerts";
 import { createFxExchange } from "../../api/fx";
 import { getMyAccounts } from "../../api/accounts";
 import { useAuth } from "../../auth/useAuth";
+=======
+import { useEffect, useState } from "react";
+import Sidebar from "../../components/Sidebar/Sidebar";
+import Header from "../../components/Header/Header";
+import styles from "./ExchangeRatePage.module.css";
+import { SmartRateChart } from "../../components/RateChart/RateChart"; // SmartRateChart로 변경
+import FxAlertButton from "../../components/FxAlertButton/FxAlertButton";
+import FxConvertCard from "../../components/FxConvertCard/FxConvertCard";
+>>>>>>> origin/develop
 
 /* 반응형 판별 훅 */
 function useIsMobile(breakpoint = 768) {
@@ -38,6 +48,7 @@ function useIsMobile(breakpoint = 768) {
 export default function ExchangeRatePage() {
   const { user, loading } = useAuth();
   const isMobile = useIsMobile(768);
+<<<<<<< HEAD
   const [showExchangeForm, setShowExchangeForm] = useState(false);
   const [hasAccounts, setHasAccounts] = useState(true); // 계좌 존재 여부 추적
   const fxConvertCardRef = useRef<FxConvertCardRef>(null);
@@ -279,6 +290,11 @@ export default function ExchangeRatePage() {
     }
   };
 
+=======
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+
+>>>>>>> origin/develop
   return (
     <div className={styles.container}>
       {isMobile ? (
@@ -313,18 +329,15 @@ export default function ExchangeRatePage() {
             <h1 className={styles.hero}>D - 환전소</h1>
           </header>
 
-          {/* 버튼 헤더 (우측 정렬) */}
           <div className={styles.chartHeader}>
-            <FxAlertButton
-              quoteCcy="KRW"
-            ></FxAlertButton>
+            <FxAlertButton quoteCcy="KRW"></FxAlertButton>
           </div>
 
-          {/* 그래프 */}
           <section className={styles.chartSection}>
-            <RateChart data={dummyRates}></RateChart>
+            <SmartRateChart />
           </section>
 
+<<<<<<< HEAD
           {/* 환전신청하기 버튼 */}
           {!showExchangeForm && (
             <div className={styles.exchangeButtonSection}>
@@ -392,6 +405,11 @@ export default function ExchangeRatePage() {
           {/* 환전 내역 */}
           <ExchangeHistory ref={exchangeHistoryRef} />
           
+=======
+          <section className={styles.cardSection}>
+            <FxConvertCard rate={1398}></FxConvertCard>
+          </section>
+>>>>>>> origin/develop
         </div>
       </main>
     </div>
