@@ -161,6 +161,7 @@ export default function CommunityBoard() {
           { key: "ALL", label: "전체" },
           { key: "CHECKLIST", label: "체크리스트" },
           { key: "FREE", label: "자유게시판" },
+          { key: "QNA", label: "Q&A" },
         ].map((c) => (
           <button
             key={c.key}
@@ -273,7 +274,6 @@ export default function CommunityBoard() {
                     <span className={styles.metaDot}>·</span>
                     <span>{createdAgo}</span>
                     <span className={styles.metaSep}></span>
-                    {/* 백엔드 필드명이 replyCount/likeCount이므로 그대로 사용 */}
                     <span>댓글 {p.replyCount ?? 0}</span>
                     <span className={styles.metaDot}>·</span>
                     <span>좋아요 {p.likeCount ?? 0}</span>

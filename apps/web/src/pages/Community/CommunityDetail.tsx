@@ -371,7 +371,6 @@ export default function CommunityDetail() {
                       댓글 <b>{replies.length}</b>
                     </button>
                     <div className={styles.rightStats}>
-                      <span>조회 {post.views}</span>
                     </div>
                   </div>
                 </div>
