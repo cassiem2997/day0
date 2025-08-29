@@ -8,6 +8,13 @@ import logoUrl from "../.././assets/logo.svg";
 
 type User = { name: string; avatarUrl?: string };
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+function absUrlMaybe(path?: string | null) {
+  if (!path) return null;
+  if (path.startsWith("/")) return `${API_BASE}${path}`;
+  return path;
+}
+
 const NAV = [
   { label: "체크리스트", href: "/checklist" },
   { label: "환전하기", href: "/exchange" },
@@ -62,7 +69,7 @@ export default function Header() {
         if (mounted) {
           setUser({
             name: u.nickname || "사용자",
-            avatarUrl: u.profileImage ?? undefined,
+            avatarUrl: absUrlMaybe(u.profileImage) ?? undefined,
           });
         }
       } catch (err: any) {
