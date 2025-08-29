@@ -14,11 +14,11 @@ const NAV = [
   { label: "마이페이지", href: "/mypage" },
 ];
 
-// 더미 유저 (API 연동 전)
-const DUMMY_USER: User = {
-  name: "사용자",
-  // avatarUrl: "https://i.pravatar.cc/120?img=5",
-};
+// // 더미 유저 (API 연동 전)
+// const DUMMY_USER: User = {
+//   name: "사용자",
+//   // avatarUrl: "https://i.pravatar.cc/120?img=5",
+// };
 
 function getInitial(name?: string) {
   if (!name) return "?";
@@ -27,9 +27,9 @@ function getInitial(name?: string) {
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const [user, setUser] = useState<HeaderUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null); 
   const navigate = useNavigate();
 
   useEffect(function () {
