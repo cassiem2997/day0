@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -234,6 +235,11 @@ public class UserAccountService {
                 .Header(null)
                 .REC(txRecContainer)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<UserAccount> getAccountByAccountNo(String accountNo) {
+        return userAccountRepository.findByAccountNo(accountNo);
     }
 
     // ----- 유틸 -----

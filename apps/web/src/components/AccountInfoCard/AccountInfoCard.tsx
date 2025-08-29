@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { getAccounts, type Account } from "../../api/account";
+import { fetchMyAccounts, type AccountSummary } from "../../api/account";
 import styles from "./AccountInfoCard.module.css";
 
 export default function AccountInfoCard({ onAccountsLoaded }: { onAccountsLoaded?: (hasAccounts: boolean) => void }) {
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [selectedWithdrawalAccount, setSelectedWithdrawalAccount] = useState<Account | null>(null);
-  const [selectedDepositAccount, setSelectedDepositAccount] = useState<Account | null>(null);
+  const [accounts, setAccounts] = useState<AccountSummary[]>([]);
+  const [selectedWithdrawalAccount, setSelectedWithdrawalAccount] = useState<AccountSummary | null>(null);
+  const [selectedDepositAccount, setSelectedDepositAccount] = useState<AccountSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const accountsData = await getAccounts();
+        const accountsData = await fetchMyAccounts();
         console.log('=== AccountInfoCard에서 받은 계좌 데이터 ===');
         console.log('accountsData:', accountsData);
         console.log('첫 번째 계좌:', accountsData[0]);
@@ -47,16 +47,16 @@ export default function AccountInfoCard({ onAccountsLoaded }: { onAccountsLoaded
   }, [onAccountsLoaded]);
 
   const handleWithdrawalAccountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const account = accounts.find(acc => acc.accountId === Number(e.target.value));
+    const account = accounts.find(acc => acc.id === e.target.value);
     setSelectedWithdrawalAccount(account || null);
   };
 
   const handleDepositAccountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     console.log('입금계좌 변경 시도:', e.target.value);
-    const account = accounts.find(acc => acc.accountId === Number(e.target.value));
+    const account = accounts.find(acc => acc.id === e.target.value);
     console.log('찾은 계좌:', account);
     setSelectedDepositAccount(account || null);
-    console.log('입금계좌 상태 업데이트됨:', account?.accountId);
+    console.log('입금계좌 상태 업데이트됨:', account?.id);
   };
 
   if (isLoading) {
@@ -88,13 +88,13 @@ export default function AccountInfoCard({ onAccountsLoaded }: { onAccountsLoaded
         <span className={styles.accountLabel}>출금계좌</span>
         <div className={styles.accountField}>
           <select
-            value={selectedWithdrawalAccount?.accountId || ""}
+            value={selectedWithdrawalAccount?.id || ""}
             onChange={handleWithdrawalAccountChange}
             className={styles.accountSelect}
           >
             {accounts.map((account) => (
-              <option key={account.accountId} value={account.accountId}>
-                {account.bankName} - {account.accountNumber}
+              <option key={account.id} value={account.id}>
+                {account.productName} - {account.number}
               </option>
             ))}
           </select>
@@ -106,13 +106,13 @@ export default function AccountInfoCard({ onAccountsLoaded }: { onAccountsLoaded
         <span className={styles.accountLabel}>입금계좌</span>
         <div className={styles.accountField}>
           <select
-            value={selectedDepositAccount?.accountId || ""}
+            value={selectedDepositAccount?.id || ""}
             onChange={handleDepositAccountChange}
             className={styles.accountSelect}
           >
             {accounts.map((account) => (
-              <option key={account.accountId} value={account.accountId}>
-                {account.bankName} - {account.accountNumber}
+              <option key={account.id} value={account.id}>
+                {account.productName} - {account.number}
               </option>
             ))}
           </select>

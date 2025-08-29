@@ -14,7 +14,8 @@ export type AccountNormalized = {
 
 export type AccountProduct = {
   id: string;
-  name: string;
+  accountName: string;
+  bankName: string;
   type: AccountType;
   currency: "KRW" | "USD";
   description?: string;
@@ -77,9 +78,10 @@ function normalizeOne(item: any, idx: number): AccountNormalized {
 
 function normalizeProduct(x: any, i: number): AccountProduct {
   const id = s(x?.id ?? x?.productId ?? `prod_${Date.now()}_${i}`);
-  const name = s(x?.name ?? x?.productName ?? "상품");
+  const bankName = s(x?.bankName ?? "상품");
+  const accountName = s(x?.accountName ?? "통장");
 
-  const t = s(x?.type ?? x?.accountType ?? x?.category ?? "").toUpperCase();
+  const t = s(x?.accountTypeName ?? "").toUpperCase();
   const type: AccountType = t.includes("SAV")
     ? "SAVING"
     : t.includes("DEP") || t.includes("CHK")
@@ -89,8 +91,8 @@ function normalizeProduct(x: any, i: number): AccountProduct {
   const c = s(x?.currency ?? (type === "FX" ? "USD" : "KRW")).toUpperCase();
   const currency: "KRW" | "USD" = c.includes("USD") ? "USD" : "KRW";
 
-  const description = s(x?.description ?? x?.desc ?? "");
-  return { id, name, type, currency, description };
+  const description = s(x?.accountDescription ?? x?.desc ?? "");
+  return { id, bankName, accountName, type, currency, description };
 }
 
 /** 원본 형태로 계좌 목록 조회 (정규화 반환) */
@@ -121,7 +123,7 @@ export async function createAccount(body: {
   title?: string;
   initialAmount?: number;
 }): Promise<AccountNormalized> {
-  const { data } = await api.post<Wrapped<any> | any>("/accounts", body);
+  const { data } = await api.post<Wrapped<any> | any>(`/accounts/products/${body.productId}`, body);
   const raw = (data as any)?.data ?? data;
   return normalizeOne(raw, 0);
 }
@@ -164,4 +166,49 @@ export async function fetchMyAccounts(args?: {
     currency: a.currency,
     balance: Number.isFinite(a.balanceAmount) ? a.balanceAmount : undefined,
   }));
+}
+
+/** 계좌번호로 계좌 ID 찾기 */
+export async function findAccountIdByAccountNo(accountNo: string): Promise<number | null> {
+  try {
+    console.log("=== findAccountIdByAccountNo 함수 시작 ===");
+    console.log("요청하는 accountNo:", accountNo);
+    console.log("API 엔드포인트:", `/accounts/accounts/${accountNo}/find`);
+    
+    const { data } = await api.get<Wrapped<any> | any>(`/accounts/accounts/${accountNo}/find`);
+    console.log("전체 API 응답:", data);
+    console.log("응답 데이터 타입:", typeof data);
+    console.log("응답이 배열인가?", Array.isArray(data));
+    
+    // API 응답이 직접 숫자로 오는 경우 처리
+    let accountId: number | null = null;
+    
+    if (typeof data === 'number') {
+      // 직접 숫자로 오는 경우
+      accountId = data;
+      console.log("직접 숫자 응답 처리:", accountId);
+    } else if (data && typeof data === 'object' && data.id) {
+      // Wrapped 형태로 오는 경우
+      accountId = Number(data.id);
+      console.log("Wrapped 형태 응답 처리:", accountId);
+    } else if (data && typeof data === 'object' && data.data) {
+      // data.data 형태로 오는 경우
+      accountId = Number(data.data);
+      console.log("data.data 형태 응답 처리:", accountId);
+    }
+    
+    console.log("최종 반환값:", accountId);
+    console.log("=== findAccountIdByAccountNo 함수 완료 ===");
+    
+    return accountId;
+  } catch (error) {
+    console.error('계좌 ID 찾기 실패:', error);
+    console.error('에러 상세 정보:', {
+      message: (error as any).message,
+      status: (error as any).response?.status,
+      statusText: (error as any).response?.statusText,
+      responseData: (error as any).response?.data
+    });
+    return null;
+  }
 }

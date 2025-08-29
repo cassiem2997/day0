@@ -113,11 +113,7 @@ export default function App() {
         {/* 적금 */}
         <Route
           path="/savings/create"
-          element={
-            <ProtectedRoute>
-              <SavingPlan />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/savings/plan" replace />}
         />
         <Route
           path="/savings/:planId"

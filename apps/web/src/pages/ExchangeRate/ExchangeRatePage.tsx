@@ -42,6 +42,7 @@ export default function ExchangeRatePage() {
   const [hasAccounts, setHasAccounts] = useState(true); // 계좌 존재 여부 추적
   const fxConvertCardRef = useRef<FxConvertCardRef>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [latest, setLatest] = useState<number>(1398); // 최신 환율 상태 (SmartRateChart에서 받아옴)
   const [exchangeInfo, setExchangeInfo] = useState<{
     toCurrency: string;
     toAmount: number;
@@ -49,6 +50,10 @@ export default function ExchangeRatePage() {
     fromCurrency: string;
     isValid: boolean;
   } | null>(null);
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+
   const exchangeHistoryRef = useRef<ExchangeHistoryRef>(null);
   const exchangeAlertsRef = useRef<ExchangeAlertsRef>(null);
 
@@ -61,6 +66,10 @@ export default function ExchangeRatePage() {
     console.log('ExchangeRatePage - exchangeInfo changed:', exchangeInfo);
   }, [exchangeInfo]);
 
+  // SmartRateChart에서 받은 환율 업데이트
+  const handleRateChange = (rate: number) => {
+    setLatest(rate);
+  };
 
   const handleExchangeRequest = () => {
     if (!hasAccounts) {
@@ -256,9 +265,6 @@ export default function ExchangeRatePage() {
     }
   };
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-
   return (
     <div className={styles.container}>
       {isMobile ? (
@@ -298,7 +304,7 @@ export default function ExchangeRatePage() {
           </div>
 
           <section className={styles.chartSection}>
-            <SmartRateChart />
+            <SmartRateChart onRateChange={handleRateChange} />
           </section>
 
           {/* 환전신청하기 버튼 */}
