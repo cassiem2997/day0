@@ -11,6 +11,7 @@ import com.travel0.day0.finopenapi.config.FinOpenApiProperties;
 import com.travel0.day0.finopenapi.dto.DemandDepositDtos;
 import com.travel0.day0.finopenapi.dto.DemandDepositDtos.*;
 import com.travel0.day0.savings.port.DemandDepositExternalPort;
+import com.travel0.day0.savings.service.LedgerService;
 import com.travel0.day0.users.repository.UserRepository;
 import com.travel0.day0.users.service.UserKeyService;
 import org.springframework.data.domain.Sort;
@@ -23,6 +24,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +37,7 @@ public class UserAccountService {
     private final UserAccountRepository userAccountRepository;
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
+    private final LedgerService ledgerService;
 
     private String resolveUserKey(Long localUserId) {
         String apiKey = finOpenApiProperties.getApiKey();
@@ -103,6 +106,27 @@ public class UserAccountService {
                 .build();
 
         userAccountRepository.save(ua);
+
+        // [시연] 계좌에 돈 입금
+        Long amount = 1000000000L;
+        String summary = "사용자 입금";
+        var res = externalPort.deposit(accountNo, amount, summary, userKey);
+
+        // 외부 거래번호/멱등키
+        String extTxId = String.valueOf(res.getREC().getTransactionUniqueNo());
+        String idem   = "DEP-" + accountNo + "-" + extTxId;
+
+        // 내부 장부 반영(입금)
+        ledgerService.postTxn(
+                ua,
+                true,
+                BigDecimal.valueOf(amount),
+                (summary == null || summary.isBlank()) ? "입금(이체)" : summary,
+                "입금",
+                null,
+                extTxId,
+                idem
+        );
 
         return createRes;
     }
@@ -211,6 +235,11 @@ public class UserAccountService {
                 .Header(null)
                 .REC(txRecContainer)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<UserAccount> getAccountByAccountNo(String accountNo) {
+        return userAccountRepository.findByAccountNo(accountNo);
     }
 
     // ----- 유틸 -----

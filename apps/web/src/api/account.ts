@@ -14,7 +14,8 @@ export type AccountNormalized = {
 
 export type AccountProduct = {
   id: string;
-  name: string;
+  accountName: string;
+  bankName: string;
   type: AccountType;
   currency: "KRW" | "USD";
   description?: string;
@@ -77,9 +78,10 @@ function normalizeOne(item: any, idx: number): AccountNormalized {
 
 function normalizeProduct(x: any, i: number): AccountProduct {
   const id = s(x?.id ?? x?.productId ?? `prod_${Date.now()}_${i}`);
-  const name = s(x?.name ?? x?.productName ?? "상품");
+  const bankName = s(x?.bankName ?? "상품");
+  const accountName = s(x?.accountName ?? "통장");
 
-  const t = s(x?.type ?? x?.accountType ?? x?.category ?? "").toUpperCase();
+  const t = s(x?.accountTypeName ?? "").toUpperCase();
   const type: AccountType = t.includes("SAV")
     ? "SAVING"
     : t.includes("DEP") || t.includes("CHK")
@@ -89,8 +91,8 @@ function normalizeProduct(x: any, i: number): AccountProduct {
   const c = s(x?.currency ?? (type === "FX" ? "USD" : "KRW")).toUpperCase();
   const currency: "KRW" | "USD" = c.includes("USD") ? "USD" : "KRW";
 
-  const description = s(x?.description ?? x?.desc ?? "");
-  return { id, name, type, currency, description };
+  const description = s(x?.accountDescription ?? x?.desc ?? "");
+  return { id, bankName, accountName, type, currency, description };
 }
 
 /** 원본 형태로 계좌 목록 조회 (정규화 반환) */
@@ -121,7 +123,7 @@ export async function createAccount(body: {
   title?: string;
   initialAmount?: number;
 }): Promise<AccountNormalized> {
-  const { data } = await api.post<Wrapped<any> | any>("/accounts", body);
+  const { data } = await api.post<Wrapped<any> | any>(`/accounts/products/${productId}`, body);
   const raw = (data as any)?.data ?? data;
   return normalizeOne(raw, 0);
 }

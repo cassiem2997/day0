@@ -1,4 +1,3 @@
-// src/pages/MyPage/MyPageProfile.tsx
 import { useEffect, useRef, useState } from "react";
 import styles from "./MyPageProfile.module.css";
 import formStyles from "../Checklist/ChecklistMaking.module.css";
@@ -16,16 +15,14 @@ import {
   type UniversityItem,
 } from "../../api/university";
 
-/** 화면 표현용 타입 */
 type ProfileVM = {
   nickname: string;
-  homeUniversity: string; // 이름 또는 #id
-  departureDate: string; // YYYY-MM-DD 또는 "-"
-  destinationLabel: string; // 이름 또는 #id
+  homeUniversity: string;
+  departureDate: string;
+  destinationLabel: string;
   profileImage?: string | null;
+  mileage: number;
 };
-
-type ActivityItem = { id: string; title: string; date: string };
 
 function dday(target?: string) {
   if (!target || target === "-") return "-";
@@ -37,19 +34,6 @@ function dday(target?: string) {
   return diff >= 0 ? `D - ${diff}` : `D + ${Math.abs(diff)}`;
 }
 
-const DUMMY_POSTS: ActivityItem[] = [
-  { id: "p1", title: "출국 전 준비 팁 모음", date: "2025-08-22" },
-  { id: "p2", title: "비자 발급 후기", date: "2025-08-19" },
-];
-const DUMMY_COMMENTS: ActivityItem[] = [
-  { id: "c1", title: "체크리스트 항목 좋은데요!", date: "2025-08-21" },
-  { id: "c2", title: "보험은 어디가 괜찮나요?", date: "2025-08-20" },
-];
-const DUMMY_SAVED: ActivityItem[] = [
-  { id: "s1", title: "런던 3개월 어학연수 체크리스트", date: "2025-08-18" },
-  { id: "s2", title: "환전 전 체크하기", date: "2025-08-16" },
-];
-
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 const todayLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
   .toISOString()
@@ -57,9 +41,13 @@ const todayLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
 
 function absUrlMaybe(path?: string | null) {
   if (!path) return null;
-  // 서버가 "/uploads/..." 형태로 주면 절대경로로 바꿔서 <img>가 바로 뜨게 함
   if (path.startsWith("/")) return `${API_BASE}${path}`;
   return path;
+}
+
+function toNum(v: unknown, def = 0) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : def;
 }
 
 function lsKey(userId: number) {
@@ -74,7 +62,7 @@ export default function MyPageProfile() {
 
   const [editOpen, setEditOpen] = useState(false);
   const [nick, setNick] = useState("");
-  const [date, setDate] = useState(""); // YYYY-MM-DD
+  const [date, setDate] = useState("");
   const [countryCode, setCountryCode] = useState<string>("");
   const [universityId, setUniversityId] = useState<number | "">("");
   const [file, setFile] = useState<File | null>(null);
@@ -87,7 +75,6 @@ export default function MyPageProfile() {
   const [universitiesLoading, setUniversitiesLoading] = useState(false);
   const uniCacheRef = useRef<Record<string, UniversityItem[]>>({});
 
-  /** 최초 프로필 불러오기 */
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -104,16 +91,20 @@ export default function MyPageProfile() {
         const u: UserProfile = res.data;
         setRaw(u);
 
-        // 서버가 이름 문자열을 줄 수도 있고, id를 줄 수도 있으므로 정규화
         const homeLabel =
-          (u as any).homeUniv /* 이름 */ ??
+          (u as any).homeUniv ??
           (u.homeUnivId != null ? `#${u.homeUnivId}` : "-");
 
         const destLabel =
-          (u as any).destUniv /* 이름 */ ??
+          (u as any).destUniv ??
           (u.destUnivId != null ? `#${u.destUnivId}` : "-");
 
         const storedDate = localStorage.getItem(lsKey(userId)) || "-";
+
+        const mileage = toNum(
+          (u as any).mileage ?? (u as any).miles ?? (u as any).points,
+          0
+        );
 
         const vm: ProfileVM = {
           nickname: u.nickname || u.name || "사용자",
@@ -121,6 +112,7 @@ export default function MyPageProfile() {
           departureDate: storedDate === "-" ? "-" : storedDate,
           destinationLabel: destLabel,
           profileImage: absUrlMaybe(u.profileImage),
+          mileage,
         };
         setPf(vm);
       } catch (e: any) {
@@ -135,7 +127,6 @@ export default function MyPageProfile() {
     })();
   }, []);
 
-  /** 모달 열기 */
   async function openEdit() {
     if (!pf) return;
     setNick(pf.nickname);
@@ -156,11 +147,9 @@ export default function MyPageProfile() {
     setCountryCode("");
     setUniversityId("");
     setUniversities([]);
-
     setEditOpen(true);
   }
 
-  /** ESC 닫기 + 바디 스크롤 잠금 */
   useEffect(() => {
     if (!editOpen) {
       document.body.style.overflow = "";
@@ -176,7 +165,6 @@ export default function MyPageProfile() {
     };
   }, [editOpen]);
 
-  /** 파일 미리보기 */
   useEffect(() => {
     if (!file) return;
     const url = URL.createObjectURL(file);
@@ -184,7 +172,6 @@ export default function MyPageProfile() {
     return () => URL.revokeObjectURL(url);
   }, [file]);
 
-  /** 국가 변경 → 대학 로드(캐시) */
   async function onChangeCountry(code: string) {
     setCountryCode(code);
     setUniversityId("");
@@ -208,7 +195,6 @@ export default function MyPageProfile() {
     }
   }
 
-  /** 저장 */
   async function saveEdit(e: React.FormEvent) {
     e.preventDefault();
     if (!raw) return;
@@ -227,20 +213,22 @@ export default function MyPageProfile() {
       const u = res.data;
       setRaw(u);
 
-      // 목적지 라벨: 응답이 이름(destUniv)으로 오면 그걸 우선 사용
       let destLabel =
         (u as any).destUniv ??
         (u.destUnivId != null ? `#${u.destUnivId}` : "-");
 
-      // 이번에 사용자가 드롭다운에서 선택했다면, 그 이름으로 덮어써서 즉시 보기 좋게
       if (typeof universityId === "number") {
         const found = universities.find((x) => x.id === universityId);
         if (found) destLabel = found.name;
       }
 
-      // 날짜는 백엔드가 아직 없음 → 로컬에 사용자별로 보존
       const finalDate = date || "-";
       localStorage.setItem(lsKey(userId), finalDate);
+
+      const mileage = toNum(
+        (u as any).mileage ?? (u as any).miles ?? (u as any).points,
+        pf?.mileage ?? 0
+      );
 
       setPf({
         nickname: u.nickname || u.name || "사용자",
@@ -250,6 +238,7 @@ export default function MyPageProfile() {
         departureDate: finalDate,
         destinationLabel: destLabel,
         profileImage: absUrlMaybe(u.profileImage),
+        mileage,
       });
 
       setEditOpen(false);
@@ -279,7 +268,6 @@ export default function MyPageProfile() {
 
   return (
     <section className={styles.wrap} aria-label="내 프로필 및 활동 내역">
-      {/* 프로필 카드 */}
       <div className={styles.profileCard}>
         <div className={styles.profileLeft}>
           <div className={styles.avatarBox}>
@@ -305,9 +293,12 @@ export default function MyPageProfile() {
           </div>
 
           <div className={styles.leftBottom}>
-            <button type="button" className={styles.editBtn} onClick={openEdit}>
-              수정
-            </button>
+            <div className={styles.mileageBox} aria-label="보유 마일리지">
+              <span className={styles.mileageKey}>보유 마일리지</span>
+              <span className={styles.mileageVal}>
+                {pf.mileage.toLocaleString("ko-KR")} P
+              </span>
+            </div>
           </div>
         </div>
 
@@ -338,16 +329,17 @@ export default function MyPageProfile() {
             </div>
           </div>
         </div>
+
+        <button
+          type="button"
+          className={`${styles.editBtn} ${styles.editFab}`}
+          onClick={openEdit}
+          aria-label="프로필 수정"
+        >
+          수정
+        </button>
       </div>
 
-      {/* 활동 내역 (더미) */}
-      <div className={styles.activityGrid}>
-        <ActivityCard title="작성한 글" items={DUMMY_POSTS} />
-        <ActivityCard title="작성한 댓글" items={DUMMY_COMMENTS} />
-        <ActivityCard title="저장한 체크리스트" items={DUMMY_SAVED} />
-      </div>
-
-      {/* 모달 */}
       {editOpen && (
         <div
           className={styles.modalOverlay}
@@ -524,37 +516,6 @@ export default function MyPageProfile() {
           </section>
         </div>
       )}
-    </section>
-  );
-}
-
-function ActivityCard({
-  title,
-  items,
-}: {
-  title: string;
-  items: ActivityItem[];
-}) {
-  return (
-    <section className={styles.card} aria-label={title}>
-      <h3 className={styles.cardTitle}>{title}</h3>
-      {items.length === 0 ? (
-        <p className={styles.empty}>내역이 없어요.</p>
-      ) : (
-        <ul className={styles.list}>
-          {items.map((it) => (
-            <li key={it.id} className={styles.item}>
-              <span className={styles.itemTitle}>{it.title}</span>
-              <span className={styles.itemDate}>{it.date}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-      <div className={styles.cardFooter}>
-        <button className={styles.moreBtn} type="button">
-          더 보기
-        </button>
-      </div>
     </section>
   );
 }

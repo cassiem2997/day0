@@ -22,3 +22,13 @@ export async function getMyAccounts(): Promise<DepositAccount[]> {
   const { data } = await api.get("/accounts");
   return data;
 }
+
+/** 계좌 조회 */
+export async function tryGetAccountById(accountId: number | string): Promise<DepositAccount | null> {
+  try {
+    const { data } = await api.get<DepositAccount>(`/accounts/${accountId}`);
+    return data;
+  } catch {
+    return null;
+  }
+}
