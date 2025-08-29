@@ -13,12 +13,9 @@ import ExchangeRatePage from "./pages/ExchangeRate/ExchangeRatePage";
 import LoginPage from "./pages/Login/LoginPage";
 import LandingPage from "./pages/Landing/LandingPage";
 import SavingsPage from "./pages/Savings/SavingsPage";
-<<<<<<< HEAD
 import SavingsPlanPage from "./pages/Savings/SavingsPlanPage";
-=======
 import SavingPlan from "./pages/Savings/SavingPlan";
 
->>>>>>> origin/develop
 import CommunityPage from "./pages/Community/CommunityPage";
 import CommunityDetail from "./pages/Community/CommunityDetail";
 import CommunityWrite from "./pages/Community/CommunityWrite";

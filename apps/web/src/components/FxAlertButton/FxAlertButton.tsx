@@ -99,15 +99,11 @@ export default function FxAlertButton({
       </div>
     </div>
 
-<<<<<<< HEAD
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:22px;">
       <!-- 왼쪽 여백 -->
       <div style="width: 120px;"></div>
       
       <!-- 신청하기 버튼 (중앙) -->
-=======
-    <div style="display:flex;justify-content:center;margin-top:22px;">
->>>>>>> origin/develop
       <button id="fxa-submit"
         style="
           border:none;cursor:pointer;padding:12px 24px;border-radius:999px;
@@ -528,13 +524,9 @@ export default function FxAlertButton({
           }
         };
 
-<<<<<<< HEAD
         currencyEl.addEventListener("change", updateKrwValue);
         krwEl.addEventListener("input", onKrwInput);
         submitEl.addEventListener("click", submit);
-=======
-        document.getElementById("fxa-submit")!.addEventListener("click", submit);
->>>>>>> origin/develop
         krwEl.addEventListener("keydown", (e) => e.key === "Enter" && submit());
         historyEl.addEventListener("click", showHistory);
       },

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { useEffect, useMemo, useState, useRef } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
@@ -7,10 +6,6 @@ import underline from "../../assets/underline.svg";
 import cloud from "../../assets/cloud.svg";
 import clouds from "../../assets/clouds.svg";
 import Swal from "sweetalert2";
-
-import RateChart, {
-  type RatePoint,
-} from "../../components/RateChart/RateChart";
 import FxAlertButton from "../../components/FxAlertButton/FxAlertButton";
 import FxConvertCard, { type FxConvertCardRef } from "../../components/FxConvertCard/FxConvertCard";
 import AccountInfoCard from "../../components/AccountInfoCard";
@@ -19,15 +14,10 @@ import ExchangeAlerts, { type ExchangeAlertsRef } from "./ExchangeAlerts";
 import { createFxExchange } from "../../api/fx";
 import { getMyAccounts } from "../../api/accounts";
 import { useAuth } from "../../auth/useAuth";
-=======
-import { useEffect, useState } from "react";
-import Sidebar from "../../components/Sidebar/Sidebar";
-import Header from "../../components/Header/Header";
-import styles from "./ExchangeRatePage.module.css";
+
+
 import { SmartRateChart } from "../../components/RateChart/RateChart"; // SmartRateChart로 변경
-import FxAlertButton from "../../components/FxAlertButton/FxAlertButton";
-import FxConvertCard from "../../components/FxConvertCard/FxConvertCard";
->>>>>>> origin/develop
+
 
 /* 반응형 판별 훅 */
 function useIsMobile(breakpoint = 768) {
@@ -48,7 +38,6 @@ function useIsMobile(breakpoint = 768) {
 export default function ExchangeRatePage() {
   const { user, loading } = useAuth();
   const isMobile = useIsMobile(768);
-<<<<<<< HEAD
   const [showExchangeForm, setShowExchangeForm] = useState(false);
   const [hasAccounts, setHasAccounts] = useState(true); // 계좌 존재 여부 추적
   const fxConvertCardRef = useRef<FxConvertCardRef>(null);
@@ -72,29 +61,6 @@ export default function ExchangeRatePage() {
     console.log('ExchangeRatePage - exchangeInfo changed:', exchangeInfo);
   }, [exchangeInfo]);
 
-  // 모바일 사이드바
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-
-  // 더미 환율 데이터 (최근 60일)
-  const dummyRates = useMemo<RatePoint[]>(() => {
-    const out: RatePoint[] = [];
-    const base = 1398;
-    const start = new Date();
-    start.setDate(start.getDate() - 60);
-    for (let i = 0; i < 60; i++) {
-      const d = new Date(start);
-      d.setDate(start.getDate() + i);
-      const mm = (d.getMonth() + 1).toString().padStart(2, "0");
-      const dd = d.getDate().toString().padStart(2, "0");
-      const jitter = Math.sin(i / 5) * 8 + (Math.random() * 12 - 6);
-      const val = Math.round(base + jitter);
-      out.push({ date: `${mm}/${dd}`, value: val });
-    }
-    return out;
-  }, []);
-
-  const latest = dummyRates.at(-1)?.value;
 
   const handleExchangeRequest = () => {
     if (!hasAccounts) {
@@ -290,11 +256,9 @@ export default function ExchangeRatePage() {
     }
   };
 
-=======
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
->>>>>>> origin/develop
   return (
     <div className={styles.container}>
       {isMobile ? (
@@ -337,7 +301,6 @@ export default function ExchangeRatePage() {
             <SmartRateChart />
           </section>
 
-<<<<<<< HEAD
           {/* 환전신청하기 버튼 */}
           {!showExchangeForm && (
             <div className={styles.exchangeButtonSection}>
@@ -405,11 +368,6 @@ export default function ExchangeRatePage() {
           {/* 환전 내역 */}
           <ExchangeHistory ref={exchangeHistoryRef} />
           
-=======
-          <section className={styles.cardSection}>
-            <FxConvertCard rate={1398}></FxConvertCard>
-          </section>
->>>>>>> origin/develop
         </div>
       </main>
     </div>

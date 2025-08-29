@@ -17,23 +17,6 @@ export interface Departure {
   status: DepartureStatus;
 }
 
-export interface DepartureResponse {
-  departureId: number;
-  userId: number;
-  userName: string;
-  userNickname: string;
-  universityId: number;
-  universityName: string;
-  programTypeId: number;
-  programTypeName: string;
-  programTypeCode: string;
-  countryCode: string;
-  startDate: string;
-  endDate: string | null;
-  status: "PLANNED" | "ONGOING" | "COMPLETED" | "CANCELED";
-  createdAt: string;
-}
-
 const COUNTRY_TO_CURRENCY: Record<string, string> = {
   US: "USD", CA: "CAD", GB: "GBP", DE: "EUR", FR: "EUR",
   IT: "EUR", ES: "EUR", NL: "EUR", JP: "JPY", CN: "CNY",
@@ -59,6 +42,23 @@ export interface CreateDeparturePayload {
   startDate: string;
   endDate?: string | null;
   status: DepartureStatus; 
+}
+
+export interface DepartureResponse {
+  departureId: number;
+  userId: number;
+  userName: string;
+  userNickname: string;
+  universityId: number;
+  universityName: string;
+  programTypeId: number;
+  programTypeName: string;
+  programTypeCode: string;
+  countryCode: string;
+  startDate: string;
+  endDate: string | null;
+  status: "PLANNED" | "ONGOING" | "COMPLETED" | "CANCELED";
+  createdAt: string;
 }
 
 export async function createDeparture(payload: CreateDeparturePayload) {
@@ -123,3 +123,4 @@ export async function getPlannedTripCurrency(userId: number): Promise<string> {
     return "USD";
   }
 }
+

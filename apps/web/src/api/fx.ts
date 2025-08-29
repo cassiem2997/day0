@@ -149,12 +149,6 @@ export type FxAlertResponse = {
   data?: any;
 };
 
-<<<<<<< HEAD
-// 환율 알림 등록 API
-export async function createFxAlert(alertData: FxAlertRequest) {
-  const response = await api.post<FxAlertResponse>("/fx/alerts", alertData);
-  return response.data;
-}
 
 // 환율 알림 내역 조회 API
 export async function getFxAlerts(userId: number) {
@@ -168,17 +162,6 @@ export async function deleteFxAlert(alertId: number) {
   return response.data;
 }
 
-// 환율 알림 내역 타입
-export type FxAlert = {
-  alertId: number;  // id -> alertId로 변경
-  userId: number;
-  baseCcy: string;
-  currency: string;
-  targetRate: number;
-  direction: string;
-  createdAt: string;  // created -> createdAt으로 변경
-  active: boolean;  // isActive -> active로 변경 (API 응답과 일치)
-};
 
 export type FxAlertsResponse = {
   success: boolean;
@@ -206,21 +189,6 @@ export async function createFxExchange(exchangeData: FxExchangeRequest) {
   return response.data;
 }
 
-// 환전 내역 관련 타입
-export type FxTransaction = {
-  bankName: string;
-  userName: string;
-  accountNo: string;
-  accountName: string;
-  currency: string;
-  currencyName: string;
-  amount: number;
-  exchangeCurrency: string;
-  exchangeCurrencyName: string;
-  exchangeAmount: number;
-  exchangeRate: number;
-  created: string;
-};
 
 export type FxTransactionsResponse = {
   data: FxTransaction[];
@@ -251,7 +219,8 @@ export type UserInfo = {
   userId: number;
   email: string;
   message: string;
-=======
+};
+
 export type AlertMsg = {
   type: string;
   baseCcy?: string;
@@ -260,7 +229,6 @@ export type AlertMsg = {
   rate?: number;
   ts?: string | number;
   timestamp?: string | number;
->>>>>>> origin/develop
 };
 
 export function useFxAlerts(userId: string | number) {

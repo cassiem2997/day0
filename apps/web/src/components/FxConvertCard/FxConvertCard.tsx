@@ -258,10 +258,6 @@ const FxConvertCard = forwardRef<FxConvertCardRef, Props>(({
       </span>
     </section>
   );
-<<<<<<< HEAD
 });
 
 export default FxConvertCard;
-=======
-}
->>>>>>> origin/develop
