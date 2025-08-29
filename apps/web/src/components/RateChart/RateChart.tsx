@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -8,8 +8,8 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
-import { getExchangeRateChart} from "../../api/fx";
-import { getPlannedTripCurrency } from '../../api/departure';
+import { getExchangeRateChart } from "../../api/fx";
+import { getPlannedTripCurrency } from "../../api/departure"; // ← API에서 바로 사용
 import type { RatePoint } from "../../api/fx";
 import { me } from "../../api/user";
 import styles from "./RateChart.module.css";
@@ -31,10 +31,7 @@ function RateChart({ data, currency }: { data: RatePoint[]; currency?: string })
   return (
     <div className={styles.chartWrap}>
       <ResponsiveContainer width="100%" height={280}>
-        <AreaChart
-          data={data}
-          margin={{ top: 12, right: 12, left: 0, bottom: 0 }}
-        >
+        <AreaChart data={data} margin={{ top: 12, right: 12, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="rateGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#5f3dc4" stopOpacity={0.35} />
@@ -56,7 +53,7 @@ function RateChart({ data, currency }: { data: RatePoint[]; currency?: string })
             allowDecimals
           />
           <Tooltip
-            formatter={(v: any) => [`${Number(v).toLocaleString()}원`, currency ? `${currency}/KRW` : "환율"]} 
+            formatter={(v: any) => [`${Number(v).toLocaleString()}원`, currency ? `${currency}/KRW` : "환율"]}
             labelFormatter={(label) => fmtDate(label as any)}
           />
           <Area
@@ -74,7 +71,7 @@ function RateChart({ data, currency }: { data: RatePoint[]; currency?: string })
 }
 
 export function SmartRateChart() {
-  const [currency, setCurrency] = useState<string>('USD');
+  const [currency, setCurrency] = useState<string>("USD");
   const [data, setData] = useState<RatePoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,13 +81,13 @@ export function SmartRateChart() {
     setError(null);
 
     try {
-      let targetCurrency = 'USD'; // 기본값
+      let targetCurrency = "USD"; // 기본값
 
       try {
         const userInfo = await me();
         if (userInfo?.userId) {
           const plannedCurrency = await getPlannedTripCurrency(userInfo.userId);
-          if (plannedCurrency && plannedCurrency !== 'undefined') {
+          if (plannedCurrency && plannedCurrency !== "undefined") {
             targetCurrency = plannedCurrency;
           }
         }
@@ -103,9 +100,9 @@ export function SmartRateChart() {
       // 1) 데이터 가져오기
       const chartData = await getExchangeRateChart(targetCurrency);
 
-      // 2) 오름차순으로 정렬 + 결측치/NaN 방어
+      // 2) 오름차순 정렬 + 결측치/NaN 방어
       const sortedAsc = chartData
-        .filter(p => p && p.date && Number.isFinite(p.value as any))
+        .filter((p) => p && p.date && Number.isFinite(p.value as any))
         .slice()
         .sort(
           (a, b) =>
@@ -114,8 +111,8 @@ export function SmartRateChart() {
 
       setData(sortedAsc);
     } catch (err) {
-      console.error('차트 데이터 로드 실패:', err);
-      setError('환율 데이터를 불러올 수 없습니다.');
+      console.error("차트 데이터 로드 실패:", err);
+      setError("환율 데이터를 불러올 수 없습니다.");
     } finally {
       setLoading(false);
     }
@@ -123,6 +120,7 @@ export function SmartRateChart() {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) return <div>환율 데이터 로딩 중...</div>;
@@ -132,10 +130,10 @@ export function SmartRateChart() {
     <div>
       <div
         style={{
-          marginBottom: '16px',
-          textAlign: 'center',
-          fontSize: '14px',
-          color: '#666',
+          marginBottom: "16px",
+          textAlign: "center",
+          fontSize: "14px",
+          color: "#666",
         }}
       >
         {currency}/KRW 환율
