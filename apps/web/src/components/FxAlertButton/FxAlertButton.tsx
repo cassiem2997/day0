@@ -1,7 +1,7 @@
-// import Swal from "sweetalert2";
-// import styles from "./FxAlertButton.module.css";
-// import { createFxAlert, type FxAlertRequest } from "../../api/fx";
-// import { me } from "../../api/user";
+import Swal from "sweetalert2";
+import styles from "./FxAlertButton.module.css";
+import { createFxAlert, type FxAlertRequest } from "../../api/fx";
+import { me } from "../../api/user";
 
 // 간단 유틸
 const stripCommas = (s: string) => s.replace(/,/g, "");
@@ -39,31 +39,30 @@ const sanitizeKrw = (s: string) => {
   return s;
 };
 
-// // 지원 통화 목록
-// const SUPPORTED_CURRENCIES = [
-//   { code: "USD", name: "미국 달러", symbol: "$" },
-//   { code: "EUR", name: "유로", symbol: "€" },
-//   { code: "JPY", name: "일본 엔", symbol: "¥" },
-//   { code: "GBP", name: "영국 파운드", symbol: "£" },
-//   { code: "CNY", name: "중국 위안", symbol: "¥" },
-//   { code: "CAD", name: "캐나다 달러", symbol: "C$" },
-//   { code: "AUD", name: "호주 달러", symbol: "A$" },
-// ];
+// 지원 통화 목록
+const SUPPORTED_CURRENCIES = [
+  { code: "USD", name: "미국 달러", symbol: "$" },
+  { code: "EUR", name: "유로", symbol: "€" },
+  { code: "JPY", name: "일본 엔", symbol: "¥" },
+  { code: "GBP", name: "영국 파운드", symbol: "£" },
+  { code: "CNY", name: "중국 위안", symbol: "¥" },
+  { code: "CAD", name: "캐나다 달러", symbol: "C$" },
+  { code: "AUD", name: "호주 달러", symbol: "A$" },
+];
 
-// export default function FxAlertButton({
-//   quoteCcy = "KRW",
-//   rates = {}, // 각 통화별 현재 환율 { USD: 1398, EUR: 1520, ... }
-//   userId,
-// }: {
-//   quoteCcy?: string;
-//   rates?: Record<string, number>; // 통화별 환율 정보
-//   userId?: number;
-// }) {
-//   const openModal = async () => {
-//     const defaultBaseCcy = "USD";
-//     const initRate = rates[defaultBaseCcy] || 1398;
-//     const initKrw = fmtKRWString(String(Math.round(initRate * 1)));
-
+export default function FxAlertButton({
+  quoteCcy = "KRW",
+  rates = {}, // 각 통화별 현재 환율 { USD: 1398, EUR: 1520, ... }
+  userId,
+}: {
+  quoteCcy?: string;
+  rates?: Record<string, number>; // 통화별 환율 정보
+  userId?: number;
+}) {
+  const openModal = async () => {
+    const defaultBaseCcy = "USD";
+    const initRate = rates[defaultBaseCcy] || 1398;
+    const initKrw = fmtKRWString(String(Math.round(initRate * 1)));
 
     // 드롭다운 옵션 생성
     const currencyOptions = SUPPORTED_CURRENCIES.map(
@@ -75,41 +74,40 @@ const sanitizeKrw = (s: string) => {
        </option>`
     ).join("");
 
+    await Swal.fire({
+      width: 580,
+      padding: 0,
+      showConfirmButton: false,
+      html: `
+<div id="fxa" style="font-family: 'EF_jejudoldam', system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;">
+  <div style="margin: 18px; background:#f3f9ff; border:4px solid #111; border-radius:18px; padding:22px 22px 26px;">
+    <div style="display:flex; justify-content:center; margin-bottom:16px;">
+      <div style="background:#fff; border:4px solid #111; border-radius:999px; padding:10px 20px; font-weight:900; font-size:22px;">알림 신청</div>
+    </div>
+    <!-- 외화 선택 및 고정값 1 -->
+    <div style="display:flex; align-items:center; gap:16px; margin-top:8px;">
+      <select id="fxa-currency" 
+        style="min-width:160px; text-align:center; background:#4758FC; color:#fff; border:4px solid #111; border-radius:24px; padding:12px 14px; font-weight:900; font-size:18px; cursor:pointer;">
+        ${currencyOptions}
+      </select>
+      <div style="flex:1; border:4px solid #111; border-radius:24px; background:#f0f0f0; padding:10px 16px; display:flex; align-items:center; justify-content:center;">
+        <span style="font-weight:900; font-size:26px; color:#666;">1</span>
+      </div>
+    </div>
 
-//     await Swal.fire({
-//       width: 580,
-//       padding: 0,
-//       showConfirmButton: false,
-//       html: `
-// <div id="fxa" style="font-family: 'EF_jejudoldam', system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;">
-//   <div style="margin: 18px; background:#f3f9ff; border:4px solid #111; border-radius:18px; padding:22px 22px 26px;">
-//     <div style="display:flex; justify-content:center; margin-bottom:16px;">
-//       <div style="background:#fff; border:4px solid #111; border-radius:999px; padding:10px 20px; font-weight:900; font-size:22px;">알림 신청</div>
-//     </div>
-//     <!-- 외화 선택 및 고정값 1 -->
-//     <div style="display:flex; align-items:center; gap:16px; margin-top:8px;">
-//       <select id="fxa-currency" 
-//         style="min-width:160px; text-align:center; background:#4758FC; color:#fff; border:4px solid #111; border-radius:24px; padding:12px 14px; font-weight:900; font-size:18px; cursor:pointer;">
-//         ${currencyOptions}
-//       </select>
-//       <div style="flex:1; border:4px solid #111; border-radius:24px; background:#f0f0f0; padding:10px 16px; display:flex; align-items:center; justify-content:center;">
-//         <span style="font-weight:900; font-size:26px; color:#666;">1</span>
-//       </div>
-//     </div>
+    <div style="height:2px; background:#e8edf3; margin:14px 6px;"></div>
 
-//     <div style="height:2px; background:#e8edf3; margin:14px 6px;"></div>
-
-//     <!-- KRW -->
-//     <div style="display:flex; align-items:center; gap:16px; margin-top:4px;">
-//       <span style="min-width:160px; text-align:center; background:#4758FC; color:#fff; border:4px solid #111; border-radius:24px; padding:12px 14px; font-weight:900; font-size:20px; letter-spacing:2px;">
-//         ${quoteCcy}
-//       </span>
-//       <div style="flex:1; border:4px solid #111; border-radius:24px; background:#fff; padding:10px 16px; display:flex; align-items:center; justify-content:flex-end;">
-//         <input id="fxa-krw" type="text" inputmode="numeric"
-//           value="${initKrw}"
-//           style="width:100%; text-align:right; border:none; outline:none; background:transparent; font-weight:900; font-size:26px; color:#4758fc;" />
-//       </div>
-//     </div>
+    <!-- KRW -->
+    <div style="display:flex; align-items:center; gap:16px; margin-top:4px;">
+      <span style="min-width:160px; text-align:center; background:#4758FC; color:#fff; border:4px solid #111; border-radius:24px; padding:12px 14px; font-weight:900; font-size:20px; letter-spacing:2px;">
+        ${quoteCcy}
+      </span>
+      <div style="flex:1; border:4px solid #111; border-radius:24px; background:#fff; padding:10px 16px; display:flex; align-items:center; justify-content:flex-end;">
+        <input id="fxa-krw" type="text" inputmode="numeric"
+          value="${initKrw}"
+          style="width:100%; text-align:right; border:none; outline:none; background:transparent; font-weight:900; font-size:26px; color:#4758fc;" />
+      </div>
+    </div>
 
     <div style="display:flex; justify-content:center; margin-top:22px;">
       <button id="fxa-submit"
@@ -134,24 +132,22 @@ const sanitizeKrw = (s: string) => {
           "fxa-submit"
         ) as HTMLButtonElement;
 
+        // 통화 변경 시 KRW 값 업데이트
+        const updateKrwValue = () => {
+          const selectedCcy = currencyEl.value;
+          const rate = rates[selectedCcy] || 1398;
+          krwEl.value = fmtKRWString(String(Math.round(rate * 1)));
+        };
 
-//         // 통화 변경 시 KRW 값 업데이트
-//         const updateKrwValue = () => {
-//           const selectedCcy = currencyEl.value;
-//           const rate = rates[selectedCcy] || 1398;
-//           krwEl.value = fmtKRWString(String(Math.round(rate * 1)));
-//         };
+        // KRW 입력 시 포맷팅
+        const onKrwInput = () => {
+          const raw = stripCommas(krwEl.value);
+          const s = sanitizeKrw(raw);
+          krwEl.value = fmtKRWString(s);
+        };
 
-//         // KRW 입력 시 포맷팅
-//         const onKrwInput = () => {
-//           const raw = stripCommas(krwEl.value);
-//           const s = sanitizeKrw(raw);
-//           krwEl.value = fmtKRWString(s);
-//         };
-
-//         currencyEl.addEventListener("change", updateKrwValue);
-//         krwEl.addEventListener("input", onKrwInput);
-
+        currencyEl.addEventListener("change", updateKrwValue);
+        krwEl.addEventListener("input", onKrwInput);
 
         const submit = async () => {
           const selectedBaseCcy = currencyEl.value;
@@ -167,12 +163,10 @@ const sanitizeKrw = (s: string) => {
             return;
           }
 
-
-//           // 로딩 상태 표시
-//           submitEl.disabled = true;
-//           submitEl.textContent = "처리중...";
-//           submitEl.style.opacity = "0.6";
-
+          // 로딩 상태 표시
+          submitEl.disabled = true;
+          submitEl.textContent = "처리중...";
+          submitEl.style.opacity = "0.6";
 
           try {
             // userId가 없으면 API를 호출해서 현재 사용자 정보 가져오기
@@ -220,10 +214,8 @@ const sanitizeKrw = (s: string) => {
               return;
             }
 
-
-//             // 방향은 항상 "이하"로 고정
-//             const direction = "LTE"; // LTE = Less Than or Equal (이하)
-
+            // 방향은 항상 "이하"로 고정
+            const direction = "LTE"; // LTE = Less Than or Equal (이하)
 
             console.log("알림 등록 데이터:", {
               userId: currentUserId,
@@ -233,16 +225,14 @@ const sanitizeKrw = (s: string) => {
               direction: direction,
             });
 
-
-//             // API 호출
-//             const alertData: FxAlertRequest = {
-//               userId: currentUserId,
-//               baseCcy: selectedBaseCcy,
-//               currency: quoteCcy,
-//               targetRate: krw,
-//               direction: "LTE", // 항상 "이하"로 설정
-//             };
-
+            // API 호출
+            const alertData: FxAlertRequest = {
+              userId: currentUserId,
+              baseCcy: selectedBaseCcy,
+              currency: quoteCcy,
+              targetRate: krw,
+              direction: "LTE", // 항상 "이하"로 설정
+            };
 
             const result = await createFxAlert(alertData);
             console.log("알림 등록 성공:", result);
@@ -279,12 +269,11 @@ const sanitizeKrw = (s: string) => {
           }
         };
 
-
-//         submitEl.addEventListener("click", submit);
-//         krwEl.addEventListener("keydown", (e) => e.key === "Enter" && submit());
-//       },
-//     });
-//   };
+        submitEl.addEventListener("click", submit);
+        krwEl.addEventListener("keydown", (e) => e.key === "Enter" && submit());
+      },
+    });
+  };
 
   return (
     <button type="button" className={styles.alertBtn} onClick={openModal}>
@@ -292,4 +281,3 @@ const sanitizeKrw = (s: string) => {
     </button>
   );
 }
-
