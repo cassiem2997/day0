@@ -30,9 +30,10 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
-function formatAmount(n: number) {
-  return n.toLocaleString("ko-KR");
-}
+
+// function formatAmount(n: number) {
+//   return n.toLocaleString("ko-KR");
+// }
 
 export default function SavingsPage() {
   // 1) URL이 /savings/:planId 형태라면 그걸 우선 사용
@@ -49,23 +50,26 @@ export default function SavingsPage() {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  // 파생 상태
-  const goalAmount = plan?.goalAmount ?? 0;
-  const [currentAmount, setCurrentAmount] = useState<number>(0);
+
+//   // 파생 상태
+//   const goalAmount = plan?.goalAmount ?? 0;
+//   const [currentAmount, setCurrentAmount] = useState<number>(0);
+
 
   // 미션(체크리스트)
   const [missions, setMissions] = useState<MissionType[]>([]);
   // const rewardPerMission = 5000;
 
-  const percent = useMemo(() => {
-    if (!goalAmount || goalAmount <= 0) return 0;
-    const p = (currentAmount / goalAmount) * 100;
-    return Math.min(100, Math.max(0, Math.round(p * 10) / 10));
-  }, [currentAmount, goalAmount]);
 
-  function toggleSidebar() {
-    setIsSidebarOpen((prev) => !prev);
-  }
+//   const percent = useMemo(() => {
+//     if (!goalAmount || goalAmount <= 0) return 0;
+//     const p = (currentAmount / goalAmount) * 100;
+//     return Math.min(100, Math.max(0, Math.round(p * 10) / 10));
+//   }, [currentAmount, goalAmount]);
+
+//   function toggleSidebar() {
+//     setIsSidebarOpen((prev) => !prev);
+//   }
 
   // ===== 플랜 상세 조회 (param 우선, 없으면 내 플랜 중 첫 번째) =====
   useEffect(() => {
@@ -203,8 +207,10 @@ export default function SavingsPage() {
       <main className={styles.main}>
         {!isMobile ? <Header /> : null}
 
-        <div className={styles.pageContent}>
-          <h1 className={styles.title}>SAVINGS</h1>
+
+//         <div className={styles.pageContent}>
+//           <h1 className={styles.title}>SAVINGS</h1>
+
 
           {/* 상단 섹션 */}
           {activeTab === "detail" ? (
@@ -239,18 +245,20 @@ export default function SavingsPage() {
                   </div>
                 </div>
 
-                <div className={styles.barTrack} aria-hidden="true">
-                  <div
-                    className={styles.barFill}
-                    style={{ width: `${percent}%` }}
-                  />
-                </div>
 
-                <div className={`${styles.cloud} ${styles.cloudLeft}`} />
-                <div className={`${styles.cloud} ${styles.cloudRight}`} />
-              </div>
-            </section>
-          )}
+//                 <div className={styles.barTrack} aria-hidden="true">
+//                   <div
+//                     className={styles.barFill}
+//                     style={{ width: `${percent}%` }}
+//                   />
+//                 </div>
+
+//                 <div className={`${styles.cloud} ${styles.cloudLeft}`} />
+//                 <div className={`${styles.cloud} ${styles.cloudRight}`} />
+//               </div>
+//             </section>
+//           )}
+
 
           {/* 탭 */}
           <div
