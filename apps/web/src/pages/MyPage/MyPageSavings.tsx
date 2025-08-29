@@ -9,6 +9,8 @@ import {
   type AccountNormalized,
   type AccountProduct,
 } from "../../api/account";
+import { getMySavingsPlans, type SavingsPlanSummary } from "../../api/savings";
+import { getMyAccounts, tryGetAccountById, type DepositAccount } from "../../api/accounts";
 
 type AccountType = "SAVING" | "DEPOSIT" | "FX";
 
@@ -20,10 +22,14 @@ interface AccountRow {
   balance: string;
 }
 
+export interface SavingsPlanWithAccount extends SavingsPlanSummary {
+  savingAccount?: DepositAccount | null;
+}
+
 function TypeBadge({ t }: { t: AccountType }) {
   if (t === "SAVING") {
     return (
-      <span className={`${styles.badge} ${styles.badgeSaving}`}>적금</span>
+      <span className={`${styles.badge} ${styles.badgeSaving}`}>D-적금</span>
     );
   }
   if (t === "DEPOSIT") {
@@ -125,7 +131,70 @@ export default function MyPageSavings() {
   }
 
   useEffect(() => {
-    loadAccounts();
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setErr(null);
+
+        const [plans, accounts] = await Promise.all([
+          getMySavingsPlans(),
+          getMyAccounts(),
+        ]);
+
+        if (!alive) return;
+
+        // 적금 플랜 → AccountRow
+         const uniqueIds = Array.from(new Set(plans.map(p => p.savingAccountId).filter(Boolean)));
+
+        // 2) 병렬 호출 (실패 허용)
+        const settled = await Promise.allSettled(
+          uniqueIds.map(id => tryGetAccountById(id))
+        );
+
+        // 3) id → DepositAccount 매핑
+        const accountMap = new Map<number, DepositAccount>();
+        settled.forEach((res, idx) => {
+          if (res.status === "fulfilled" && res.value) {
+            accountMap.set(uniqueIds[idx]!, res.value);
+          }
+        });
+
+        // 4) 플랜을 AccountRow로 변환 (계좌 상세 반영)
+        const savingRows: AccountRow[] = plans.map((p) => {
+          const acc = accountMap.get(p.savingAccountId);
+          return {
+            id: `saving-${p.planId}`,
+            type: "SAVING",
+            title: `${acc.bankName}`,
+            number: acc ? acc.accountNo : "",
+            balance: acc ? acc.accountBalance + "원" : "",
+          };
+        });
+
+        // 입출금 계좌 → AccountRow
+        const depositRows: AccountRow[] = accounts.map((a, idx) => {
+          const isFx = a.currency !== "KRW";
+          return {
+            id: `acct-${idx}`,
+            type: isFx ? "FX" : "DEPOSIT",
+            title: a.bankName,
+            number: a.accountNo,
+            balance: isFx
+              ? `${a.accountBalance.toLocaleString("en-US")} ${a.currency}`
+              : `${a.accountBalance.toLocaleString("ko-KR")}원`,
+          };
+        });
+
+        setRows([...savingRows, ...depositRows]);
+      } catch (e: any) {
+        if (!alive) return;
+        setErr(e?.response?.data?.message || e?.message || "계좌 정보를 불러오지 못했습니다.");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
   }, []);
 
   // 생성 모달 열기 + 상품 로드
@@ -315,7 +384,7 @@ export default function MyPageSavings() {
                         ) : (
                           products.map((p) => (
                             <option key={p.id} value={String(p.id)}>
-                              [{p.type}] {p.name} ({p.currency})
+                              {p.accountName}
                             </option>
                           ))
                         )}
