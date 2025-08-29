@@ -149,6 +149,78 @@ export type FxAlertResponse = {
   data?: any;
 };
 
+
+// 환율 알림 내역 조회 API
+export async function getFxAlerts(userId: number) {
+  const response = await api.get<FxAlertsResponse>(`/fx/alerts?userId=${userId}`);
+  return response.data;
+}
+
+// 환율 알림 삭제 API
+export async function deleteFxAlert(alertId: number) {
+  const response = await api.delete<FxAlertResponse>(`/fx/alerts/${alertId}`);
+  return response.data;
+}
+
+
+export type FxAlertsResponse = {
+  success: boolean;
+  message?: string;
+  data: FxAlert[];
+};
+
+// 환전신청 관련 타입
+export type FxExchangeRequest = {
+  userId: number;
+  accountNo: string;
+  exchangeCurrency: string;
+  exchangeAmount: number;
+};
+
+export type FxExchangeResponse = {
+  success: boolean;
+  message?: string;
+  data?: any;
+};
+
+// 환전신청 API
+export async function createFxExchange(exchangeData: FxExchangeRequest) {
+  const response = await api.post<FxExchangeResponse>(`/fx/exchange?userId=${exchangeData.userId}`, exchangeData);
+  return response.data;
+}
+
+
+export type FxTransactionsResponse = {
+  data: FxTransaction[];
+  success: boolean;
+  count: number;
+};
+
+// 환전 내역 조회 API
+export async function getFxTransactions(
+  userId: number,
+  accountNo: string,
+  startDate: string,
+  endDate: string
+) {
+  const response = await api.get<FxTransactionsResponse>("/fx/transactions", {
+    params: {
+      userId,
+      accountNo,
+      startDate,
+      endDate,
+    },
+  });
+  return response.data;
+}
+
+// 현재 사용자 정보 타입 (실제 API 응답에 맞춤)
+export type UserInfo = {
+  userId: number;
+  email: string;
+  message: string;
+};
+
 export type AlertMsg = {
   type: string;
   baseCcy?: string;

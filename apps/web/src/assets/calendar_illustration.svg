@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 배경 -->
+  <rect width="600" height="600" fill="#A8D5FF"/>
+  
+  <!-- 달력 본체 -->
+  <rect x="100" y="100" width="400" height="400" fill="#FFFFFF" stroke="#000000" stroke-width="10"/>
+  
+  <!-- 달력 상단 -->
+  <rect x="100" y="100" width="400" height="80" fill="#4758FC" stroke="#000000" stroke-width="10"/>
+  
+  <!-- 달력 제목 -->
+  <text x="300" y="150" font-family="Mungyeong-Gamhong-Apple, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">8월</text>
+  
+  <!-- 요일 헤더 -->
+  <rect x="100" y="180" width="400" height="40" fill="#E6F0FF" stroke="#000000" stroke-width="2"/>
+  
+  <!-- 요일 텍스트 -->
+  <text x="128" y="205" font-family="EF_jejudoldam, sans-serif" font-size="18" fill="#000000" text-anchor="middle">일</text>
+  <text x="185" y="205" font-family="EF_jejudoldam, sans-serif" font-size="18" fill="#000000" text-anchor="middle">월</text>
+  <text x="242" y="205" font-family="EF_jejudoldam, sans-serif" font-size="18" fill="#000000" text-anchor="middle">화</text>
+  <text x="300" y="205" font-family="EF_jejudoldam, sans-serif" font-size="18" fill="#000000" text-anchor="middle">수</text>
+  <text x="357" y="205" font-family="EF_jejudoldam, sans-serif" font-size="18" fill="#000000" text-anchor="middle">목</text>
+  <text x="414" y="205" font-family="EF_jejudoldam, sans-serif" font-size="18" fill="#000000" text-anchor="middle">금</text>
+  <text x="471" y="205" font-family="EF_jejudoldam, sans-serif" font-size="18" fill="#000000" text-anchor="middle">토</text>
+  
+  <!-- 날짜 그리드 - 첫째 주 -->
+  <rect x="100" y="220" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="157" y="220" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="214" y="220" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="271" y="220" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="328" y="220" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="385" y="220" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="442" y="220" width="58" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  
+  <!-- 날짜 그리드 - 둘째 주 -->
+  <rect x="100" y="276" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="157" y="276" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="214" y="276" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="271" y="276" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="328" y="276" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="385" y="276" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="442" y="276" width="58" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  
+  <!-- 날짜 그리드 - 셋째 주 -->
+  <rect x="100" y="332" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="157" y="332" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="214" y="332" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="271" y="332" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="328" y="332" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="385" y="332" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="442" y="332" width="58" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  
+  <!-- 날짜 그리드 - 넷째 주 -->
+  <rect x="100" y="388" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="157" y="388" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="214" y="388" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="271" y="388" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="328" y="388" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="385" y="388" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="442" y="388" width="58" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  
+  <!-- 날짜 그리드 - 다섯째 주 -->
+  <rect x="100" y="444" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="157" y="444" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="214" y="444" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="271" y="444" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="328" y="444" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="385" y="444" width="57" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  <rect x="442" y="444" width="58" height="56" fill="#FFFFFF" stroke="#000000" stroke-width="1"/>
+  
+  <!-- 날짜 숫자 - 첫째 주 -->
+  <text x="128" y="240" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">30</text>
+  <text x="185" y="240" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">31</text>
+  <text x="242" y="240" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">1</text>
+  <text x="300" y="240" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">2</text>
+  <text x="357" y="240" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">3</text>
+  <text x="414" y="240" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">4</text>
+  <text x="471" y="240" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">5</text>
+  
+  <!-- 날짜 숫자 - 둘째 주 -->
+  <text x="128" y="296" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">6</text>
+  <text x="185" y="296" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">7</text>
+  <text x="242" y="296" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">8</text>
+  <text x="300" y="296" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">9</text>
+  <text x="357" y="296" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">10</text>
+  <text x="414" y="296" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">11</text>
+  <text x="471" y="296" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">12</text>
+  
+  <!-- 날짜 숫자 - 셋째 주 -->
+  <text x="128" y="352" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">13</text>
+  <text x="185" y="352" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">14</text>
+  <text x="242" y="352" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">15</text>
+  <text x="300" y="352" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">16</text>
+  <text x="357" y="352" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">17</text>
+  <text x="414" y="352" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">18</text>
+  <text x="471" y="352" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">19</text>
+  
+  <!-- 날짜 숫자 - 넷째 주 -->
+  <text x="128" y="408" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">20</text>
+  <text x="185" y="408" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">21</text>
+  <text x="242" y="408" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">22</text>
+  <text x="300" y="408" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">23</text>
+  <text x="357" y="408" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">24</text>
+  <text x="414" y="408" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">25</text>
+  <text x="471" y="408" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">26</text>
+  
+  <!-- 날짜 숫자 - 다섯째 주 -->
+  <text x="128" y="464" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">27</text>
+  <text x="185" y="464" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">28</text>
+  <text x="242" y="464" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">29</text>
+  <text x="300" y="464" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">30</text>
+  <text x="357" y="464" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">31</text>
+  <text x="414" y="464" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">1</text>
+  <text x="471" y="464" font-family="EF_jejudoldam, sans-serif" font-size="16" fill="#000000" text-anchor="middle">2</text>
+  
+  <!-- 일정 표시 -->
+  <rect x="214" y="250" width="57" height="16" fill="#FF9999" rx="3" ry="3"/>
+  <rect x="328" y="250" width="57" height="16" fill="#99FF99" rx="3" ry="3"/>
+  <rect x="385" y="306" width="57" height="16" fill="#9999FF" rx="3" ry="3"/>
+  <rect x="271" y="362" width="57" height="16" fill="#FFFF99" rx="3" ry="3"/>
+  <rect x="157" y="418" width="57" height="16" fill="#FF99FF" rx="3" ry="3"/>
+  
+  <!-- 오늘 날짜 표시 -->
+  <circle cx="300" cy="408" r="20" fill="#4758FC" opacity="0.3"/>
+</svg>

@@ -269,3 +269,46 @@ select.input {
 input[type="date"].input {
   line-height: 56px;
 }
+
+/* 달력 전체 */
+.react-datepicker {
+  border-radius: 16px;   /* 모서리 둥글게 */
+  overflow: hidden;      /* border-radius 적용될 때 넘치는 부분 잘림 */
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* 헤더 (월/년도) */
+.react-datepicker__header {
+  border-bottom: none;
+  background: #a8d5ff;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+/* 요일 이름 */
+.react-datepicker__day-name {
+  font-weight: 600;
+  color: #333;
+}
+
+/* 날짜 셀 */
+.react-datepicker__day {
+  border-radius: 12px;    /* 각 날짜 셀 둥글게 */
+  transition: background 0.2s;
+}
+
+/* hover */
+.react-datepicker__day:hover {
+  background: #e0f2ff;
+}
+
+/* 선택된 날짜 */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background: #4ba3ff;
+  color: #fff;
+  border-radius: 12px;
+}
+
+

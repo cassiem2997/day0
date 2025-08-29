@@ -24,6 +24,10 @@
   /* color: #6b7280; */
 }
 
+.message {
+  margin: 0;
+}
+
 /* 모션 민감 사용자 배려 */
 @media (prefers-reduced-motion: reduce) {
   .card:hover {

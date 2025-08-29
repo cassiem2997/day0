@@ -184,7 +184,7 @@ export default function SavingsPage() {
 
           {/* 플랜 없을 때 */}
           {!loading && !loadError && hasPlan === false && (
-            <NoSavings onCreate={() => navigate("/savings/create")} />
+            <NoSavings onCreate={() => navigate("/savings/plan")} />
           )}
 
           {/* 플랜 있을 때 본문 */}

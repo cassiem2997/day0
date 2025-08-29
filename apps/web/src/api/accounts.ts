@@ -23,6 +23,12 @@ export async function getMyAccounts(): Promise<DepositAccount[]> {
   return data;
 }
 
+// 입출금 계좌 조회 (새로운 API)
+export async function getDemandDepositAccounts(): Promise<DepositAccount[]> {
+  const { data } = await api.get("/banks/demand-deposit/accounts");
+  return data;
+}
+
 /** 계좌 조회 */
 export async function tryGetAccountById(accountId: number | string): Promise<DepositAccount | null> {
   try {

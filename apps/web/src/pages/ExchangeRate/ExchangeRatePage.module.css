@@ -13,27 +13,86 @@
   width: 100%;
 }
 
+/* 체크리스트와 완전히 동일한 비율 */
 .pageContent {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 0 40px 40px;
+  padding: 0 40px 56px; /* 체크리스트와 동일한 여백 비율 */
   box-sizing: border-box;
+  position: relative;
+  background: #f3fcff;
+}
+
+/* ===== 구름 배경 ===== */
+.cloudBackground {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.cloudLeft {
+  position: absolute;
+  top: 20%;
+  left: -50px;
+  width: 200px;
+  height: auto;
+  opacity: 0.8;
+}
+
+.cloudRight {
+  position: absolute;
+  bottom: 20%;
+  right: -50px;
+  width: 250px;
+  height: auto;
+  opacity: 0.8;
 }
 
 /* ===== EXCHANGE 타이틀 ===== */
-.hero {
-  margin-top: 24px; /* 상단 여백 */
-  padding-left: 6px; /* 모바일 햄버거와 살짝 간격 */
+.heroWrap {
+  margin-top: 48px; /* 체크리스트와 동일 */
+  padding-left: 6px;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  position: relative;
 }
 
-.exchangeTitle {
+.subtitle {
+  position: relative;
+  left: 5px;
+  margin: 0;
+  font-size: 16px; /* 체크리스트와 동일 */
+  font-weight: 400;
+  color: #000000;
+  font-family: "EF_jejudoldam", system-ui, -apple-system, sans-serif;
+  letter-spacing: 0px;
+  z-index: 1;
+}
+
+.underline {
+  position: absolute;
+  top: 0;
+  left: 0%;
+  transform: translateX(0%);
+  height: 30px;
+  z-index: 0;
+}
+
+.hero {
   margin: 20px 0 12px 0;
-  font-size: clamp(36px, 6vw, 50px);
-  font-weight: 900;
+  font-size: clamp(36px, 6vw, 60px); /* 체크리스트와 동일한 반응형 */
+  font-weight: 400; /* 체크리스트와 동일 */
   line-height: 1.05;
   color: #111;
-  letter-spacing: 4px;
+  letter-spacing: 4px; /* 체크리스트와 동일 */
   text-align: left;
   font-family: "Mungyeong-Gamhong-Apple";
 }
@@ -46,7 +105,7 @@
 /* ===== 모바일 전용 햄버거 ===== */
 .mobileHamburger {
   position: fixed;
-  top: 12px;
+  top: 12px; /* 체크리스트와 동일 */
   left: 12px;
   z-index: 60;
   width: 44px;
@@ -55,6 +114,7 @@
   border-radius: 10px;
   background: #fff;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 3px;
@@ -74,31 +134,350 @@
   }
 }
 
-@media (max-width: 768px) {
-  .pageContent {
-    padding: 0 16px 24px;
-  }
-  .hero {
-    margin-top: 16px;
-    padding-left: 4px;
-  }
-  .exchangeTitle {
-    font-size: clamp(28px, 12vw, 44px);
-  }
-}
 .chartHeader {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin: 6px 0 8px 0; /* 타이틀과 그래프 사이 */
+  margin: 20px auto;
 }
 
 .chartSection {
   margin-top: 8px;
 }
-.chartSection {
-  margin-top: 8px;
-}
+
 .cardSection {
   margin-top: 18px;
+}
+
+/* 환전신청하기 버튼 섹션 */
+.exchangeButtonSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 40px auto;
+}
+
+.exchangeRequestBtn {
+  background: #4758FC;
+  color: #fff;
+  border: 4px solid #111;
+  border-radius: 999px;
+  padding: 16px 32px;
+  font-weight: 900;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #111;
+  transition: all 0.2s ease;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+}
+
+.exchangeRequestBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 0 #111;
+}
+
+/* 비활성화된 환전신청 버튼 */
+.exchangeRequestBtn.disabled {
+  background: #e0e0e0;
+  color: #999;
+  cursor: not-allowed;
+  box-shadow: 0 4px 0 #ccc;
+}
+
+.exchangeRequestBtn.disabled:hover {
+  transform: none;
+  box-shadow: 0 4px 0 #ccc;
+}
+
+/* 비활성화 메시지 */
+.disabledMessage {
+  margin-top: 12px;
+  color: #666;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* 환전 폼 섹션 */
+.exchangeFormSection {
+  margin-bottom: 2rem;
+}
+
+.exchangeFormBox {
+  background: #A8D5FF;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  display: flex;
+  flex-direction: column; /* 카드들을 세로로 배치 */
+  gap: 24px; /* 카드들 사이 간격 */
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* 폼 제목 */
+.formTitle {
+  font-size: clamp(24px, 6vw, 50px);
+
+  font-weight: 900;
+  color: #FFFFFF;
+  margin: 0 0 20px 0;
+  text-align: center;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+}
+
+/* 닫기 버튼 */
+.closeFormBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  background: #fff;
+  border: 2px solid #111;
+  border-radius: 50%;
+  color: #111;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.closeFormBtn:hover {
+  background: #f0f0f0;
+  transform: scale(1.05);
+}
+
+/* 환전 폼 내부 버튼 섹션 */
+.exchangeFormButtonSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 24px;
+  width: 100%;
+}
+
+.exchangeFormBtn {
+  background: #4758FC;
+  color: #fff;
+  border: 4px solid #111;
+  border-radius: 999px;
+  padding: 16px 32px;
+  font-weight: 900;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #111;
+  transition: all 0.2s ease;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+}
+
+.exchangeFormBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 0 #111;
+}
+
+.exchangeFormBtn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 0 #999;
+}
+
+.loadingMessage {
+  text-align: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  margin-top: 24px;
+}
+
+.loadingMessage p {
+  margin: 8px 0;
+  font-size: 16px;
+  color: #666;
+  font-weight: 500;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+}
+
+.loadingMessage p:first-child {
+  color: #4758FC;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* ===== 모달 스타일 ===== */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px 16px;
+  border-bottom: 2px solid #f0f0f0;
+  background: #f8f9fa;
+  border-radius: 20px 20px 0 0;
+}
+
+.modalTitle {
+  font-size: 28px;
+  font-weight: 900;
+  color: #111;
+  margin: 0;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+}
+
+.closeModalBtn {
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border: 2px solid #111;
+  border-radius: 50%;
+  color: #111;
+  font-size: 24px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.closeModalBtn:hover {
+  background: #f0f0f0;
+  transform: scale(1.05);
+}
+
+.modalBody {
+  padding: 24px 32px;
+  background: #fff;
+}
+
+.modalFooter {
+  padding: 16px 32px 24px;
+  border-top: 2px solid #f0f0f0;
+  background: #f8f9fa;
+  border-radius: 0 0 20px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .pageContent {
+    padding: 0 16px 24px; /* 체크리스트와 동일 */
+    max-width: 100%;
+  }
+  
+  .heroWrap {
+    margin-top: 16px; /* 체크리스트와 동일 */
+    padding-left: 4px;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+  }
+  
+  .hero {
+    font-size: clamp(28px, 12vw, 44px); /* 체크리스트와 동일 */
+    letter-spacing: 2px;
+  }
+  
+  .chartSection,
+  .exchangeFormBox,
+  .cardSection {
+    padding: 1.5rem;
+  }
+  
+  .exchangeRequestBtn {
+    padding: 14px 28px;
+    font-size: 16px;
+  }
+  
+  .mobileHamburger {
+    top: 12px;
+    left: 12px;
+  }
+  
+  .exchangeFormBox {
+    gap: 20px; /* 모바일에서 간격 줄임 */
+  }
+  
+  /* 모바일 모달 스타일 */
+  .modalContent {
+    max-width: 95vw;
+    max-height: 95vh;
+    margin: 16px;
+  }
+  
+  .modalHeader {
+    padding: 20px 24px 16px;
+  }
+  
+  .modalTitle {
+    font-size: 24px;
+  }
+  
+  .closeModalBtn {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+  
+  .modalBody {
+    padding: 20px 24px;
+  }
+  
+  .modalFooter {
+    padding: 16px 24px 20px;
+  }
+  
+  .exchangeFormBtn {
+    padding: 14px 28px;
+    font-size: 16px;
+  }
 }

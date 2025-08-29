@@ -1,0 +1,159 @@
+.wrapper {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+  background-color: #f3fbff;
+}
+
+.wrapper :global(.react-calendar) {
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  padding: 2px 0;
+  background-color: #f3fbff;
+  font-family: inherit;
+}
+
+/* 헤더 스타일 */
+.wrapper :global(.react-calendar__navigation) {
+  margin-bottom: 5px;
+  height: 40px;
+}
+
+.wrapper :global(.react-calendar__navigation button) {
+  min-width: 40px;
+  background: #f3fbff;
+  border: none;
+  border-radius: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #111;
+  font-family: inherit;
+}
+
+.wrapper :global(.react-calendar__navigation button:enabled:hover),
+.wrapper :global(.react-calendar__navigation button:enabled:focus) {
+  background-color: #4758FC;
+  color: #fff;
+}
+
+.wrapper :global(.react-calendar__navigation button[disabled]) {
+  background-color: #f0f0f0;
+  color: #999;
+}
+
+/* 요일 헤더 */
+.wrapper :global(.react-calendar__month-view__weekdays) {
+  text-align: center;
+  font-weight: bold;
+  font-size: 0;
+  margin-bottom: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.wrapper :global(.react-calendar__month-view__weekdays__weekday) {
+  padding: 0;
+  color: transparent;
+  text-decoration: none;
+  font-family: inherit;
+  font-size: 0;
+}
+
+.wrapper :global(.react-calendar__month-view__weekdays__weekday abbr) {
+  text-decoration: none;
+  font-size: 0;
+}
+
+/* 날짜 타일 */
+.wrapper :global(.react-calendar__tile) {
+  max-width: 100%;
+  padding: 15px 6px;
+  background: none;
+  text-align: center;
+  line-height: 1;
+  border: none;
+  font-family: inherit;
+  font-size: 20px;
+  position: relative;
+  border-radius: 0;
+  margin: 0;
+}
+
+.wrapper :global(.react-calendar__tile:enabled:hover),
+.wrapper :global(.react-calendar__tile:enabled:focus) {
+  background-color: #f8f9ff;
+}
+
+.wrapper :global(.react-calendar__tile--now) {
+  background-color: rgba(71, 88, 252, 0.1);
+  font-weight: bold;
+}
+
+.wrapper :global(.react-calendar__tile--active) {
+  background-color: #333;
+  color: #fff;
+}
+
+.wrapper :global(.react-calendar__tile--active:enabled:hover),
+.wrapper :global(.react-calendar__tile--active:enabled:focus) {
+  background-color: #000;
+}
+
+.wrapper :global(.react-calendar__month-view__days__day--neighboringMonth) {
+  color: #ccc;
+}
+
+/* 이벤트 표시 */
+.eventDot {
+  width: 6px;
+  height: 6px;
+  background-color: #FF8A00;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.dotRow {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+/* 컴팩트 모드 */
+.compact :global(.react-calendar) {
+  padding: 8px;
+  border-width: 2px;
+}
+
+.compact :global(.react-calendar__navigation) {
+  height: 40px;
+  margin-bottom: 8px;
+}
+
+.compact :global(.react-calendar__navigation button) {
+  font-size: 14px;
+}
+
+.compact :global(.react-calendar__month-view__weekdays__weekday abbr) {
+  font-size: 12px;
+}
+
+.compact :global(.react-calendar__tile) {
+  padding: 8px 2px;
+  font-size: 12px;
+}
+
+.compact .eventDot {
+  width: 6px;
+  height: 6px;
+}

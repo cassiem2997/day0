@@ -33,8 +33,7 @@ public class ExchangeRateHistory {
     @Column(name = "rate_date", nullable = false)
     private LocalDate rateDate;
 
-    @Column(name = "created_at", nullable = false, updatable = false,
-            columnDefinition = "TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3)")
-    private Instant createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
 }

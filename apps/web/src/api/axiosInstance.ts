@@ -39,3 +39,33 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+// import axios, { AxiosError } from "axios";
+
+// const api = axios.create({
+//   baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080",
+//   withCredentials: true,
+// });
+
+// api.interceptors.request.use((config) => {
+//   const cand =
+//     localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
+
+//   const token =
+//     cand && cand !== "undefined" && cand !== "null" && cand.trim() !== ""
+//       ? cand
+//       : null;
+
+//   config.headers = config.headers ?? {};
+
+//   if (token) {
+//     (config.headers as any).Authorization = `Bearer ${token}`;
+//   } else {
+//     // ❗ 절대 'Bearer undefined'가 나가지 않도록 보장
+//     delete (config.headers as any).Authorization;
+//   }
+
+//   return config;
+// });
+
+// export default api;

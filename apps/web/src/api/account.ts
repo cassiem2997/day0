@@ -176,3 +176,48 @@ export async function fetchMyAccounts(args?: {
     balance: Number.isFinite(a.balanceAmount) ? a.balanceAmount : undefined,
   }));
 }
+
+/** 계좌번호로 계좌 ID 찾기 */
+export async function findAccountIdByAccountNo(accountNo: string): Promise<number | null> {
+  try {
+    console.log("=== findAccountIdByAccountNo 함수 시작 ===");
+    console.log("요청하는 accountNo:", accountNo);
+    console.log("API 엔드포인트:", `/accounts/accounts/${accountNo}/find`);
+    
+    const { data } = await api.get<Wrapped<any> | any>(`/accounts/accounts/${accountNo}/find`);
+    console.log("전체 API 응답:", data);
+    console.log("응답 데이터 타입:", typeof data);
+    console.log("응답이 배열인가?", Array.isArray(data));
+    
+    // API 응답이 직접 숫자로 오는 경우 처리
+    let accountId: number | null = null;
+    
+    if (typeof data === 'number') {
+      // 직접 숫자로 오는 경우
+      accountId = data;
+      console.log("직접 숫자 응답 처리:", accountId);
+    } else if (data && typeof data === 'object' && data.id) {
+      // Wrapped 형태로 오는 경우
+      accountId = Number(data.id);
+      console.log("Wrapped 형태 응답 처리:", accountId);
+    } else if (data && typeof data === 'object' && data.data) {
+      // data.data 형태로 오는 경우
+      accountId = Number(data.data);
+      console.log("data.data 형태 응답 처리:", accountId);
+    }
+    
+    console.log("최종 반환값:", accountId);
+    console.log("=== findAccountIdByAccountNo 함수 완료 ===");
+    
+    return accountId;
+  } catch (error) {
+    console.error('계좌 ID 찾기 실패:', error);
+    console.error('에러 상세 정보:', {
+      message: (error as any).message,
+      status: (error as any).response?.status,
+      statusText: (error as any).response?.statusText,
+      responseData: (error as any).response?.data
+    });
+    return null;
+  }
+}

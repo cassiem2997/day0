@@ -1,35 +1,63 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./CommunityPage.module.css";
+import { fetchPopularTop, type PopularBestItem } from "../../api/checklist";
 
-type BestItem = {
-  id: number;
-  title: string;
-  done: number;
-  total: number;
-  star: number;
-  author: string;
-};
+type BestItem = PopularBestItem;
 
 export default function CommunityBest() {
-  // 더미 데이터 (연동 시 교체)
-  const items: BestItem[] = [
-    {
-      id: 1,
-      title: "런던 3개월 어학연수 (맥시멀리스트)",
-      done: 51,
-      total: 120,
-      star: 51,
-      author: "연세_우유",
-    },
-    {
-      id: 2,
-      title: "뉴욕 1년 교환학생 준비",
-      done: 1,
-      total: 51,
-      star: 51,
-      author: "고려_기프트",
-    },
-  ];
+  const [items, setItems] = useState<BestItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        // country는 필요 시 "KR" 등으로 지정하세요.
+        const res = await fetchPopularTop({ limit: 10 /*, country: "KR" */ });
+        if (mounted) setItems(res);
+      } catch (err) {
+        console.error("popular-top fetch error", err);
+        if (mounted) setItems([]);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className={styles.stack}>
+        <article className={styles.postCard}>
+          <header className={styles.postHead}>
+            <h2 className={styles.postTitle}>
+              <span className={styles.titleLink}>불러오는 중…</span>
+            </h2>
+            <button type="button" className={styles.saveBtn}>
+              save
+            </button>
+          </header>
+          <div className={styles.metaRow}>
+            <span className={styles.badgeCheck} aria-hidden="true">
+              ✓
+            </span>
+            <span className={styles.countText}>
+              0 <span className={styles.slash}>/</span> 0
+            </span>
+            <span className={styles.star} aria-hidden="true">
+              ★
+            </span>
+            <span className={styles.countText}>0</span>
+            <span className={styles.by}>by</span>
+            <span className={styles.author}>…</span>
+          </div>
+        </article>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.stack}>
@@ -41,16 +69,22 @@ export default function CommunityBest() {
                 {it.title}
               </Link>
             </h2>
-            <button type="button" className={styles.saveBtn}>save</button>
+            <button type="button" className={styles.saveBtn}>
+              save
+            </button>
           </header>
 
           <div className={styles.metaRow}>
-            <span className={styles.badgeCheck} aria-hidden="true">✓</span>
+            <span className={styles.badgeCheck} aria-hidden="true">
+              ✓
+            </span>
             <span className={styles.countText}>
               {it.done} <span className={styles.slash}>/</span> {it.total}
             </span>
 
-            <span className={styles.star} aria-hidden="true">★</span>
+            <span className={styles.star} aria-hidden="true">
+              ★
+            </span>
             <span className={styles.countText}>{it.star}</span>
 
             <span className={styles.by}>by</span>
@@ -60,6 +94,9 @@ export default function CommunityBest() {
           {idx === 0 ? <div className={styles.rowDivider} /> : null}
         </article>
       ))}
+      {items.length === 0 && (
+        <div className={styles.emptyNotice}>표시할 항목이 없습니다.</div>
+      )}
     </div>
   );
 }
