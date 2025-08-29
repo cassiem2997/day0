@@ -14,6 +14,18 @@ import type { RatePoint } from "../../api/fx";
 import { me } from "../../api/user";
 import styles from "./RateChart.module.css";
 
+// 간단 날짜 포맷터
+function fmtDate(x: string | number | Date) {
+  const d = new Date(x);
+  if (isNaN(d.getTime())) return String(x);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${y}-${m}-${day} ${hh}:${mm}`;
+}
+
 // 기본 차트 컴포넌트
 function RateChart({ data, currency }: { data: RatePoint[]; currency?: string }) {
   return (
@@ -35,15 +47,17 @@ function RateChart({ data, currency }: { data: RatePoint[]; currency?: string })
             tick={{ fontSize: 12 }}
             tickMargin={8}
             minTickGap={28}
+            tickFormatter={fmtDate}
           />
           <YAxis
             width={48}
             tick={{ fontSize: 12 }}
             domain={["dataMin - 10", "dataMax + 10"]}
+            allowDecimals
           />
           <Tooltip
-            formatter={(v: any) => [`${Number(v).toLocaleString()}원`, currency ? `${currency}/KRW` : "환율"]}
-            labelFormatter={(label) => `${label}`}
+            formatter={(v: any) => [`${Number(v).toLocaleString()}원`, currency ? `${currency}/KRW` : "환율"]} 
+            labelFormatter={(label) => fmtDate(label as any)}
           />
           <Area
             type="monotone"
@@ -68,32 +82,37 @@ export function SmartRateChart() {
   const fetchData = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       let targetCurrency = 'USD'; // 기본값
-      
+
       try {
-        // 현재 사용자 정보 조회
         const userInfo = await me();
-        console.log('현재 사용자:', userInfo);
-        
-        if (userInfo.userId) {
+        if (userInfo?.userId) {
           const plannedCurrency = await getPlannedTripCurrency(userInfo.userId);
-          console.log('받은 plannedCurrency:', plannedCurrency);
-          
           if (plannedCurrency && plannedCurrency !== 'undefined') {
             targetCurrency = plannedCurrency;
           }
         }
-      } catch (err) {
-        console.warn('계획된 여행 통화 조회 실패, USD 사용:', err);
+      } catch {
+        // 무시하고 USD 유지
       }
-      
+
       setCurrency(targetCurrency);
-      console.log('최종 사용할 currency:', targetCurrency);
-      
+
+      // 1) 데이터 가져오기
       const chartData = await getExchangeRateChart(targetCurrency);
-      setData(chartData);
+
+      // 2) 오름차순으로 정렬 + 결측치/NaN 방어
+      const sortedAsc = chartData
+        .filter(p => p && p.date && Number.isFinite(p.value as any))
+        .slice()
+        .sort(
+          (a, b) =>
+            new Date(a.date as any).getTime() - new Date(b.date as any).getTime()
+        );
+
+      setData(sortedAsc);
     } catch (err) {
       console.error('차트 데이터 로드 실패:', err);
       setError('환율 데이터를 불러올 수 없습니다.');
@@ -106,22 +125,19 @@ export function SmartRateChart() {
     fetchData();
   }, []);
 
-  if (loading) {
-    return <div>환율 데이터 로딩 중...</div>;
-  }
-
-  if (error) {
-    return <div>오류: {error}</div>;
-  }
+  if (loading) return <div>환율 데이터 로딩 중...</div>;
+  if (error) return <div>오류: {error}</div>;
 
   return (
     <div>
-      <div style={{ 
-        marginBottom: '16px', 
-        textAlign: 'center',
-        fontSize: '14px',
-        color: '#666'
-      }}>
+      <div
+        style={{
+          marginBottom: '16px',
+          textAlign: 'center',
+          fontSize: '14px',
+          color: '#666',
+        }}
+      >
         {currency}/KRW 환율
       </div>
       <RateChart data={data} currency={currency} />
