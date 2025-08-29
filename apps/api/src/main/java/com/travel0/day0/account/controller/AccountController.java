@@ -90,6 +90,17 @@ public class AccountController {
         return ResponseEntity.ok(res);
     }
 
+    // 계좌 번호로 계좌 id 찾는 API
+    @GetMapping("/accounts/{accountNo}/find")
+    @Operation(summary = "계좌 id 조회", description = "계좌 번호로 계좌 id 찾는 API")
+    public ResponseEntity<Long> getAccountId(
+            @PathVariable String accountNo
+    ) {
+        var res = userAccountService.getAccountByAccountNo(accountNo);
+        return ResponseEntity.ok(res.get().getAccountId());
+    }
+
+
     /* ===== Request DTOs ===== */
     public record AmountSummaryReq(Long amount, String summary) { }
     public record TransferReq(String withdrawalAccountNo, String depositAccountNo, Long amount,
