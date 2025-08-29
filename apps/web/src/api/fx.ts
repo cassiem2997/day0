@@ -3,11 +3,25 @@ import api from "./axiosInstance";
 import { useEffect, useRef, useState } from "react";
 
 export type FxTransaction = {
-  id: string;
-  at: string; // ISO or "YYYY-MM-DDTHH:mm:ss(+Z)"
-  rateKrwPerUsd: number; // 적용 환율 (KRW per USD)
-  usdAmount: number; // 환전 USD
-  withdrawKrw: number; // 인출 KRW
+  id?: string;
+  at?: string; // ISO or "YYYY-MM-DDTHH:mm:ss(+Z)"
+  created?: string; // 생성 시간 (API 응답)
+  rateKrwPerUsd?: number; // 적용 환율 (KRW per USD)
+  usdAmount?: number; // 환전 USD
+  withdrawKrw?: number; // 인출 KRW
+  
+  // 새로운 API 응답 필드
+  bankName?: string;
+  userName?: string;
+  accountNo?: string;
+  accountName?: string;
+  currency?: string;
+  currencyName?: string;
+  amount?: number;
+  exchangeCurrency?: string;
+  exchangeCurrencyName?: string;
+  exchangeAmount?: number;
+  exchangeRate?: number;
 };
 
 type Wrapped<T> = {

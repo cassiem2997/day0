@@ -55,7 +55,6 @@ export default function ExchangeRatePage() {
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
   const exchangeHistoryRef = useRef<ExchangeHistoryRef>(null);
-  const exchangeAlertsRef = useRef<ExchangeAlertsRef>(null);
 
   // 디버깅용 로그
   useEffect(() => {
@@ -65,6 +64,16 @@ export default function ExchangeRatePage() {
   useEffect(() => {
     console.log('ExchangeRatePage - exchangeInfo changed:', exchangeInfo);
   }, [exchangeInfo]);
+
+  // 인증 상태 모니터링
+  useEffect(() => {
+    console.log('=== ExchangeRatePage 인증 상태 변경 ===');
+    console.log('loading:', loading);
+    console.log('user:', user);
+    console.log('user?.userId:', user?.userId);
+    console.log('user === null:', user === null);
+    console.log('user === undefined:', user === undefined);
+  }, [user, loading]);
 
   // SmartRateChart에서 받은 환율 업데이트
   const handleRateChange = (rate: number) => {
@@ -80,7 +89,26 @@ export default function ExchangeRatePage() {
   };
 
   const handleExchangeApply = async () => {
+    console.log("=== 환전신청 시작 ===");
+    console.log("현재 user 상태:", user);
+    console.log("user?.userId:", user?.userId);
+    console.log("loading 상태:", loading);
+    
     if (!user?.userId) {
+      console.log("로그인 필요 - user.userId가 없음");
+      console.log("loading이 true인 경우:", loading);
+      console.log("user가 null인 경우:", user === null);
+      
+      if (loading) {
+        await Swal.fire({
+          icon: "info",
+          title: "로딩 중",
+          text: "사용자 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.",
+          confirmButtonText: "확인",
+        });
+        return;
+      }
+      
       await Swal.fire({
         icon: "error",
         title: "로그인 필요",
@@ -118,7 +146,7 @@ export default function ExchangeRatePage() {
       }
 
       // FxAlertButton 스타일을 참고한 환전신청 확인 다이얼로그
-      const result = await Swal.fire({
+                await Swal.fire({
         width: 580,
         padding: 0,
         showConfirmButton: false,
@@ -227,10 +255,7 @@ export default function ExchangeRatePage() {
                   await exchangeHistoryRef.current.refreshTransactions();
                 }
                 
-                // 알림 내역 새로고침
-                if (exchangeAlertsRef.current) {
-                  await exchangeAlertsRef.current.refreshAlerts();
-                }
+
               } else {
                 throw new Error(response.message || "환전신청 실패");
               }
@@ -304,7 +329,7 @@ export default function ExchangeRatePage() {
           </div>
 
           <section className={styles.chartSection}>
-            <SmartRateChart onRateChange={handleRateChange} />
+            <SmartRateChart />
           </section>
 
           {/* 환전신청하기 버튼 */}

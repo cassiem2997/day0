@@ -341,7 +341,8 @@
 
 .overlap {
   height: 143px;
-  left: -23px;
+  left: 50%;
+  transform: translateX(-50%);
   position: absolute;
   top: 0;
   width: 786px;
@@ -383,7 +384,7 @@
   line-height: normal;
   position: absolute;
   text-align: center;
-  top: 38px;
+  /* top: 38px; */
   width: 415px;
 }
 
@@ -432,7 +433,7 @@
   line-height: normal;
   position: absolute;
   text-align: center;
-  top: 38px;
+  /* top: 38px; */
   width: 415px;
 }
 
@@ -493,7 +494,8 @@
   border-radius: 60px;
   box-shadow: 0px 4px 4px #00000040;
   height: 60px;
-  left: 47px;
+  left: 50%;
+  transform: translateX(-50%);
   position: absolute;
   top: 185px;
   width: 840px;
@@ -560,7 +562,7 @@
 
 .textWrapper {
   color: #000000;
-  font-family: "EF_jejudoldam-Regular", system-ui, sans-serif;
+  font-family: "EF_jejudoldam", system-ui, sans-serif;
   font-size: clamp(48px, 8vw, 80px);
   font-weight: 400;
   left: 0;
@@ -585,15 +587,15 @@
 
 .p {
   color: #000000;
-  font-family: "EF_jejudoldam-Regular", system-ui, sans-serif;
-  font-size: clamp(18px, 4vw, 30px);
-  font-weight: 600;
+  font-family: "EF_jejudoldam", system-ui, sans-serif;
+  font-size: clamp(18px, 4vw, 28px);
+  font-weight: 200;
   height: 29px;
   left: 97px;
   letter-spacing: 0;
   line-height: 1.4;
   position: absolute;
-  top: 35px;
+  /* top: 35px; */
   text-align: center;
   right: 97px;
 }

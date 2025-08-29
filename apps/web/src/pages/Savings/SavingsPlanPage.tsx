@@ -11,8 +11,7 @@ import formStyles from "../Checklist/ChecklistMaking.module.css";
 import { getDemandDepositAccounts } from "../../api/accounts";
 import { createSavingsPlan } from "../../api/savings";
 import { useAuth } from "../../auth/useAuth";
-import openChecklistAddModal from "../../components/ChecklistAddModal/ChecklistAddModal";
-import { updateChecklistLinkedAmount, getUserChecklistItems, patchUserChecklistItem } from "../../api/checklist";
+import { getUserChecklistItems, patchUserChecklistItem } from "../../api/checklist";
 import openChecklistAmountButton from "../../components/ChecklistAddModal/ChecklistAmountButton";
 import { getUserChecklists, getUserChecklistsNew } from "../../api/checklist";
 
@@ -29,7 +28,7 @@ export default function SavingsPlanPage() {
   const [paymentDate, setPaymentDate] = useState("15");
   const [paymentAmount, setPaymentAmount] = useState("100000");
   const [duration, setDuration] = useState("12");
-  const [missionAmount, setMissionAmount] = useState("100000");
+
   const [isDateError, setIsDateError] = useState(false);
   const [isDurationError, setIsDurationError] = useState(false);
   const [accounts, setAccounts] = useState<DepositAccount[]>([]);

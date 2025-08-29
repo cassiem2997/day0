@@ -12,6 +12,9 @@ import clouds from "../../assets/clouds.svg";
 import underline from "../../assets/underline.svg";
 // 대학교 이미지 추가
 import universityImg from "../../assets/university.svg";
+import { getUserChecklistsNew, getUserChecklistItems } from "../../api/checklist";
+import type { UserChecklistItem } from "../../api/checklist";
+import { useAuth } from "../../auth/useAuth";
 
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState<boolean>(() => {
@@ -43,15 +46,52 @@ export default function ChecklistCurrentPage() {
   const isMobile = useIsMobile(768);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => setIsSidebarOpen((p) => !p);
+  const { user } = useAuth();
 
   const [items] = useState(sampleChecklistItems);
   const leaveDate = "2025-03-20";
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [checklistItems, setChecklistItems] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const [tip, setTip] = useState<Tip | null>(null);
   useEffect(() => {
     setTip(pickRandomTipAny());
   }, []);
+  
+  // 최신 체크리스트 아이템 가져오기
+  useEffect(() => {
+    const fetchChecklistItems = async () => {
+      if (!user?.userId) return;
+      
+      try {
+        setIsLoading(true);
+        // 1. 사용자의 체크리스트 목록 가져오기
+        const checklists = await getUserChecklistsNew(user.userId);
+        
+        if (checklists && checklists.length > 0) {
+          // 2. 가장 최근 체크리스트의 ID 가져오기 (첫 번째 항목 사용)
+          const latestChecklist = checklists[0];
+          const checklistId = latestChecklist.userChecklistId;
+          
+          // 3. 해당 체크리스트의 아이템 가져오기
+          const items = await getUserChecklistItems(checklistId);
+          
+          // 4. 최대 3개의 아이템만 선택하여 제목 추출
+          const titles = items.slice(0, 3).map(item => item.title);
+          
+          // 5. 체크리스트 아이템 설정
+          setChecklistItems(titles);
+        }
+      } catch (error) {
+        console.error('체크리스트 아이템을 가져오는 중 오류 발생:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchChecklistItems();
+  }, [user?.userId]);
   
   // 캘린더 이벤트 데이터
   const calendarEvents = useMemo(() => {
@@ -129,7 +169,7 @@ export default function ChecklistCurrentPage() {
 
         {/* 진행 상황 카드 */}
         <div className={styles.frame3}>
-          <img src={clouds} alt="" className={styles.union2} />
+          {/* <img src={clouds} alt="" className={styles.union2} /> */}
           <div className={styles.overlap}>
             {/* D-51 섹션 */}
             <div className={styles.rectangle8} />
@@ -165,7 +205,7 @@ export default function ChecklistCurrentPage() {
               style={{ width: `${(completionPercentage / 100) * 500}px` }}
             />
           </div>
-          <img src={clouds} alt="" className={styles.union3} />
+          {/* <img src={clouds} alt="" className={styles.union3} /> */}
         </div>
 
         {/* 오늘의 팁 섹션 */}
@@ -189,11 +229,7 @@ export default function ChecklistCurrentPage() {
         <div className={styles.dailyChecklistWrapper}>
           <DailyChecklist
             date="2025. 08. 25"
-            checklistItems={[
-              "오늘의 체크리스트 입니다",
-              "오늘의 체크리스트 입니다",
-              "오늘의 체크리스트 입니다"
-            ]}
+            checklistItems={isLoading ? ["로딩 중..."] : checklistItems.length > 0 ? checklistItems : ["체크리스트 항목이 없습니다"]}
             onItemChange={(index: number, checked: boolean) => {
               console.log(`체크리스트 ${index}번 항목: ${checked ? '체크됨' : '체크해제됨'}`);
             }}
