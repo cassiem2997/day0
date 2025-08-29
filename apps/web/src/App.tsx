@@ -10,6 +10,8 @@ import ExchangeRatePage from "./pages/ExchangeRate/ExchangeRatePage";
 import LoginPage from "./pages/Login/LoginPage";
 import LandingPage from "./pages/Landing/LandingPage";
 import SavingsPage from "./pages/Savings/SavingsPage";
+import SavingPlan from "./pages/Savings/SavingPlan";
+
 import CommunityPage from "./pages/Community/CommunityPage";
 import CommunityDetail from "./pages/Community/CommunityDetail";
 import CommunityWrite from "./pages/Community/CommunityWrite";
@@ -79,6 +81,22 @@ export default function App() {
         />
 
         {/* 적금 */}
+        <Route
+          path="/savings/create"
+          element={
+            <ProtectedRoute>
+              <SavingPlan />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/savings/:planId"
+          element={
+            <ProtectedRoute>
+              <SavingsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/savings"
           element={
