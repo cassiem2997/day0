@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300">
+  <!-- 배경 -->
+  <rect width="800" height="300" fill="#a8d5ff"/>
+  
+  <!-- 잔디 배경 -->
+  <rect y="240" width="800" height="60" fill="#8abe8e"/>
+  
+  <!-- 길 -->
+  <polygon points="400,240 500,300 300,300" fill="#e0e0e0"/>
+  
+  <!-- 왼쪽 나무들 -->
+  <g>
+    <path d="M50,130 Q50,50 80,50 Q110,50 110,130 Q110,210 80,210 Q50,210 50,130 Z" fill="#2e5c2e"/>
+    <path d="M120,150 Q120,90 140,90 Q160,90 160,150 Q160,210 140,210 Q120,210 120,150 Z" fill="#2e5c2e"/>
+    <path d="M10,150 Q10,80 40,80 Q70,80 70,150 Q70,220 40,220 Q10,220 10,150 Z" fill="#2e5c2e"/>
+  </g>
+  
+  <!-- 오른쪽 나무들 -->
+  <g>
+    <path d="M690,130 Q690,50 720,50 Q750,50 750,130 Q750,210 720,210 Q690,210 690,130 Z" fill="#2e5c2e"/>
+    <path d="M760,150 Q760,90 780,90 Q800,90 800,150 Q800,210 780,210 Q760,210 760,150 Z" fill="#2e5c2e"/>
+    <path d="M650,150 Q650,80 680,80 Q710,80 710,150 Q710,220 680,220 Q650,220 650,150 Z" fill="#2e5c2e"/>
+  </g>
+  
+  <!-- 대학 건물 -->
+  <g>
+    <!-- 왼쪽 건물 -->
+    <rect x="120" y="80" width="200" height="160" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+    
+    <!-- 창문들 -->
+    <g fill="#66ccff" stroke="#000000" stroke-width="0.5">
+      <rect x="130" y="90" width="15" height="20"/>
+      <rect x="155" y="90" width="15" height="20"/>
+      <rect x="180" y="90" width="15" height="20"/>
+      <rect x="205" y="90" width="15" height="20"/>
+      <rect x="230" y="90" width="15" height="20"/>
+      <rect x="255" y="90" width="15" height="20"/>
+      <rect x="280" y="90" width="15" height="20"/>
+      
+      <rect x="130" y="120" width="15" height="20"/>
+      <rect x="155" y="120" width="15" height="20"/>
+      <rect x="180" y="120" width="15" height="20"/>
+      <rect x="205" y="120" width="15" height="20"/>
+      <rect x="230" y="120" width="15" height="20"/>
+      <rect x="255" y="120" width="15" height="20"/>
+      <rect x="280" y="120" width="15" height="20"/>
+      
+      <rect x="130" y="150" width="15" height="20"/>
+      <rect x="155" y="150" width="15" height="20"/>
+      <rect x="180" y="150" width="15" height="20"/>
+      <rect x="205" y="150" width="15" height="20"/>
+      <rect x="230" y="150" width="15" height="20"/>
+      <rect x="255" y="150" width="15" height="20"/>
+      <rect x="280" y="150" width="15" height="20"/>
+      
+      <rect x="130" y="180" width="15" height="20"/>
+      <rect x="155" y="180" width="15" height="20"/>
+      <rect x="180" y="180" width="15" height="20"/>
+      <rect x="205" y="180" width="15" height="20"/>
+      <rect x="230" y="180" width="15" height="20"/>
+      <rect x="255" y="180" width="15" height="20"/>
+      <rect x="280" y="180" width="15" height="20"/>
+    </g>
+    
+    <!-- 중앙 건물 -->
+    <rect x="320" y="40" width="160" height="200" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+    
+    <!-- 지붕 -->
+    <rect x="310" y="20" width="180" height="20" fill="#66ccff" stroke="#000000" stroke-width="1"/>
+    <rect x="320" y="10" width="160" height="10" fill="#66ccff" stroke="#000000" stroke-width="1"/>
+    
+    <!-- 간판 -->
+    <rect x="350" y="40" width="100" height="30" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+    <text x="400" y="60" font-family="Arial" font-size="16" text-anchor="middle" fill="#000000" font-weight="bold">신한대학교</text>
+    
+    <!-- 창문들 -->
+    <g fill="#66ccff" stroke="#000000" stroke-width="0.5">
+      <rect x="330" y="80" width="20" height="25"/>
+      <rect x="360" y="80" width="20" height="25"/>
+      <rect x="390" y="80" width="20" height="25"/>
+      <rect x="420" y="80" width="20" height="25"/>
+      <rect x="450" y="80" width="20" height="25"/>
+      
+      <rect x="330" y="115" width="20" height="25"/>
+      <rect x="360" y="115" width="20" height="25"/>
+      <rect x="390" y="115" width="20" height="25"/>
+      <rect x="420" y="115" width="20" height="25"/>
+      <rect x="450" y="115" width="20" height="25"/>
+      
+      <rect x="330" y="150" width="20" height="25"/>
+      <rect x="360" y="150" width="20" height="25"/>
+      <rect x="390" y="150" width="20" height="25"/>
+      <rect x="420" y="150" width="20" height="25"/>
+      <rect x="450" y="150" width="20" height="25"/>
+    </g>
+    
+    <!-- 입구 -->
+    <rect x="380" y="190" width="40" height="50" fill="#000000"/>
+    
+    <!-- 계단 -->
+    <rect x="370" y="220" width="60" height="10" fill="#cccccc" stroke="#000000" stroke-width="0.5"/>
+    <rect x="375" y="230" width="50" height="10" fill="#cccccc" stroke="#000000" stroke-width="0.5"/>
+    
+    <!-- 오른쪽 건물 -->
+    <rect x="480" y="80" width="200" height="160" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+    
+    <!-- 창문들 -->
+    <g fill="#66ccff" stroke="#000000" stroke-width="0.5">
+      <rect x="490" y="90" width="15" height="20"/>
+      <rect x="515" y="90" width="15" height="20"/>
+      <rect x="540" y="90" width="15" height="20"/>
+      <rect x="565" y="90" width="15" height="20"/>
+      <rect x="590" y="90" width="15" height="20"/>
+      <rect x="615" y="90" width="15" height="20"/>
+      <rect x="640" y="90" width="15" height="20"/>
+      
+      <rect x="490" y="120" width="15" height="20"/>
+      <rect x="515" y="120" width="15" height="20"/>
+      <rect x="540" y="120" width="15" height="20"/>
+      <rect x="565" y="120" width="15" height="20"/>
+      <rect x="590" y="120" width="15" height="20"/>
+      <rect x="615" y="120" width="15" height="20"/>
+      <rect x="640" y="120" width="15" height="20"/>
+      
+      <rect x="490" y="150" width="15" height="20"/>
+      <rect x="515" y="150" width="15" height="20"/>
+      <rect x="540" y="150" width="15" height="20"/>
+      <rect x="565" y="150" width="15" height="20"/>
+      <rect x="590" y="150" width="15" height="20"/>
+      <rect x="615" y="150" width="15" height="20"/>
+      <rect x="640" y="150" width="15" height="20"/>
+      
+      <rect x="490" y="180" width="15" height="20"/>
+      <rect x="515" y="180" width="15" height="20"/>
+      <rect x="540" y="180" width="15" height="20"/>
+      <rect x="565" y="180" width="15" height="20"/>
+      <rect x="590" y="180" width="15" height="20"/>
+      <rect x="615" y="180" width="15" height="20"/>
+      <rect x="640" y="180" width="15" height="20"/>
+    </g>
+  </g>
+  
+  <!-- 작은 나무들 -->
+  <g>
+    <circle cx="340" cy="180" r="20" fill="#4caf50"/>
+    <rect x="335" y="180" width="10" height="20" fill="#795548"/>
+    
+    <circle cx="380" cy="180" r="20" fill="#4caf50"/>
+    <rect x="375" y="180" width="10" height="20" fill="#795548"/>
+    
+    <circle cx="420" cy="180" r="20" fill="#4caf50"/>
+    <rect x="415" y="180" width="10" height="20" fill="#795548"/>
+    
+    <circle cx="460" cy="180" r="20" fill="#4caf50"/>
+    <rect x="455" y="180" width="10" height="20" fill="#795548"/>
+  </g>
+  
+  <!-- 고양이 캐릭터 -->
+  <g transform="translate(400, 280)">
+    <!-- 몸통 -->
+    <ellipse cx="0" cy="-10" rx="25" ry="30" fill="#FFC266"/>
+    
+    <!-- 팔다리 -->
+    <ellipse cx="-15" cy="0" rx="10" ry="15" fill="#FFC266"/>
+    <ellipse cx="15" cy="0" rx="10" ry="15" fill="#FFC266"/>
+    <ellipse cx="-10" cy="15" rx="8" ry="15" fill="#FFC266"/>
+    <ellipse cx="10" cy="15" rx="8" ry="15" fill="#FFC266"/>
+    
+    <!-- 꼬리 -->
+    <path d="M25,-10 Q40,-20 30,-30" stroke="#FFC266" stroke-width="8" stroke-linecap="round" fill="none"/>
+    
+    <!-- 머리 -->
+    <circle cx="0" cy="-40" r="25" fill="#FFC266"/>
+    
+    <!-- 귀 -->
+    <polygon points="-20,-55 -10,-70 0,-55" fill="#FFC266"/>
+    <polygon points="20,-55 10,-70 0,-55" fill="#FFC266"/>
+    
+    <!-- 얼굴 -->
+    <circle cx="-10" cy="-45" r="3" fill="#000000"/> <!-- 왼쪽 눈 -->
+    <circle cx="10" cy="-45" r="3" fill="#000000"/> <!-- 오른쪽 눈 -->
+    <ellipse cx="0" cy="-35" rx="5" ry="3" fill="#000000"/> <!-- 코 -->
+    <path d="M-5,-30 Q0,-25 5,-30" stroke="#000000" stroke-width="2" fill="none"/> <!-- 입 -->
+    
+    <!-- 볼 -->
+    <circle cx="-15" cy="-35" r="7" fill="#FF9966" opacity="0.7"/>
+    <circle cx="15" cy="-35" r="7" fill="#FF9966" opacity="0.7"/>
+    
+    <!-- 수염 -->
+    <line x1="-5" y1="-32" x2="-20" y2="-30" stroke="#000000" stroke-width="1"/>
+    <line x1="-5" y1="-30" x2="-20" y2="-28" stroke="#000000" stroke-width="1"/>
+    <line x1="5" y1="-32" x2="20" y2="-30" stroke="#000000" stroke-width="1"/>
+    <line x1="5" y1="-30" x2="20" y2="-28" stroke="#000000" stroke-width="1"/>
+    
+    <!-- 옷 -->
+    <rect x="-20" y="-30" width="40" height="35" rx="5" fill="#1e3a8a"/>
+    <text x="0" y="-10" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffffff">HY</text>
+  </g>
+  
+  <!-- 그림자 -->
+  <ellipse cx="250" cy="290" rx="40" ry="5" fill="#000000" opacity="0.3"/>
+  <ellipse cx="550" cy="290" rx="40" ry="5" fill="#000000" opacity="0.3"/>
+</svg>

@@ -5,11 +5,15 @@ import ProtectedRoute from "./routes/protectedRoute";
 
 import ChecklistPage from "./pages/Checklist/ChecklistPage";
 import ChecklistMakingPage from "./pages/Checklist/ChecklistMakingPage";
+import ChecklistEditPage from "./pages/Checklist/ChecklistEditPage";
 import ChecklistResultPage from "./pages/Checklist/ChecklistResultPage";
+import ChecklistCurrentPage from "./pages/ChecklistCurrent/ChecklistCurrentPage";
+import CalendarPage from "./pages/Calendar/CalendarPage";
 import ExchangeRatePage from "./pages/ExchangeRate/ExchangeRatePage";
 import LoginPage from "./pages/Login/LoginPage";
 import LandingPage from "./pages/Landing/LandingPage";
 import SavingsPage from "./pages/Savings/SavingsPage";
+import SavingsPlanPage from "./pages/Savings/SavingsPlanPage";
 import CommunityPage from "./pages/Community/CommunityPage";
 import CommunityDetail from "./pages/Community/CommunityDetail";
 import CommunityWrite from "./pages/Community/CommunityWrite";
@@ -33,6 +37,14 @@ export default function App() {
           }
         />
         <Route
+          path="/checklist/current"
+          element={
+            <ProtectedRoute>
+              <ChecklistCurrentPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/checklist/new"
           element={
             <ProtectedRoute>
@@ -41,10 +53,28 @@ export default function App() {
           }
         />
         <Route
+          path="/checklist/edit/:userChecklistId"
+          element={
+            <ProtectedRoute>
+              <ChecklistEditPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/checklist/result/:checklistId"
           element={
             <ProtectedRoute>
               <ChecklistResultPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 달력 */}
+        <Route
+          path="/calendar"
+          element={
+            <ProtectedRoute>
+              <CalendarPage />
             </ProtectedRoute>
           }
         />
@@ -65,6 +95,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <SavingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/savings/plan"
+          element={
+            <ProtectedRoute>
+              <SavingsPlanPage />
             </ProtectedRoute>
           }
         />

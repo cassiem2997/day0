@@ -1,0 +1,145 @@
+.accountCard {
+  background: #EAF4FF;
+  border: 4px solid #111;
+  border-radius: 18px;
+  padding: 24px;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+}
+
+.accountRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 10px auto;
+}
+
+.accountRow:last-of-type {
+  margin: 10px auto;
+}
+
+.accountLabel {
+  background: #fff;
+  border: 2px solid #111;
+  border-radius: 20px;
+  padding: 10px 16px;
+  font-weight: 900;
+  font-size: 16px;
+  color: #111;
+  white-space: nowrap;
+  min-width: 100px;
+  text-align: center;
+}
+
+.accountField {
+  background: #fff;
+  border: 2px solid #111;
+  border-radius: 20px;
+  /* padding: 16px 20px; */
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 280px;
+  max-width: 350px;
+  position: relative;
+}
+
+.accountSelect {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-weight: 900;
+  font-size: 18px;
+  color: #4758FC;
+  outline: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 12px 16px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234758FC' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 20px center;
+  background-size: 24px;
+  padding-right: 60px;
+  min-height: 55px;
+}
+
+.accountSelect:hover {
+  background-color: rgba(71, 88, 252, 0.05);
+}
+
+.accountSelect:focus {
+  background-color: rgba(71, 88, 252, 0.1);
+}
+
+.accountSelect option {
+  font-weight: 300;
+  color: #111;
+  background: #fff;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 16px;
+}
+
+.accountSelect option:hover {
+  background: #f8f9ff;
+}
+
+.accountSelect option:checked {
+  background: #4758FC;
+  color: #fff;
+}
+
+/* 로딩 및 에러 상태 */
+.loadingText,
+.errorText {
+  text-align: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: #666;
+  padding: 40px 20px;
+}
+
+.errorText {
+  color: #e53e3e;
+}
+
+.helpText {
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .accountCard {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .accountRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .accountLabel {
+    align-self: flex-start;
+    min-width: auto;
+  }
+  
+  .accountField {
+    width: 100%;
+    min-width: auto;
+    padding: 0px auto;
+  }
+  
+  .accountSelect {
+    padding-right: 50px;
+    font-size: 16px;
+    min-height: 45px;
+  }
+}

@@ -188,3 +188,17 @@ export async function updateUserProfile(
     throw new Error("프로필 수정 실패");
   return { success: true, data: u };
 }
+
+// ---------------- 사용자 정보 조회 ----------------
+export interface UserInfo {
+  id: number;
+  email: string;
+  name: string;
+  nickname: string;
+  // 다른 필드들...
+}
+
+export async function getCurrentUser(): Promise<UserInfo> {
+  const res = await api.get<UserInfo>("/auth/me"); // 또는 /users/me
+  return res.data;
+}

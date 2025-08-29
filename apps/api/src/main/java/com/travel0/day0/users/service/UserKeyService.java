@@ -30,7 +30,17 @@ public class UserKeyService {
     public String searchUserKey(Long userId, String apiKey) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("USER_NOT_FOUND"));
+        
+        // 디버깅을 위한 로그 추가
+        System.out.println("=== UserKey Debug ===");
+        System.out.println("User ID: " + userId);
+        System.out.println("User Email: " + user.getEmail());
+        System.out.println("Stored UserKey: " + user.getUserKey());
+        
         var result = external.searchMember(apiKey, user.getEmail());
+        System.out.println("External API UserKey: " + result.userKey());
+        System.out.println("====================");
+        
         return result.userKey();
     }
 }

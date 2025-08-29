@@ -1,115 +1,114 @@
 .convertCard {
-  margin: 14px auto 0 auto;
-  max-width: 920px;
-  background: #eef5ff;
-  border: 4px solid #1f1f1f;
-  border-radius: 14px;
-  padding: 18px 18px 20px 18px;
-  box-sizing: border-box;
-  position: relative;
-  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+  background: #EAF4FF;
+  border: 4px solid #111;
+  border-radius: 18px;
+  padding: 25px;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
 }
 
-/* 장식 구름 제거 (이전 ::before / ::after 삭제) */
-
-/* 행 */
 .row {
-  font-family: "EF_jejudoldam";
-
   display: flex;
   align-items: center;
   gap: 16px;
+  margin: 10px auto;
+}
+
+.row:last-of-type {
+  margin: 10px auto;
 }
 
 .ccyPill {
-  min-width: 98px;
-  padding: 10px 16px;
   background: #fff;
-  border: 4px solid #1f1f1f;
-  border-radius: 18px;
+  border: 2px solid #111;
+  border-radius: 20px;
+  padding: 6px 16px; /* 10px → 6px */
   font-weight: 900;
-  font-size: 20px;
+  font-size: 16px;
+  color: #111;
+  white-space: nowrap;
+  min-width: 100px;
   text-align: center;
-  letter-spacing: 2px;
 }
 
 .inputBox {
-  flex: 1;
-  background: #ffffff;
-  border: 4px solid #1f1f1f;
-  border-radius: 18px;
-  padding: 8px 14px;
+  background: #fff;
+  border: 2px solid #111;
+  border-radius: 20px;
+  padding: 14px 14px; /* 12px → 8px */
+  flex: 1; /* flex: 1에서 0.7로 줄여서 너비 축소 */
+  max-width: 400px; /* 최대 너비 제한 */
   display: flex;
   align-items: center;
-  justify-content: flex-end; /* 우측 정렬(보조 라벨 제거됨) */
 }
 
 .amountInput {
-  font-family: "EF_jejudoldam";
   width: 100%;
-  text-align: right;
   border: none;
-  outline: none;
   background: transparent;
   font-weight: 900;
-  font-size: 28px;
-  letter-spacing: 1px;
-  color: #4758fc;
+  font-size: 16px;
+  color: #4758FC;
+  outline: none;
+  text-align: right;
+  font-family: inherit;
 }
+
 .amountInput::-webkit-outer-spin-button,
 .amountInput::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* 보조 라벨 제거됨 (.subLabel 삭제) */
-
+/* HR 완전 제거 */
 .hr {
-  margin: 14px 6px;
-  border: 0;
-  height: 2px;
-  background: #e8edf3;
+  display: none;
+}
+
+/* 10단위 안내 메시지 */
+.infoMessage {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.infoMessage p {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  font-weight: 500;
 }
 
 /* CTA */
-.ctaWrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 12px;
-}
 
-.applyBtn {
-  font-family: "EF_jejudoldam";
-
-  padding: 12px 22px;
-  border-radius: 999px;
-  border: 3px solid #1f1f1f;
-  font-weight: 900;
-  font-size: 18px;
-  cursor: pointer;
-  box-shadow: 0 4px 0 #1f1f1f;
-}
-.applyBtn:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #1f1f1f;
-}
-
-/* 반응형 */
+/* 반응형 디자인 - 모바일 더 컴팩트 */
 @media (max-width: 768px) {
   .convertCard {
-    padding: 14px;
-    border-width: 3px;
+    padding: 14px; /* 16px → 14px 더 축소 */
+    margin-bottom: 20px;
   }
+  
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px; /* 12px → 8px 더 축소 */
+    margin-bottom: 10px; /* 12px → 10px 더 축소 */
+  }
+  
+  .row:last-of-type {
+    margin-bottom: 0;
+  }
+  
   .ccyPill {
-    min-width: 84px;
-    padding: 8px 12px;
-    font-size: 18px;
-    border-width: 3px;
+    align-self: flex-start;
+    min-width: auto;
+    padding: 16px 12px; /* 6px → 4px 더 축소 */
   }
+  
   .inputBox {
-    border-width: 3px;
+    width: 100%;
+    padding: 6px 12px; /* 8px → 6px 더 축소 */
   }
+  
   .amountInput {
-    font-size: 22px;
+    font-size: 14px;
   }
 }

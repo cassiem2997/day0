@@ -108,3 +108,20 @@ export async function getMySavingsPlans(): Promise<SavingsPlanSummary[]> {
   });
   return data;
 }
+
+// 적금 플랜 생성
+export interface CreateSavingsPlanRequest {
+  userId: number;
+  departureId: number;
+  withdrawAccountId: number;
+  endDate: string;
+  frequency: "MONTHLY" | "WEEKLY";
+  amountPerPeriod: number;
+  depositDay?: number;
+  depositWeekday?: number;
+}
+
+export async function createSavingsPlan(request: CreateSavingsPlanRequest): Promise<SavingsPlanSummary> {
+  const { data } = await api.post("/savings/plans", request);
+  return data;
+}

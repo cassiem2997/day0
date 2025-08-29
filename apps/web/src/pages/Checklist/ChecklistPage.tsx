@@ -13,6 +13,8 @@ import DayPanel from "../../components/Calendar/DayPanel";
 import { pickRandomTipAny } from "../../utils/tipSelector";
 import type { Tip } from "../../data/tips";
 import styles from "./ChecklistPage.module.css";
+import { getDeparturesByUserId } from "../../api/departure";
+import { getUserChecklistByDepartureId } from "../../api/checklist";
 
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState<boolean>(() => {
@@ -34,7 +36,8 @@ export default function ChecklistPage() {
   const toggleSidebar = () => setIsSidebarOpen((p) => !p);
 
   const [items, setItems] = useState<ChecklistItem[]>([]);
-  const hasItems = items.length > 0;
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [shouldShowNoChecklist, setShouldShowNoChecklist] = useState<boolean>(false);
   const leaveDate = "2026-02-20";
 
   const [tip, setTip] = useState<Tip | null>(null);
@@ -44,6 +47,58 @@ export default function ChecklistPage() {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const handleDateChange = (d: Date) => setSelectedDate(d);
+
+  useEffect(() => {
+    let isCancelled = false;
+    async function bootstrap() {
+      try {
+        const storedUserId = localStorage.getItem("userId");
+        const userId = storedUserId ? Number(storedUserId) : null;
+        
+        if (!userId || Number.isNaN(userId)) {
+          if (!isCancelled) {
+            setShouldShowNoChecklist(true);
+            setIsLoading(false);
+          }
+          return;
+        }
+        
+        const departures = await getDeparturesByUserId(userId);
+        if (!departures || departures.length === 0) {
+          if (!isCancelled) {
+            setShouldShowNoChecklist(true);
+            setIsLoading(false);
+          }
+          return;
+        }
+        
+        const departureId = departures[0].departureId;
+        const userChecklist = await getUserChecklistByDepartureId(departureId);
+        if (!userChecklist) {
+          if (!isCancelled) {
+            setShouldShowNoChecklist(true);
+            setIsLoading(false);
+          }
+          return;
+        }
+        
+        // 모든 조건을 만족하는 경우에만 /checklist/current로 이동
+        if (!isCancelled) {
+          navigate("/checklist/current", { replace: true });
+        }
+      } catch (error) {
+        console.error('체크리스트 로딩 중 오류:', error);
+        if (!isCancelled) {
+          setShouldShowNoChecklist(true);
+          setIsLoading(false);
+        }
+      }
+    }
+    bootstrap();
+    return () => {
+      isCancelled = true;
+    };
+  }, [navigate]);
 
   return (
     <div className={styles.container}>
@@ -68,14 +123,17 @@ export default function ChecklistPage() {
 
         <div className={styles.pageContent}>
           <header className={styles.heroWrap}>
-            <h1 className={styles.hero}>CHECKLISTS</h1>
+              <p className={styles.subtitle}>완벽한 출국준비를 위한 첫걸음</p>
+              <h1 className={styles.hero}>헤이 - 체크</h1>
           </header>
 
-          {!hasItems && (
+          {isLoading ? (
+            <div style={{ padding: 24 }}>불러오는 중...</div>
+          ) : shouldShowNoChecklist ? (
             <NoChecklist onCreate={() => navigate("/checklist/new")} />
-          )}
+          ) : null}
 
-          {hasItems && (
+          {!isLoading && !shouldShowNoChecklist && (
             <>
               <div style={{ marginTop: 12, marginBottom: 24 }}>
                 <ChecklistStats
@@ -96,7 +154,7 @@ export default function ChecklistPage() {
               </div>
 
               <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Today’s Tip</h2>
+                <h2 className={styles.sectionTitle}>Today's Tip</h2>
                 <div className={styles.tipCardWrap}>
                   <TipCard
                     message={tip ? tip.text : "팁을 불러오는 중입니다."}
