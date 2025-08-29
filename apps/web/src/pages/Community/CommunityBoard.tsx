@@ -1,6 +1,7 @@
 // src/pages/Community/CommunityBoard.tsx
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 import styles from "./CommunityPage.module.css";
 import communitySvg from "../../assets/community.svg";
 import {
@@ -11,32 +12,31 @@ import {
   type PostSummary,
   type PageBlock,
 } from "../../api/community";
+import {
+  listUserChecklists,
+  collectChecklistItem,
+  type ChecklistListItemUI,
+} from "../../api/checklist";
 
 /* ====== 로컬 탭 타입 (ALL 포함) ====== */
-type BoardCategory = "ALL" | "CHECKLIST" | "FREE";
+type BoardCategory = "ALL" | "CHECKLIST" | "FREE" | "QNA";
 
 /* ====== 유틸: time ago ====== */
 function timeAgo(iso: string): string {
   const t = new Date(iso).getTime();
   const now = Date.now();
   const diff = Math.max(0, now - t);
-
   const m = Math.floor(diff / 60000);
   if (m < 1) return "방금";
   if (m < 60) return `${m}분`;
-
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}시간`;
-
   const d = Math.floor(h / 24);
   if (d < 7) return `${d}일`;
-
   const w = Math.floor(d / 7);
   if (w < 5) return `${w}주`;
-
   const mon = Math.floor(d / 30);
   if (mon < 12) return `${mon}개월`;
-
   const y = Math.floor(d / 365);
   return `${y}년`;
 }
@@ -49,14 +49,8 @@ function buildParams(
   sort: CommunitySort,
   extras?: Partial<GetPostsParams>
 ): GetPostsParams {
-  const p: GetPostsParams = {
-    page,
-    size,
-    sort,
-  };
-  if (cat !== "ALL") {
-    p.category = cat as Cat;
-  }
+  const p: GetPostsParams = { page, size, sort };
+  if (cat !== "ALL") p.category = cat as Cat;
   if (extras) {
     for (const k in extras) {
       const key = k as keyof GetPostsParams;
@@ -68,6 +62,19 @@ function buildParams(
     }
   }
   return p;
+}
+
+/* ====== 체크리스트 수집: 글 → (sourceUserId, sourceItemId) 추출 ====== */
+function extractCollectSource(
+  p: PostSummary
+): { sourceUserId: number | string; sourceItemId: number | string } | null {
+  // 서버 필드명이 무엇인지에 대비한 방어적 매핑
+  const any = p as any;
+  const sourceUserId = any.authorUserId ?? any.authorId ?? any.userId ?? null;
+  const sourceItemId =
+    any.checklistItemId ?? any.itemId ?? any.sourceItemId ?? any.ucid ?? null;
+  if (sourceUserId == null || sourceItemId == null) return null;
+  return { sourceUserId, sourceItemId };
 }
 
 /* ====== 메인 컴포넌트 ====== */
@@ -103,32 +110,23 @@ export default function CommunityBoard() {
         const params = buildParams(cat, page, size, sort);
         const res = await getCommunityPosts(params); // GET /community/posts
         if (!res.success) {
-          if (!cancelled) {
+          if (!cancelled)
             setErrorMsg(res.message || "목록을 불러오지 못했습니다.");
-          }
           return;
         }
 
         const block: PageBlock<PostSummary> = res.data;
 
         if (!cancelled) {
-          // 첫 페이지면 교체, 그 외에는 append
-          if (page === 0) {
-            setItems(block.content || []);
-          } else {
-            setItems((prev) => prev.concat(block.content || []));
-          }
+          if (page === 0) setItems(block.content || []);
+          else setItems((prev) => prev.concat(block.content || []));
           setHasNext(Boolean(block.hasNext));
           setInitialLoaded(true);
         }
-      } catch (e) {
-        if (!cancelled) {
-          setErrorMsg("네트워크 오류가 발생했습니다.");
-        }
+      } catch {
+        if (!cancelled) setErrorMsg("네트워크 오류가 발생했습니다.");
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     }
 
@@ -139,6 +137,70 @@ export default function CommunityBoard() {
   }, [cat, page, size, sort]);
 
   const visible = useMemo(() => items, [items]);
+
+  /* ====== save 버튼 핸들러 ====== */
+  async function onSaveClick(post: PostSummary) {
+    // 1) 체크리스트 글인지 확인
+    const isChecklist =
+      String((post as any).category) === "CHECKLIST" ||
+      (post as any).category === 0; /* 서버가 enum 번호로 줄 수도 있음 */
+    if (!isChecklist) return;
+
+    // 2) 원본 정보 추출
+    const src = extractCollectSource(post);
+    if (!src) {
+      await Swal.fire("가져올 항목 정보를 찾지 못했습니다.", "", "info");
+      return;
+    }
+
+    // 3) 내 체크리스트 목록 불러와 선택
+    const myLists: ChecklistListItemUI[] = await listUserChecklists({
+      page: 0,
+      size: 100,
+    });
+
+    if (myLists.length === 0) {
+      await Swal.fire(
+        "내 체크리스트가 없습니다.",
+        "마이페이지에서 먼저 체크리스트를 만들어 주세요.",
+        "info"
+      );
+      return;
+    }
+
+    const opts: Record<string, string> = {};
+    myLists.forEach((c) => {
+      opts[String(c.id)] = `${c.title} · ${c.status}`;
+    });
+
+    const { value: pickedId, isConfirmed } = await Swal.fire({
+      title: "추가할 체크리스트를 선택하세요",
+      input: "select",
+      inputOptions: opts,
+      inputPlaceholder: "선택",
+      showCancelButton: true,
+      confirmButtonText: "가져오기",
+      cancelButtonText: "취소",
+    });
+
+    if (!isConfirmed || !pickedId) return;
+
+    // 4) collect-item 호출
+    try {
+      await collectChecklistItem({
+        myChecklistId: pickedId,
+        userId: src.sourceUserId,
+        sourceItemId: src.sourceItemId,
+      });
+      await Swal.fire("저장되었습니다.", "", "success");
+    } catch (e) {
+      await Swal.fire(
+        "가져오기에 실패했습니다.",
+        "다시 시도해 주세요.",
+        "error"
+      );
+    }
+  }
 
   return (
     <div className={styles.boardRoot}>
@@ -215,7 +277,6 @@ export default function CommunityBoard() {
       </div>
 
       {/* 리스트 영역 */}
-      {/* 로딩/에러/빈 상태 처리 */}
       {errorMsg ? <div className={styles.errorBox}>{errorMsg}</div> : null}
 
       {!initialLoaded && loading ? (
@@ -246,6 +307,10 @@ export default function CommunityBoard() {
         <ul className={styles.boardList}>
           {visible.map(function (p) {
             const createdAgo = timeAgo(p.createdAt);
+            const isChecklist =
+              String((p as any).category) === "CHECKLIST" ||
+              (p as any).category === 0;
+
             return (
               <li key={p.postId} className={styles.boardRow}>
                 {/* 왼쪽 내용 */}
@@ -280,9 +345,19 @@ export default function CommunityBoard() {
                   </div>
                 </div>
 
-                {/* 오른쪽 썸네일/자리표시자 (API에 썸네일 없으니 플레이스홀더) */}
+                {/* 오른쪽: save 버튼(체크리스트 글에만) */}
                 <div className={styles.rowRight}>
-                  <div className={styles.thumbPlaceholder}>이미지</div>
+                  {isChecklist ? (
+                    <button
+                      type="button"
+                      className={styles.saveBtn}
+                      onClick={function onClick() {
+                        onSaveClick(p);
+                      }}
+                    >
+                      save
+                    </button>
+                  ) : null}
                 </div>
               </li>
             );

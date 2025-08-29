@@ -476,7 +476,6 @@ export default function CommunityDetail() {
                   </button>
                 </div>
 
-                {/* ✅ 채택된 댓글이 있으면 최상단에 별도 표시 */}
                 {adoptedReply ? (
                   <ul style={{ marginTop: 12 }}>{renderReply(adoptedReply)}</ul>
                 ) : null}
