@@ -6,7 +6,7 @@ import Header from "../../components/Header/Header";
 import styles from "./SavingsPage.module.css";
 import SavingsMission, { type Mission as MissionType } from "./SavingsMission";
 import SavingsDetail from "./SavingsDetail";
-import NoSavings from "./NoSavings"; // ✅ 추가
+import NoSavings from "./NoSavings"; 
 import savingDetailSvg from "../../assets/savingDetail.svg";
 import {
   getSavingsPlan,
@@ -88,7 +88,7 @@ export default function SavingsPage() {
         if (!targetPlanId) {
           if (!alive) return;
           setPlan(null);
-          setHasPlan(false); // ✅ 플랜 없음
+          setHasPlan(false); 
           return;
         }
 
@@ -96,11 +96,10 @@ export default function SavingsPage() {
         if (!alive) return;
 
         setPlan(data);
-        setHasPlan(true); // ✅ 플랜 있음
+        setHasPlan(true); 
         setCurrentAmount(Math.max(0, data?.savingAccount?.accountBalance ?? 0));
       } catch (e: any) {
         if (!alive) return;
-        // 404/403 등도 "없음"으로 보여주고 싶으면 여기서 hasPlan=false 로 처리
         if (e?.response?.status === 404) {
           setHasPlan(false);
         } else {
@@ -121,7 +120,6 @@ export default function SavingsPage() {
     };
   }, [planIdParam]);
 
-  // ===== 체크리스트 → 미션 변환 =====
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -158,7 +156,6 @@ export default function SavingsPage() {
 
   return (
     <div className={styles.container}>
-      {/* 모바일 사이드바 */}
       {isMobile && (
         <>
           <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />
@@ -176,7 +173,6 @@ export default function SavingsPage() {
       )}
 
       <main className={styles.main}>
-        {/* ✅ 항상 헤더 표시 */}
         {!isMobile ? <Header /> : null}
 
         <div className={styles.pageContent}>
