@@ -1,5 +1,6 @@
 // src/api/fx.ts
 import api from "./axiosInstance";
+import { useEffect, useRef, useState } from "react";
 
 export type FxTransaction = {
   id: string;
@@ -91,13 +92,13 @@ export async function fetchFxTransactions(params: {
 // === 알림 신청 ===
 export type FxAlertDirection = "LTE" | "GTE";
 
-export interface FxAlertRequest {
-  userId: number; // 현재 로그인 사용자
-  baseCcy: string; // 예: "USD"
-  currency: string; // 기준통화(원화 등) 예: "KRW"
-  targetRate: number; // KRW 값
-  direction: FxAlertDirection; // "LTE"(이하) | "GTE"(이상)
-}
+export type FxAlertRequest = {
+  userId: number;
+  baseCcy: String;
+  currency: string;
+  targetRate: number;
+  direction: "LTE";
+};
 
 export interface FxAlert {
   id: string;
@@ -110,44 +111,9 @@ export interface FxAlert {
   enabled?: boolean;
 }
 
-/**
- * 환율 알림 신청: POST /fx/alerts
- * - 백엔드 응답이 { success, data } 또는 바로 객체여도 동작하도록 정규화
- * - 필드명이 다른 백엔드(예: baseCurrency/quoteCurrency/targetKrw/threshold)도 대응
- */
-export async function createFxAlert(req: FxAlertRequest): Promise<FxAlert> {
-  const payload = {
-    userId: req.userId,
-    baseCcy: req.baseCcy,
-    currency: req.currency,
-    targetRate: req.targetRate,
-    direction: req.direction,
-
-    // 호환 필드(백엔드가 다른 이름을 쓰는 경우를 대비)
-    baseCurrency: req.baseCcy,
-    quoteCurrency: req.currency,
-    targetKrw: req.targetRate,
-    threshold: req.targetRate,
-  };
-
-  const { data } = await api.post<Wrapped<any> | any>("/fx/alerts", payload);
-
-  const body = data && (data as any).data ? (data as any).data : data;
-
-  return {
-    id: String(
-      body?.id ?? body?.alertId ?? body?.uuid ?? `fx_alert_${Date.now()}`
-    ),
-    userId: Number(body?.userId ?? req.userId),
-    baseCcy: String(body?.baseCcy ?? body?.baseCurrency ?? req.baseCcy),
-    currency: String(body?.currency ?? body?.quoteCurrency ?? req.currency),
-    targetRate: Number(
-      body?.targetRate ?? body?.targetKrw ?? body?.threshold ?? req.targetRate
-    ),
-    direction: (body?.direction ?? req.direction) as FxAlertDirection,
-    createdAt: String(body?.createdAt ?? new Date().toISOString()),
-    enabled: Boolean(body?.enabled ?? true),
-  };
+export async function createFxAlert(alertData: FxAlertRequest) {
+  const response = await api.post<FxAlertResponse>("/fx/alerts", alertData);
+  return response.data;
 }
 
 export interface FxEstimateRequest {
@@ -156,32 +122,113 @@ export interface FxEstimateRequest {
   amount: number; // 받고 싶은 외화 금액
 }
 
-export interface FxEstimateResponse {
-  amount: number; // 필요한 원화(KRW) 금액
-  rate?: number; // 선택: 적용 환율
-  fee?: number; // 선택: 수수료
-}
-
-export async function getFxEstimate(
-  req: FxEstimateRequest
-): Promise<FxEstimateResponse> {
-  const { data } = await api.post<Wrapped<any> | any>("/fx/estimate", req);
-
-  const body = data && (data as any).data ? (data as any).data : data;
-
-  const amount = Number(
-    body?.amount ?? body?.krwAmount ?? body?.requiredKrw ?? 0
-  );
-
-  const rate = Number(
-    body?.rate ?? body?.fxRate ?? body?.appliedRate ?? body?.krwPerUsd
-  );
-
-  const fee = Number(body?.fee ?? body?.charge ?? body?.commission ?? 0);
-
-  return {
-    amount,
-    rate: Number.isFinite(rate) ? rate : undefined,
-    fee: Number.isFinite(fee) ? fee : undefined,
+export type FxEstimateResponse = {
+  data: {
+    fromCurrency: string;
+    fromCurrencyName: string;
+    amount: number;
+    toCurrency: string;
+    toCurrencyName: string;
+    estimatedAmount: number;
   };
+  success: boolean;
+};
+
+export async function getFxEstimate(params: {
+  fromCurrency: string;
+  toCurrency: string;
+  amount: number;
+}) {
+  const response = await api.get<FxEstimateResponse>("/fx/estimate", { params });
+  return response.data.data;
 }
+
+export type FxAlertResponse = {
+  success: boolean;
+  message?: string;
+  data?: any;
+};
+
+export type AlertMsg = {
+  type: string;
+  baseCcy?: string;
+  quoteCcy?: string;
+  currency?: string;
+  rate?: number;
+  ts?: string | number;
+  timestamp?: string | number;
+};
+
+export function useFxAlerts(userId: string | number) {
+  const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+  const esRef = useRef<EventSource | null>(null);
+  const [messages, setMessages] = useState<AlertMsg[]>([]);
+  const [connected, setConnected] = useState(false);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    // StrictMode 중복 방지: 기존 연결 닫기
+    esRef.current?.close();
+
+    const url = `${API}/fx/alerts/stream/${userId}`;
+    const es = new EventSource(url, { withCredentials: true });
+    esRef.current = es;
+
+    // named events
+    const onConnected = () => setConnected(true);
+    const onHeartbeat = (_e: MessageEvent) => {/* 필요시 갱신 표시 */};
+    const onUpdate = (e: MessageEvent) => {
+      try {
+        const msg: AlertMsg = JSON.parse(e.data);
+        setMessages(prev => [msg, ...prev].slice(0, 200));
+      } catch {/* 텍스트 이벤트(connected 등)는 무시 */}
+    };
+
+    es.addEventListener("connected", onConnected as any);
+    es.addEventListener("heartbeat", onHeartbeat as any);
+    es.addEventListener("exchange-rate-update", onUpdate as any);
+
+    es.onopen = () => setConnected(true);
+    es.onerror = () => setConnected(false);
+
+    return () => {
+      es.removeEventListener("connected", onConnected as any);
+      es.removeEventListener("heartbeat", onHeartbeat as any);
+      es.removeEventListener("exchange-rate-update", onUpdate as any);
+      esRef.current?.close();  
+      esRef.current = null;
+    };
+  }, [userId]);
+
+  return { messages, connected };
+}
+
+export type ExchangeRateChartResponse = {
+  success: boolean;
+  currency: string;
+  chartData: RatePoint[];
+  count: number;
+  message?: string;
+};
+
+export type RatePoint = { date: string; value: number };
+
+export async function getExchangeRateChart(
+  currency: string, 
+  days?: number
+): Promise<RatePoint[]> {
+  const params = days ? { days } : {};
+  
+  const response = await api.get<ExchangeRateChartResponse>(
+    `/exchange/rates/chart/${currency}`,
+    { params }
+  );
+  
+  if (!response.data.success) {
+    throw new Error(response.data.message || '차트 데이터 조회 실패');
+  }
+  
+  return response.data.chartData;
+}
+

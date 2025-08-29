@@ -50,36 +50,21 @@ public class ExchangeRateController {
     @GetMapping("/rates/chart/{currency}")
     public ResponseEntity<Map<String, Object>> getExchangeRateChart(
             @PathVariable String currency,
-            @RequestParam(defaultValue = "14") int days) {
+            @RequestParam(required = false) Integer days) {
 
         log.info("환율 차트 데이터 조회 API 요청: {} ({}일)", currency, days);
 
-        if (days > 30) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "최대 30일까지 조회 가능합니다");
-            return ResponseEntity.badRequest().body(errorResponse);
-        }
-
         try {
-            List<ExchangeRateService.ExchangeRateChartData> chartData =
-                    exchangeRateService.getExchangeRateChart(currency, days);
+            List<Map<String, Object>> chartData =
+                    exchangeRateService.getExchangeRateChart(currency, days); // 서비스 호출
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("currency", currency.toUpperCase());
-            response.put("period", days + "days");
             response.put("chartData", chartData);
             response.put("count", chartData.size());
 
             return ResponseEntity.ok(response);
-
-        } catch (IllegalArgumentException e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", e.getMessage());
-
-            return ResponseEntity.badRequest().body(errorResponse);
 
         } catch (Exception e) {
             log.error("환율 차트 데이터 조회 실패", e);

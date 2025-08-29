@@ -5,12 +5,17 @@ import com.travel0.day0.fx.port.ExchangeRateExternalPort;
 import com.travel0.day0.fx.repository.ExchangeRateHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,7 +24,7 @@ import java.util.stream.Collectors;
 public class ExchangeRateService {
 
     private final ExchangeRateExternalPort exchangeRateExternalPort;
-    private final ExchangeRateHistoryRepository exchangeRateHistoryRepository;
+    private final ExchangeRateHistoryRepository historyRepository;
 
     public List<ExchangeRateExternalPort.ExchangeRateInfo> getCurrentExchangeRates() {
         log.info("환율 조회 요청");
@@ -40,7 +45,7 @@ public class ExchangeRateService {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(days - 1);
 
-        var historyList = exchangeRateHistoryRepository
+        var historyList = historyRepository
                 .findByQuoteCcyAndRateDateBetweenOrderByRateDate(
                         currency.toUpperCase(), startDate, endDate);
 
@@ -67,7 +72,7 @@ public class ExchangeRateService {
             int savedCount = 0;
 
             for (var rate : currentRates) {
-                var existingRate = exchangeRateHistoryRepository
+                var existingRate = historyRepository
                         .findByQuoteCcyAndRateDate(rate.currency(), today);
 
                 if (existingRate.isEmpty()) {
@@ -77,7 +82,7 @@ public class ExchangeRateService {
                             .rateDate(today)
                             .build();
 
-                    exchangeRateHistoryRepository.save(entity);
+                    historyRepository.save(entity);
                     savedCount++;
                 } else {
                     log.debug("이미 저장된 데이터: {} - {}", rate.currency(), today);
@@ -102,6 +107,56 @@ public class ExchangeRateService {
             log.error("특정 환율 조회 실패: {}", currency, e);
             return null;
         }
+    }
+
+    public void saveExchangeRateHistory() {
+        try {
+            var allRates = getCurrentExchangeRates();
+            LocalDate today = LocalDate.now();
+            Instant now = Instant.now();
+
+            for (var rate : allRates) {
+                ExchangeRateHistory history = ExchangeRateHistory.builder()
+                        .baseCcy("KRW")
+                        .quoteCcy(rate.currency())
+                        .rate(BigDecimal.valueOf(rate.exchangeRate()))
+                        .rateDate(today)
+                        .createdAt(now)
+                        .build();
+
+                historyRepository.save(history);
+            }
+
+            log.info("환율 이력 {} 건 저장 완료", allRates.size());
+
+        } catch (Exception e) {
+            log.error("환율 이력 저장 실패", e);
+            throw e;
+        }
+    }
+
+    // 환율 차트 데이터 조회
+    public List<Map<String, Object>> getExchangeRateChart(String currency, Integer days) {
+        List<ExchangeRateHistory> historyData;
+
+        if (days != null && days > 0) {
+            LocalDate fromDate = LocalDate.now().minusDays(days);
+            historyData = historyRepository
+                    .findByQuoteCcyAndRateDateAfterOrderByCreatedAtDesc(currency, fromDate);
+        } else {
+            Pageable limit = PageRequest.of(0, 30);
+            historyData = historyRepository
+                    .findByQuoteCcyOrderByCreatedAtDesc(currency, limit);
+        }
+
+        return historyData.stream()
+                .map(h -> {
+                    Map<String, Object> chartPoint = new HashMap<>();
+                    chartPoint.put("date", h.getCreatedAt().toString());
+                    chartPoint.put("value", h.getRate().doubleValue());
+                    return chartPoint;
+                })
+                .collect(Collectors.toList());
     }
 
     public record ExchangeRateChartData(

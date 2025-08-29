@@ -1,8 +1,8 @@
 // src/App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 import ProtectedRoute from "./routes/protectedRoute";
-
 import ChecklistPage from "./pages/Checklist/ChecklistPage";
 import ChecklistMakingPage from "./pages/Checklist/ChecklistMakingPage";
 import ChecklistResultPage from "./pages/Checklist/ChecklistResultPage";
@@ -17,9 +17,28 @@ import CommunityDetail from "./pages/Community/CommunityDetail";
 import CommunityWrite from "./pages/Community/CommunityWrite";
 import MyPage from "./pages/MyPage/MyPage";
 
+import FxAlertToaster from "./components/FxAlertToaster/FxAlertToaster";
+import { me, type MeResponse } from "./api/user"; // ← api 유틸에서 가져오기
+
 export default function App() {
+  const [userId, setUserId] = useState<number | null>(null);
+
+  useEffect(() => {
+    // 로그인 되어 있다면 /auth/me 요청해서 userId 가져오기
+    me()
+      .then((res: MeResponse) => {
+        if (res?.userId) setUserId(res.userId);
+      })
+      .catch(() => {
+        setUserId(null); // 로그인 안 된 상태
+      });
+  }, []);
+
   return (
     <BrowserRouter>
+      {/* ✅ 로그인된 경우에만 알림 팝업 */}
+      {userId && <FxAlertToaster userId={String(userId)} autoCloseMs={0}/>}
+
       <Routes>
         {/* 공개 라우트 */}
         <Route path="/" element={<LandingPage />} />

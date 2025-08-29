@@ -46,7 +46,7 @@ public class SecurityConfig {
                                 "/auth/register",
                                 "/auth/refresh",
                                 "/auth/logout",
-                                "/universities/**",
+                                "/universities",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
@@ -63,7 +63,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",
-                "https://day0-heyoung.vercel.app"
+                "https://day0-heyoung.vercel.app",
+                "https://day0-production.up.railway.app"
         ));
 //        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
