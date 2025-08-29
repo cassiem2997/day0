@@ -1,4 +1,3 @@
-// src/pages/Community/CommunityDetail.tsx
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar/Sidebar";
@@ -100,6 +99,20 @@ function mapToDetailView(p: ApiPostDetail): DetailPost {
   };
 }
 
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 1500,
+  timerProgressBar: true,
+});
+const toast = {
+  ok: (title: string) => Toast.fire({ icon: "success", title }),
+  info: (title: string) => Toast.fire({ icon: "info", title }),
+  warn: (title: string) => Toast.fire({ icon: "warning", title }),
+  err: (title: string) => Toast.fire({ icon: "error", title }),
+};
+
 export default function CommunityDetail() {
   const isMobile = useIsMobile(768);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -162,17 +175,23 @@ export default function CommunityDetail() {
   }, [pid]);
 
   async function onToggleLike() {
-    if (!post || !userId) return;
+    if (!post) return;
+    if (!userId) {
+      toast.warn("로그인 후 이용해주세요.");
+      return;
+    }
     try {
       if (post.liked) {
         await unlikeCommunityPost(post.id, userId);
-        setPost({ ...post, liked: false, likes: post.likes - 1 });
+        setPost({ ...post, liked: false, likes: Math.max(0, post.likes - 1) });
+        toast.info("좋아요를 취소했습니다.");
       } else {
         await likeCommunityPost(post.id, userId);
         setPost({ ...post, liked: true, likes: post.likes + 1 });
+        toast.ok("좋아요를 눌렀습니다.");
       }
-    } catch (e) {
-      console.error("좋아요 토글 실패", e);
+    } catch {
+      toast.err("처리 중 오류가 발생했습니다.");
     }
   }
 
@@ -186,26 +205,32 @@ export default function CommunityDetail() {
       confirmButtonText: "삭제",
       cancelButtonText: "취소",
     });
-    if (confirm.isConfirmed) {
-      try {
-        await deleteCommunityPost(post.id, userId);
-        await Swal.fire("삭제 완료", "게시글이 삭제되었습니다.", "success");
-        nav("/community", { replace: true });
-      } catch {
-        Swal.fire("오류", "삭제에 실패했습니다.", "error");
-      }
+    if (!confirm.isConfirmed) return;
+
+    try {
+      await deleteCommunityPost(post.id, userId);
+      await Swal.fire("삭제 완료", "게시글이 삭제되었습니다.", "success");
+      nav("/community", { replace: true });
+    } catch {
+      Swal.fire("오류", "삭제에 실패했습니다.", "error");
     }
   }
 
   async function onAddReply() {
-    if (!replyInput.trim() || !userId || !pid) return;
+    if (!replyInput.trim()) return;
+    if (!userId) {
+      toast.warn("로그인 후 댓글을 작성할 수 있습니다.");
+      return;
+    }
+    if (!pid) return;
     try {
       await createCommunityReply(pid, userId, { body: replyInput.trim() });
       setReplyInput("");
       const data = await getCommunityReplies(pid);
       setReplies(data.data);
-    } catch (e) {
-      console.error("댓글 작성 실패", e);
+      await Swal.fire("등록 완료", "댓글이 등록되었습니다.", "success");
+    } catch {
+      Swal.fire("오류", "댓글 등록에 실패했습니다.", "error");
     }
   }
 
@@ -218,13 +243,14 @@ export default function CommunityDetail() {
       confirmButtonText: "삭제",
       cancelButtonText: "취소",
     });
-    if (confirm.isConfirmed) {
-      try {
-        await deleteCommunityReply(replyId, userId);
-        setReplies((prev) => prev.filter((r) => r.replyId !== replyId));
-      } catch {
-        Swal.fire("오류", "댓글 삭제 실패", "error");
-      }
+    if (!confirm.isConfirmed) return;
+
+    try {
+      await deleteCommunityReply(replyId, userId);
+      setReplies((prev) => prev.filter((r) => r.replyId !== replyId));
+      await Swal.fire("삭제 완료", "댓글을 삭제했습니다.", "success");
+    } catch {
+      Swal.fire("오류", "댓글 삭제 실패", "error");
     }
   }
 
