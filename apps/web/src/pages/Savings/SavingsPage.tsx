@@ -6,7 +6,7 @@ import Header from "../../components/Header/Header";
 import styles from "./SavingsPage.module.css";
 import SavingsMission, { type Mission as MissionType } from "./SavingsMission";
 import SavingsDetail from "./SavingsDetail";
-import NoSavings from "./NoSavings"; 
+import NoSavings from "./Nosavings"; 
 import savingDetailSvg from "../../assets/savingDetail.svg";
 import {
   getSavingsPlan,
