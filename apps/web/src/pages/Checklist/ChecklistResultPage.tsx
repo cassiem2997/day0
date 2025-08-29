@@ -48,7 +48,7 @@ export default function ChecklistResultPage() {
         ]);
         setTitle(list?.title ?? "체크리스트");
         setItems(
-          (listItems?.items ?? []).map((it: any) => ({
+          (listItems ?? []).map((it: any) => ({
             uciId: it.uciId ?? it.id,
             title: it.title,
             description: it.description,
