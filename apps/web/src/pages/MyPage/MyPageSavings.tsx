@@ -166,7 +166,7 @@ export default function MyPageSavings() {
           return {
             id: `saving-${p.planId}`,
             type: "SAVING",
-            title: `${acc.bankName}`,
+            title: acc ? acc.bankName : "",
             number: acc ? acc.accountNo : "",
             balance: acc ? acc.accountBalance + "원" : "",
           };
@@ -228,7 +228,7 @@ export default function MyPageSavings() {
     setCreating(true);
     try {
       await createAccount({
-        productId,
+        productId: Number(productId), 
         title: title.trim() || undefined,
         initialAmount: initialAmount ? Number(initialAmount) : undefined,
       });
@@ -414,7 +414,7 @@ export default function MyPageSavings() {
                     </div>
                   </div>
 
-                  <div className={styles.formRow}>
+                  {/* <div className={styles.formRow}>
                     <label className={styles.formLabel}>초기 입금(선택)</label>
                     <div className={styles.formField}>
                       <input
@@ -427,7 +427,7 @@ export default function MyPageSavings() {
                         onChange={(e) => setInitialAmount(e.target.value)}
                       />
                     </div>
-                  </div>
+                  </div> */}
 
                   <div className={styles.formActions}>
                     <button
