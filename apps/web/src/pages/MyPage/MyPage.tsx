@@ -92,7 +92,7 @@ export default function MyPage() {
               }`}
               onClick={() => setTab("saving")}
             >
-              Saving
+              Accounts
             </button>
             <button
               type="button"
