@@ -272,3 +272,41 @@ export async function cancelAdoptReply(replyId: number, userId: number) {
   );
   return data;
 }
+
+// 서버 쿼리 파라미터
+export interface GetCommunityGroupsParams {
+  country?: string; // ISO2, 예: "KR"
+  universityId?: number; // 선택
+  page?: number; 
+  size?: number; 
+  sort?: CommunitySort; 
+}
+
+export type CommunityGroupItem = PostSummary;
+
+export interface GetCommunityGroupsResponse {
+  success: boolean;
+  data: PageBlock<CommunityGroupItem> | CommunityGroupItem[];
+  message?: string;
+  errorCode?: string;
+}
+
+/** GET /community/groups?country=KR&universityId=123 */
+export async function getCommunityGroups(params: GetCommunityGroupsParams) {
+  const { data } = await api.get<GetCommunityGroupsResponse>(
+    "/community/groups",
+    {
+      params,
+    }
+  );
+  return data;
+}
+
+export function unwrapCommunityGroups(
+  res: GetCommunityGroupsResponse
+): CommunityGroupItem[] {
+  const d = res?.data as any;
+  if (Array.isArray(d)) return d;
+  if (d && Array.isArray(d.content)) return d.content;
+  return [];
+}

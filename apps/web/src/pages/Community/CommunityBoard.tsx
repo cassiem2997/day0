@@ -1,31 +1,31 @@
 // src/pages/Community/CommunityBoard.tsx
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
 import styles from "./CommunityPage.module.css";
 import communitySvg from "../../assets/community.svg";
 import {
   getCommunityPosts,
+  getCommunityGroups,
   type Cat,
   type CommunitySort,
   type GetPostsParams,
   type PostSummary,
   type PageBlock,
+  type GetCommunityGroupsParams,
 } from "../../api/community";
 import {
-  listUserChecklists,
-  collectChecklistItem,
-  type ChecklistListItemUI,
-} from "../../api/checklist";
+  fetchCountryCodes,
+  fetchUniversitiesByCountry,
+  type CountryItem,
+  type UniversityItem,
+} from "../../api/university";
 
-/* ====== 로컬 탭 타입 (ALL 포함) ====== */
 type BoardCategory = "ALL" | "CHECKLIST" | "FREE" | "QNA";
 
-/* ====== 유틸: time ago ====== */
+/* time ago */
 function timeAgo(iso: string): string {
   const t = new Date(iso).getTime();
-  const now = Date.now();
-  const diff = Math.max(0, now - t);
+  const diff = Math.max(0, Date.now() - t);
   const m = Math.floor(diff / 60000);
   if (m < 1) return "방금";
   if (m < 60) return `${m}분`;
@@ -41,7 +41,7 @@ function timeAgo(iso: string): string {
   return `${y}년`;
 }
 
-/* ====== 파라미터 빌더 ====== */
+/* 요청 파라미터 빌더 */
 function buildParams(
   cat: BoardCategory,
   page: number,
@@ -56,7 +56,7 @@ function buildParams(
       const key = k as keyof GetPostsParams;
       const val = extras[key];
       if (val !== undefined && val !== null && val !== "") {
-        // @ts-expect-error narrow assign
+        // @ts-expect-error – narrow assign
         p[key] = val;
       }
     }
@@ -64,23 +64,31 @@ function buildParams(
   return p;
 }
 
-/* ====== 체크리스트 수집: 글 → (sourceUserId, sourceItemId) 추출 ====== */
-function extractCollectSource(
-  p: PostSummary
-): { sourceUserId: number | string; sourceItemId: number | string } | null {
-  // 서버 필드명이 무엇인지에 대비한 방어적 매핑
-  const any = p as any;
-  const sourceUserId = any.authorUserId ?? any.authorId ?? any.userId ?? null;
-  const sourceItemId =
-    any.checklistItemId ?? any.itemId ?? any.sourceItemId ?? any.ucid ?? null;
-  if (sourceUserId == null || sourceItemId == null) return null;
-  return { sourceUserId, sourceItemId };
+/* 서버 category 문자열 정규화 */
+function normalizeCat(
+  c: PostSummary["category"]
+): "CHECKLIST" | "FREE" | "QNA" | "UNKNOWN" {
+  const s = String(c).toUpperCase();
+  if (s === "CHECKLIST" || s === "FREE" || s === "QNA") return s as any;
+  return "UNKNOWN";
 }
 
-/* ====== 메인 컴포넌트 ====== */
 export default function CommunityBoard() {
   const [cat, setCat] = useState<BoardCategory>("ALL");
-  const [sort, setSort] = useState<CommunitySort>("latest");
+
+  // 선택중(폼) 상태
+  const [country, setCountry] = useState<string>(""); // ISO2
+  const [universityId, setUniversityId] = useState<number | undefined>();
+
+  // 적용된 검색값(이 값으로 실제 목록 호출)
+  const [appliedCountry, setAppliedCountry] = useState<string>("");
+  const [appliedUniversityId, setAppliedUniversityId] = useState<
+    number | undefined
+  >();
+
+  // 드롭다운 옵션
+  const [countries, setCountries] = useState<CountryItem[]>([]);
+  const [universities, setUniversities] = useState<UniversityItem[]>([]);
 
   // 목록 상태
   const [items, setItems] = useState<PostSummary[]>([]);
@@ -93,22 +101,56 @@ export default function CommunityBoard() {
   const [initialLoaded, setInitialLoaded] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // 카테고리/정렬 변경 시 페이지 리셋
+  // 국가 목록 최초 로드
+  useEffect(() => {
+    (async () => {
+      try {
+        const list = await fetchCountryCodes();
+        setCountries(list);
+      } catch {
+        setCountries([]);
+      }
+    })();
+  }, []);
+
+  // 국가 변경 → 대학 목록 로드 & 대학 선택 초기화(폼 상태)
+  useEffect(() => {
+    setUniversityId(undefined);
+    if (!country) {
+      setUniversities([]);
+      return;
+    }
+    (async () => {
+      try {
+        const list = await fetchUniversitiesByCountry(country);
+        setUniversities(list);
+      } catch {
+        setUniversities([]);
+      }
+    })();
+  }, [country]);
+
+  // 카테고리/적용된 검색값 바뀌면 페이지 초기화
   useEffect(() => {
     setPage(0);
-  }, [cat, sort]);
+  }, [cat, appliedCountry, appliedUniversityId]);
 
-  // 데이터 로드
+  // 적용된 검색값으로 게시글 목록 호출
   useEffect(() => {
     let cancelled = false;
-
-    async function fetchList() {
+    (async () => {
       setLoading(true);
       setErrorMsg(null);
-
       try {
-        const params = buildParams(cat, page, size, sort);
-        const res = await getCommunityPosts(params); // GET /community/posts
+        const extras: Partial<GetPostsParams> = {};
+        if (appliedCountry) extras.country = appliedCountry;
+        if (appliedUniversityId !== undefined)
+          extras.universityId = appliedUniversityId;
+
+        // 정렬은 latest로 통일(필터 중심)
+        const params = buildParams("ALL", page, size, "latest", extras);
+        const res = await getCommunityPosts(params);
+
         if (!res.success) {
           if (!cancelled)
             setErrorMsg(res.message || "목록을 불러오지 못했습니다.");
@@ -128,97 +170,64 @@ export default function CommunityBoard() {
       } finally {
         if (!cancelled) setLoading(false);
       }
-    }
-
-    fetchList();
+    })();
     return () => {
       cancelled = true;
     };
-  }, [cat, page, size, sort]);
+  }, [page, size, appliedCountry, appliedUniversityId]);
 
-  const visible = useMemo(() => items, [items]);
+  // 탭(카테고리) 필터
+  const visible = useMemo(() => {
+    if (cat === "ALL") return items;
+    return items.filter((p) => normalizeCat(p.category) === cat);
+  }, [items, cat]);
 
-  /* ====== save 버튼 핸들러 ====== */
-  async function onSaveClick(post: PostSummary) {
-    // 1) 체크리스트 글인지 확인
-    const isChecklist =
-      String((post as any).category) === "CHECKLIST" ||
-      (post as any).category === 0; /* 서버가 enum 번호로 줄 수도 있음 */
-    if (!isChecklist) return;
+  // 드롭다운 핸들러(폼 상태 갱신)
+  function onChangeCountry(e: React.ChangeEvent<HTMLSelectElement>) {
+    setCountry(e.target.value);
+  }
+  function onChangeUniversity(e: React.ChangeEvent<HTMLSelectElement>) {
+    const v = e.target.value;
+    setUniversityId(v ? Number(v) : undefined);
+  }
 
-    // 2) 원본 정보 추출
-    const src = extractCollectSource(post);
-    if (!src) {
-      await Swal.fire("가져올 항목 정보를 찾지 못했습니다.", "", "info");
-      return;
-    }
-
-    // 3) 내 체크리스트 목록 불러와 선택
-    const myLists: ChecklistListItemUI[] = await listUserChecklists({
-      page: 0,
-      size: 100,
-    });
-
-    if (myLists.length === 0) {
-      await Swal.fire(
-        "내 체크리스트가 없습니다.",
-        "마이페이지에서 먼저 체크리스트를 만들어 주세요.",
-        "info"
-      );
-      return;
-    }
-
-    const opts: Record<string, string> = {};
-    myLists.forEach((c) => {
-      opts[String(c.id)] = `${c.title} · ${c.status}`;
-    });
-
-    const { value: pickedId, isConfirmed } = await Swal.fire({
-      title: "추가할 체크리스트를 선택하세요",
-      input: "select",
-      inputOptions: opts,
-      inputPlaceholder: "선택",
-      showCancelButton: true,
-      confirmButtonText: "가져오기",
-      cancelButtonText: "취소",
-    });
-
-    if (!isConfirmed || !pickedId) return;
-
-    // 4) collect-item 호출
+  // 검색 버튼: /community/groups 호출(검증/로그 목적), 그리고 실제 목록 필터 적용
+  async function onSearch() {
     try {
-      await collectChecklistItem({
-        myChecklistId: pickedId,
-        userId: src.sourceUserId,
-        sourceItemId: src.sourceItemId,
-      });
-      await Swal.fire("저장되었습니다.", "", "success");
-    } catch (e) {
-      await Swal.fire(
-        "가져오기에 실패했습니다.",
-        "다시 시도해 주세요.",
-        "error"
-      );
+      const params: GetCommunityGroupsParams = {};
+      if (country) params.country = country;
+      if (universityId !== undefined) params.universityId = universityId;
+
+      // 응답은 화면에서 사용하지 않음(Option A)
+      await getCommunityGroups(params);
+
+      setAppliedCountry(country);
+      setAppliedUniversityId(universityId);
+      setPage(0);
+    } catch {
+      setAppliedCountry(country);
+      setAppliedUniversityId(universityId);
+      setPage(0);
     }
   }
 
   return (
     <div className={styles.boardRoot}>
-      {/* 상단 히어로 이미지 */}
       <figure className={styles.boardHero} aria-label="Community board hero">
         <img
           src={communitySvg}
           alt="커뮤니티 일러스트"
           className={styles.boardHeroImg}
-        ></img>
+        />
       </figure>
 
-      {/* 필터 칩 + 글쓰기 버튼 + 정렬 토글 */}
+      {/* 필터 바 */}
       <div
         className={styles.boardFilterBar}
         role="tablist"
         aria-label="게시글 분류"
       >
+        {/* 카테고리 탭 */}
         {[
           { key: "ALL", label: "전체" },
           { key: "CHECKLIST", label: "체크리스트" },
@@ -233,41 +242,47 @@ export default function CommunityBoard() {
             className={`${styles.chip} ${
               cat === (c.key as BoardCategory) ? styles.chipActive : ""
             }`}
-            onClick={function onClick() {
-              setCat(c.key as BoardCategory);
-            }}
+            onClick={() => setCat(c.key as BoardCategory)}
           >
             {c.label}
           </button>
         ))}
 
-        <div className={styles.spacer}></div>
+        <div className={styles.spacer} />
 
-        {/* 정렬 토글: 최신/인기 */}
+        {/* 국가 / 대학 드롭다운 + 검색 버튼 */}
         <div className={styles.sortWrap}>
-          <button
-            type="button"
-            className={`${styles.sortBtn} ${
-              sort === "latest" ? styles.sortActive : ""
-            }`}
-            aria-pressed={sort === "latest"}
-            onClick={function onClick() {
-              setSort("latest");
-            }}
+          <select
+            className={styles.select}
+            value={country}
+            onChange={onChangeCountry}
+            aria-label="국가 선택"
           >
-            최신순
-          </button>
-          <button
-            type="button"
-            className={`${styles.sortBtn} ${
-              sort === "popular" ? styles.sortActive : ""
-            }`}
-            aria-pressed={sort === "popular"}
-            onClick={function onClick() {
-              setSort("popular");
-            }}
+            <option value="">국가 전체</option>
+            {countries.map((c) => (
+              <option key={c.countryCode} value={c.countryCode}>
+                {c.countryName}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className={styles.select}
+            value={universityId ?? ""}
+            onChange={onChangeUniversity}
+            aria-label="대학 선택"
+            disabled={!country}
           >
-            인기순
+            <option value="">{country ? "대학 전체" : "국가 먼저 선택"}</option>
+            {universities.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name}
+              </option>
+            ))}
+          </select>
+
+          <button type="button" className={styles.searchBtn} onClick={onSearch}>
+            검색
           </button>
         </div>
 
@@ -276,51 +291,41 @@ export default function CommunityBoard() {
         </Link>
       </div>
 
-      {/* 리스트 영역 */}
-      {errorMsg ? <div className={styles.errorBox}>{errorMsg}</div> : null}
+      {/* 상태 표시 */}
+      {errorMsg && <div className={styles.errorBox}>{errorMsg}</div>}
 
-      {!initialLoaded && loading ? (
+      {!initialLoaded && loading && (
         <ul className={styles.boardList}>
-          {Array.from({ length: 5 }).map(function (_, i) {
-            return (
-              <li key={i} className={`${styles.boardRow} ${styles.skeleton}`}>
-                <div className={styles.rowLeft}>
-                  <div className={styles.rowBadge}></div>
-                  <div className={styles.skelTitle}></div>
-                  <div className={styles.skelLine}></div>
-                  <div className={styles.skelLine}></div>
-                </div>
-                <div className={styles.rowRight}>
-                  <div className={styles.thumbPlaceholder}></div>
-                </div>
-              </li>
-            );
-          })}
+          {Array.from({ length: 5 }).map((_, i) => (
+            <li key={i} className={`${styles.boardRow} ${styles.skeleton}`}>
+              <div className={styles.rowLeft}>
+                <div className={styles.rowBadge} />
+                <div className={styles.skelTitle} />
+                <div className={styles.skelLine} />
+                <div className={styles.skelLine} />
+              </div>
+            </li>
+          ))}
         </ul>
-      ) : null}
+      )}
 
-      {initialLoaded && visible.length === 0 && !loading && !errorMsg ? (
+      {initialLoaded && visible.length === 0 && !loading && !errorMsg && (
         <div className={styles.emptyBox}>게시글이 없습니다.</div>
-      ) : null}
+      )}
 
-      {visible.length > 0 ? (
+      {/* 리스트 */}
+      {visible.length > 0 && (
         <ul className={styles.boardList}>
-          {visible.map(function (p) {
+          {visible.map((p) => {
             const createdAgo = timeAgo(p.createdAt);
-            const isChecklist =
-              String((p as any).category) === "CHECKLIST" ||
-              (p as any).category === 0;
-
             return (
               <li key={p.postId} className={styles.boardRow}>
-                {/* 왼쪽 내용 */}
                 <div className={styles.rowLeft}>
                   <div className={styles.rowBadge}>
                     {typeof p.category === "string"
                       ? p.category
                       : String(p.category)}
                   </div>
-
                   <h3 className={styles.rowTitle}>
                     <Link
                       to={`/community/${p.postId}`}
@@ -329,61 +334,40 @@ export default function CommunityBoard() {
                       {p.title}
                     </Link>
                   </h3>
-
                   <pre className={styles.rowSnippet}>{p.bodyPreview || ""}</pre>
-
                   <div className={styles.rowMeta}>
                     <span className={styles.metaAuthor}>
                       {p.authorNickname}
                     </span>
                     <span className={styles.metaDot}>·</span>
                     <span>{createdAgo}</span>
-                    <span className={styles.metaSep}></span>
+                    <span className={styles.metaSep} />
                     <span>댓글 {p.replyCount ?? 0}</span>
                     <span className={styles.metaDot}>·</span>
                     <span>좋아요 {p.likeCount ?? 0}</span>
                   </div>
                 </div>
-
-                {/* 오른쪽: save 버튼(체크리스트 글에만) */}
-                <div className={styles.rowRight}>
-                  {isChecklist ? (
-                    <button
-                      type="button"
-                      className={styles.saveBtn}
-                      onClick={function onClick() {
-                        onSaveClick(p);
-                      }}
-                    >
-                      save
-                    </button>
-                  ) : null}
-                </div>
               </li>
             );
           })}
         </ul>
-      ) : null}
+      )}
 
-      {/* 더보기 버튼 (hasNext일 때만) */}
-      {visible.length > 0 && hasNext ? (
+      {/* 더보기 */}
+      {visible.length > 0 && hasNext && (
         <div className={styles.loadMoreWrap}>
           <button
             type="button"
             className={styles.loadMoreBtn}
             disabled={loading}
-            onClick={function onClick() {
-              setPage(function (prev) {
-                return prev + 1;
-              });
-            }}
+            onClick={() => setPage((prev) => prev + 1)}
           >
             {loading ? "불러오는 중..." : "더보기"}
           </button>
         </div>
-      ) : null}
+      )}
 
-      {/* 모바일 플로팅 작성 버튼 */}
+      {/* 플로팅 작성 버튼 */}
       <Link
         to="/community/write"
         className={styles.fabWrite}
