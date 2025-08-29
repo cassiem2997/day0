@@ -96,7 +96,7 @@ export default function FxConvertCard({
 
         const raw = await getFxEstimate({
           fromCurrency, // "KRW"
-          toCurrency,   // "USD" 등
+          toCurrency, // "USD" 등
           amount: parsedTo, // 받고 싶은 외화 금액
         });
 
@@ -148,7 +148,9 @@ ${formatByCcy(fromCurrency, fromAmount)} ${fromCurrency}가 필요합니다.`,
           className={`${styles.ccyPill} ${styles.ccyPillSelect}`}
         >
           {currencies.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>
+              {c}
+            </option>
           ))}
         </select>
 
@@ -186,6 +188,10 @@ ${formatByCcy(fromCurrency, fromAmount)} ${fromCurrency}가 필요합니다.`,
           환전 신청하기
         </button>
       </div>
+      <span hidden aria-hidden="true">
+        {loading ? "…" : ""}
+        {err ?? ""}
+      </span>
     </section>
   );
 }
