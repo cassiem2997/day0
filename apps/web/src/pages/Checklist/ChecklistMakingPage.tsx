@@ -53,6 +53,10 @@ const UNIVERSITY_BY_COUNTRY: Record<
   ],
 };
 
+const todayLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+  .toISOString()
+  .split("T")[0];
+
 export default function ChecklistMakingPage() {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -155,6 +159,7 @@ export default function ChecklistMakingPage() {
                       value={leaveDate}
                       onChange={(e) => setLeaveDate(e.target.value)}
                       required
+                      min={todayLocal}
                     />
                   </div>
                 </div>

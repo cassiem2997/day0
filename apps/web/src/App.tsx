@@ -19,6 +19,7 @@ import MyPage from "./pages/MyPage/MyPage";
 
 import FxAlertToaster from "./components/FxAlertToaster/FxAlertToaster";
 import { me, type MeResponse } from "./api/user"; // ← api 유틸에서 가져오기
+import PublicOnlyRoute from "./routes/PublicOnlyRoute";
 
 export default function App() {
   const [userId, setUserId] = useState<number | null>(null);
@@ -42,7 +43,7 @@ export default function App() {
       <Routes>
         {/* 공개 라우트 */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
 
         {/* 체크리스트 */}
         <Route
