@@ -115,13 +115,7 @@
   border: 4px solid #121212;
   border-radius: 12px;
 }
-.heroPlaceholder {
-  width: 100%;
-  height: clamp(140px, 26vw, 220px);
-  background: #cfe1ff;
-  border: 4px solid #121212;
-  border-radius: 12px;
-}
+
 .bodyText {
   margin: 6px 0 12px;
   white-space: pre-wrap;

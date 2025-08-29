@@ -301,7 +301,7 @@ export default function CommunityDetail() {
                         className={styles.heroImg}
                       />
                     ) : (
-                      <div className={styles.heroPlaceholder}></div>
+                      <div ></div>
                     )}
                   </div>
 
