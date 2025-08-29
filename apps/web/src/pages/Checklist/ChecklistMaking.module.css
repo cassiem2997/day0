@@ -1,36 +1,33 @@
 /* ===== 공통 변수 ===== */
 :root {
   --ctrl-h: 60px; /* 입력/라벨 높이 */
-  --label-col-w: 120px; /* 라벨 열 폭 */
-  --frame-pad: clamp(14px, 2.2vw, 28px); /* 바깥 프레임 안쪽 여백 */
+  --label-col-w: clamp(80px, 15vw, 120px); /* 라벨 열 폭 - 반응형 */
+  --frame-pad: clamp(14px, 2.2vw, 28px);
   --top-gap: clamp(10px, 3vh, 28px); /* 타이틀 위쪽 여백 */
   --between-gap: clamp(14px, 4vh, 36px); /* 타이틀 ↔ 카드 간격 */
   --bottom-gap: clamp(14px, 4vh, 40px); /* 카드 아래 여백 (안전) */
 }
 
-/* 바깥 프레임 */
-.stage {
+/* 바깥 프레임 (제거됨) */
+
+/* 메인 컨테이너: 흐름 배치 + 배경 이미지 */
+.inner {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  min-height: 400px;
+  max-height: 500px;
   border: 6px solid #111;
   border-radius: 16px;
-  overflow: hidden; /* 프레임 밖으로 절대 안 나가게 */
+  overflow: hidden;
   background: #eaf5ff;
   box-sizing: border-box;
-}
-
-/* 프레임 안쪽 안전 컨테이너: 흐름 배치 */
-.inner {
-  position: absolute;
-  inset: var(--frame-pad);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: var(--top-gap);
-  padding-bottom: var(--bottom-gap); /* 하단 튀어나옴 방지 */
-  box-sizing: border-box;
+  padding: var(--frame-pad);
+  padding-top: calc(var(--frame-pad) + var(--top-gap));
+  padding-bottom: calc(var(--frame-pad) + var(--bottom-gap));
 }
 
 /* 배경 (구름) */
@@ -78,24 +75,26 @@
 /* 카드: 흐름 배치, 중앙 정렬 */
 .card {
   position: relative; /* absolute 제거 */
-  width: min(760px, 86%);
+  width: min(760px, 85%);
+  max-width: 760px;
   background: #f6fbff;
   border: 6px solid #111;
   border-radius: 18px;
-  padding: clamp(16px, 2.6vw, 28px);
+  padding: clamp(20px, 3vw, 32px);
   box-sizing: border-box;
   z-index: 1;
+  margin: 0 auto;
 }
 
 /* 레이아웃: 라벨 열 고정 + 입력 열은 꽉 채움 */
 .row {
   display: grid;
   grid-template-columns: var(--label-col-w) minmax(0, 1fr);
-  gap: clamp(10px, 2vw, 16px);
+  gap: clamp(8px, 1.5vw, 16px);
   align-items: center;
-  margin-bottom: clamp(10px, 2vw, 18px);
   justify-items: stretch;
   width: 100%;
+  box-sizing: border-box;
 }
 
 /* 라벨 */
@@ -185,7 +184,6 @@ input.control {
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-top: clamp(10px, 2vw, 20px);
 }
 .secondary {
   padding: 12px 20px;
@@ -226,14 +224,50 @@ input.control {
     -webkit-text-stroke: 6px #121212;
     margin-bottom: clamp(10px, 3vh, 20px);
   }
+  .inner {
+    min-height: 350px;
+    max-height: 450px;
+  }
   .card {
-    width: 92%;
+    width: 90%;
+    max-width: none;
+    padding: clamp(16px, 2.5vw, 24px);
   }
   .row {
-    grid-template-columns: 1fr;
+    grid-template-columns: 120px 1fr;
+    gap: clamp(6px, 1.2vw, 12px);
+    width: 100%;
+    box-sizing: border-box;
   }
   .label {
     justify-content: flex-start;
     padding-left: 16px;
+    font-size: clamp(12px, 2vw, 14px);
+  }
+}
+
+@media (max-width: 480px) {
+  .inner {
+    min-height: 300px;
+    max-height: 400px;
+  }
+  .card {
+    width: 92%;
+    padding: 16px;
+  }
+  .row {
+    grid-template-columns: 100px 1fr;
+    width: 100%;
+    box-sizing: border-box;
+    gap: 4px;
+  }
+  .label {
+    font-size: 11px;
+    padding: 0 6px;
+    justify-content: flex-start;
+  }
+  .control {
+    font-size: 13px;
+    padding: 0 10px;
   }
 }

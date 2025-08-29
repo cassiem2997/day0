@@ -11,6 +11,19 @@ export interface CreateUserChecklistPayload {
   visibility?: "PUBLIC" | "PRIVATE" | "UNLISTED";
   templateId?: number | null;
 }
+
+export interface UserChecklistResponse {
+  userChecklistId: number;
+  userId: number;
+  departureId: number;
+  templateId: number | null;
+  title: string;
+  visibility: "PUBLIC" | "PRIVATE" | "UNLISTED";
+  createdAt: string;
+  items: any[] | null;
+  amount: number | null;
+}
+
 export async function createUserChecklist(payload: CreateUserChecklistPayload) {
   const res = await api.post("/user-checklists", payload);
   return res.data; // { userChecklistId, ... } 가정
@@ -24,6 +37,40 @@ export async function getUserChecklist(checklistId: number | string) {
   return res.data;
 }
 
+/** getUserChecklistById 는 getUserChecklist와 동일 (하위 호환성) */
+export const getUserChecklistById = getUserChecklist;
+
+/** 체크리스트 업데이트를 위한 인터페이스 */
+export interface UpdateUserChecklistPayload {
+  title?: string;
+  visibility?: "PUBLIC" | "PRIVATE" | "UNLISTED";
+}
+
+/** PATCH /user-checklists/{checklistId} */
+export async function updateUserChecklist(
+  checklistId: number | string,
+  payload: UpdateUserChecklistPayload
+) {
+  const res = await api.patch(`/user-checklists/${checklistId}`, payload);
+  return res.data;
+}
+
+/** 체크리스트의 linked_amount 업데이트 */
+export interface UpdateChecklistLinkedAmountPayload {
+  linkedAmount: number;
+}
+
+export async function updateChecklistLinkedAmount(
+  checklistId: number | string,
+  linkedAmount: number
+) {
+  const res = await api.patch(`/user-checklists/${checklistId}/linked-amount`, {
+    linkedAmount
+  });
+  return res.data;
+}
+
+/** GET /user-checklists/{checklistId}/items` with filters */
 /* =======================
  * Get Checklist Items (with filters)
  * ======================= */
@@ -54,23 +101,51 @@ export async function getUserChecklistItems(
   return data;
 }
 
+export interface ChecklistItemResponse {
+  uciId: number;
+  title: string;
+  description?: string;
+  tag: "NONE" | "SAVING" | "EXCHANGE" | "INSURANCE" | "DOCUMENT" | "ETC";
+  status: "TODO" | "DOING" | "DONE" | "SKIP";
+  dueDate?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+
+/** POST /user-checklists/{checklistId}/items */
 /* =======================
  * Add Checklist Item
  * ======================= */
 export interface AddChecklistItemPayload {
   title: string;
   description?: string;
+  dueDate?: string; // ISO format: "2025-08-28T06:41:03.572Z"
   tag?: "NONE" | "SAVING" | "EXCHANGE" | "INSURANCE" | "DOCUMENT" | "ETC";
-  dueDate?: string | null; // ISO or 'YYYY-MM-DD'
+  linkedAmount?: number;
+  isFixed?: boolean;
 }
+
+export interface AddChecklistItemResponse {
+  uciId: number;
+  title: string;
+  description?: string;
+  tag: "NONE" | "SAVING" | "EXCHANGE" | "INSURANCE" | "DOCUMENT" | "ETC";
+  status: "TODO" | "DOING" | "DONE" | "SKIP";
+  dueDate?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export async function addUserChecklistItem(
   checklistId: number | string,
   payload: AddChecklistItemPayload
-) {
+): Promise<AddChecklistItemResponse> {
   const res = await api.post(`/user-checklists/${checklistId}/items`, payload);
   return res.data;
 }
 
+/** PATCH /user-checklists/items/{uciId} */
 /* =======================
  * Patch Checklist Item
  * ======================= */
@@ -80,20 +155,19 @@ export interface PatchChecklistItemPayload {
   status?: "TODO" | "DOING" | "DONE" | "SKIP";
   dueDate?: string | null;
   tag?: "NONE" | "SAVING" | "EXCHANGE" | "INSURANCE" | "DOCUMENT" | "ETC";
+  linkedAmount?: number;
 }
 export async function patchUserChecklistItem(
-  itemId: number | string,
+  uciId: number | string,
   payload: PatchChecklistItemPayload
 ) {
-  const res = await api.patch(`/user-checklists/items/${itemId}`, payload);
+  const res = await api.patch(`/user-checklists/items/${uciId}`, payload);
   return res.data;
 }
 
-/* =======================
- * Delete Checklist Item
- * ======================= */
-export async function deleteUserChecklistItem(itemId: number | string) {
-  const res = await api.delete(`/user-checklists/items/${itemId}`);
+/** DELETE /user-checklists/items/{uciId} */
+export async function deleteUserChecklistItem(uciId: number | string) {
+  const res = await api.delete(`/user-checklists/items/${uciId}`);
   return res.data;
 }
 
@@ -184,6 +258,46 @@ export async function listUserChecklists(
 
   return normalized.sort(sortByStatus);
 }
+
+/* =======================
+ * Get User Checklist by Departure ID
+ * ======================= */
+export async function getUserChecklistByDepartureId(departureId: number) {
+  const res = await api.get(`/user-checklists`, {
+    params: { departureId }
+  });
+  return res.data;
+}
+
+/* =======================
+ * Get User's Checklists (사용자의 모든 체크리스트 조회)
+ * ======================= */
+export async function getUserChecklists(userId: number) {
+  try {
+    const res = await api.get(`/user-checklists`, {
+      params: { userId }
+    });
+    return res.data;
+  } catch (error) {
+    console.error('사용자 체크리스트 조회 실패:', error);
+    return null;
+  }
+}
+
+// 새로운 엔드포인트: /user/checklists 사용
+export async function getUserChecklistsNew(userId: number) {
+  try {
+    const res = await api.get(`/user/checklists`, {
+      params: { userId }
+    });
+    console.log('/user/checklists API 응답:', res.data);
+    return res.data;
+  } catch (error) {
+    console.error('/user/checklists API 호출 실패:', error);
+    return null;
+  }
+}
+
 // =======================
 // Popular Top (인기 체크리스트 TOP)
 // =======================

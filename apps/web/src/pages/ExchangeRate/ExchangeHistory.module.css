@@ -1,0 +1,337 @@
+.exchangeHistorySection {
+  margin-top: 60px;
+  width: 100%;
+}
+
+.historyContainer {
+  background: #EAF4FF;
+  border: 4px solid #111;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  max-width: 1400px;
+  min-width: 670px;
+  margin: 0 auto;
+}
+
+.historyTitle {
+  font-size: clamp(24px, 6vw, 36px);
+  font-weight: 900;
+  color: #111;
+  margin: 0 0 24px 0;
+  text-align: center;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+  position: relative;
+}
+
+.historyTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 8px;
+  background: #A8D5FF;
+  border-radius: 4px;
+}
+
+.accountSelector {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #fff;
+  border: 2px solid #A8D5FF;
+  border-radius: 12px;
+}
+
+.accountLabel {
+  font-weight: 700;
+  font-size: 16px;
+  color: #111;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+  white-space: nowrap;
+}
+
+.accountSelect {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #A8D5FF;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
+  background: #fff;
+  cursor: pointer;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+  transition: all 0.2s ease;
+}
+
+.accountSelect:hover:not(:disabled) {
+  border-color: #4758FC;
+}
+
+.accountSelect:focus {
+  outline: none;
+  border-color: #4758FC;
+  box-shadow: 0 0 0 3px rgba(71, 88, 252, 0.1);
+}
+
+.accountSelect:disabled {
+  background: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.historyTable {
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  min-width: 630px;
+  min-height: 450px;
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr;
+  gap: 16px;
+  background: #A8D5FF;
+  padding: 20px 24px;
+  border-radius: 16px 16px 0 0;
+}
+
+.headerCell {
+  font-weight: 900;
+  font-size: 18px;
+  color: #111;
+  text-align: center;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+}
+
+.tableBody {
+  background: #fff;
+  border: 2px solid #A8D5FF;
+  border-top: none;
+  border-radius: 0 0 16px 16px;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  align-items: center;
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.tableRow:hover {
+  background: #f8f9ff;
+}
+
+.dateCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date {
+  font-weight: 700;
+  font-size: 16px;
+  color: #111;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+}
+
+.time {
+  font-weight: 400;
+  font-size: 14px;
+  color: #666;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+}
+
+.rateCell,
+.amountCell,
+.withdrawalCell {
+  font-weight: 700;
+  font-size: 16px;
+  color: #4758FC;
+  text-align: center;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+}
+
+.noData {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-size: 16px;
+  font-weight: 400;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: #4758FC;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+}
+
+.error {
+  text-align: center;
+  padding: 40px 20px;
+  color: #ff4444;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+}
+
+/* ===== 페이지네이션 스타일 ===== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 20px 0;
+}
+
+.pageButton {
+  padding: 8px 16px;
+  border: 2px solid #111;
+  border-radius: 8px;
+  background: #fff;
+  color: #111;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+}
+
+.pageButton:hover:not(:disabled) {
+  background: #4758FC;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pageButton:disabled {
+  background: #f0f0f0;
+  color: #ccc;
+  cursor: not-allowed;
+  border-color: #ccc;
+}
+
+.pageButton.activePage {
+  background: #4758FC;
+  color: #fff;
+  border-color: #4758FC;
+}
+
+.prevButton,
+.nextButton {
+  min-width: 60px;
+}
+
+.pageNumbers {
+  display: flex;
+  gap: 8px;
+}
+
+.pageNumbers .pageButton {
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pageInfo {
+  text-align: center;
+  margin-top: 16px;
+  color: #666;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .historyContainer {
+    padding: 1.5rem;
+    margin: 0 16px;
+  }
+  
+  .historyTitle {
+    font-size: clamp(20px, 8vw, 28px);
+    margin-bottom: 20px;
+  }
+  
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px 20px;
+  }
+  
+  .headerCell {
+    font-size: 16px;
+    text-align: left;
+    font-weight: 700;
+  }
+  
+  .dateCell,
+  .rateCell,
+  .amountCell,
+  .withdrawalCell {
+    text-align: left;
+    font-size: 14px;
+  }
+  
+  .date {
+    font-size: 14px;
+  }
+  
+  .time {
+    font-size: 12px;
+  }
+  
+  /* 모바일 페이지네이션 */
+  .pagination {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  
+  .pageNumbers {
+    order: 1;
+  }
+  
+  .prevButton,
+  .nextButton {
+    order: 2;
+    min-width: 80px;
+  }
+  
+  .pageButton {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  
+  .pageNumbers .pageButton {
+    min-width: 36px;
+    height: 36px;
+  }
+  
+  .pageInfo {
+    order: 3;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+}

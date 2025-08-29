@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import Swal from "sweetalert2";
+import { useEffect, useMemo, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import styles from "./FxConvertCard.module.css";
 import { getFxEstimate } from "../../api/fx";
 
@@ -46,17 +45,39 @@ type Props = {
   currencies?: string[];
   defaultTo?: string;
   rate?: number;
+  onLoadingChange?: (loading: boolean) => void;
+  onExchangeInfoChange?: (info: {
+    toCurrency: string;
+    toAmount: number;
+    fromAmount: number;
+    fromCurrency: string;
+    isValid: boolean;
+  }) => void;
 };
 
-export default function FxConvertCard({
+export interface FxConvertCardRef {
+  getExchangeInfo: () => {
+    toCurrency: string;
+    toAmount: number;
+    fromAmount: number;
+    fromCurrency: string;
+    isValid: boolean;
+  };
+  isLoading: () => boolean;
+}
+
+const FxConvertCard = forwardRef<FxConvertCardRef, Props>(({
   currencies = ["USD", "JPY", "EUR"],
   defaultTo = "USD",
-}: Props) {
+  rate = 1398,
+  onLoadingChange,
+  onExchangeInfoChange,
+}, ref) => {
   const [fromCurrency] = useState("KRW");
   const [toCurrency, setToCurrency] = useState(defaultTo);
 
-  // 위쪽 입력: 받고 싶은 외화 금액
-  const [toInput, setToInput] = useState<string>("1");
+  // 위쪽 입력: 받고 싶은 외화 금액 (기본값: 100)
+  const [toInput, setToInput] = useState<string>("100");
   // 아래쪽 결과: 필요한 KRW 금액
   const [fromAmount, setFromAmount] = useState<number>(0);
 
@@ -65,7 +86,7 @@ export default function FxConvertCard({
 
   const toFraction = getMeta(toCurrency).fraction;
   const parsedTo = useMemo(
-    () => parseFloat(stripCommas(toInput)) || 0,
+    () => parseFloat(toInput) || 0,
     [toInput]
   );
 
@@ -120,22 +141,66 @@ export default function FxConvertCard({
     };
   }, [fromCurrency, toCurrency, parsedTo, toFraction]);
 
+  // 로딩 상태와 환전 정보를 부모에게 전달
+  useEffect(() => {
+    if (onLoadingChange) {
+      onLoadingChange(loading);
+    }
+  }, [loading, onLoadingChange]);
+
+  useEffect(() => {
+    if (onExchangeInfoChange) {
+      const info = {
+        toCurrency,
+        toAmount: parseFloat(toInput) || 0,
+        fromAmount,
+        fromCurrency,
+        isValid: validateAmount(parseFloat(toInput) || 0) && fromAmount > 0,
+      };
+      onExchangeInfoChange(info);
+    }
+  }, [toCurrency, toInput, fromAmount, fromCurrency, onExchangeInfoChange]);
+
   const onChangeToInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setToInput(sanitizeNumericString(e.target.value, toFraction));
+    const inputValue = e.target.value;
+    const sanitizedValue = sanitizeNumericString(inputValue, toFraction);
+    
+    // 10단위로 제한하고 최소값 100 적용
+    const numericValue = parseFloat(sanitizedValue) || 0;
+    const adjustedValue = Math.round(numericValue / 10) * 10;
+    
+    // 입력값이 10의 배수가 아니면 자동으로 조정
+    if (numericValue !== adjustedValue && numericValue > 0) {
+      setToInput(adjustedValue.toString());
+    } else {
+      setToInput(sanitizedValue);
+    }
   };
 
-  const onApply = async () => {
-    await Swal.fire({
-      icon: "success",
-      title: "환전 신청",
-      text: `${formatByCcy(
-        toCurrency,
-        parseFloat(stripCommas(toInput)) || 0
-      )} ${toCurrency} 받기 위해
-${formatByCcy(fromCurrency, fromAmount)} ${fromCurrency}가 필요합니다.`,
-      confirmButtonText: "확인",
-    });
+  // 10단위 검증 함수 (최소값 100)
+  const validateAmount = (amount: number): boolean => {
+    return amount >= 100;
   };
+
+  // 환전 정보를 부모 컴포넌트에 전달하는 함수
+  const getExchangeInfo = () => {
+    const toAmount = parseFloat(toInput) || 0;
+    const result = {
+      toCurrency,
+      toAmount,
+      fromAmount,
+      fromCurrency,
+      isValid: validateAmount(toAmount) && fromAmount > 0,
+    };
+    console.log('FxConvertCard getExchangeInfo:', result);
+    return result;
+  };
+
+  // 부모 컴포넌트에서 호출할 수 있도록 ref로 노출
+  useImperativeHandle(ref, () => ({
+    getExchangeInfo,
+    isLoading: () => loading,
+  }));
 
   return (
     <section className={styles.convertCard}>
@@ -162,7 +227,7 @@ ${formatByCcy(fromCurrency, fromAmount)} ${fromCurrency}가 필요합니다.`,
             onChange={onChangeToInput}
             className={styles.amountInput}
             aria-label="받고 싶은 금액"
-            placeholder={`0${toFraction > 0 ? ".00" : ""}`}
+            placeholder={`100${toFraction > 0 ? ".00" : ""}`}
           />
         </div>
       </div>
@@ -183,10 +248,9 @@ ${formatByCcy(fromCurrency, fromAmount)} ${fromCurrency}가 필요합니다.`,
         </div>
       </div>
 
-      <div className={styles.ctaWrap}>
-        <button type="button" className={styles.applyBtn} onClick={onApply}>
-          환전 신청하기
-        </button>
+      {/* 10단위 안내 메시지 */}
+      <div className={styles.infoMessage}>
+        <p>환전은 100 단위부터 가능하며, 10 단위로만 가능합니다.</p>
       </div>
       <span hidden aria-hidden="true">
         {loading ? "…" : ""}
@@ -194,4 +258,6 @@ ${formatByCcy(fromCurrency, fromAmount)} ${fromCurrency}가 필요합니다.`,
       </span>
     </section>
   );
-}
+});
+
+export default FxConvertCard;

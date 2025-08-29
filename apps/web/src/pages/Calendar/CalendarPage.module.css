@@ -1,0 +1,252 @@
+/* 페이지 전체 래퍼 */
+.divWrapper {
+  align-items: flex-start;
+  background-color: #f3fbff;
+  display: flex;
+  justify-content: center;
+  width: 100vw;
+  min-height: 100vh;
+}
+
+.div {
+  background-color: #f3fbff;
+  height: auto;
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 40px 56px;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* 환전 페이지와 동일한 타이틀 구조 */
+.heroWrap {
+  margin-top: 48px;
+  padding-left: 6px;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  position: relative;
+  width: 100%;
+}
+
+.subtitle {
+  position: relative;
+  left: 12px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  color: #000000;
+  font-family: "EF_jejudoldam", system-ui, sans-serif;
+  letter-spacing: 0px;
+  z-index: 1;
+}
+
+.hero {
+  margin: 20px 0 12px 0;
+  font-size: clamp(36px, 6vw, 60px);
+  font-weight: 400;
+  line-height: 1.05;
+  color: #111;
+  letter-spacing: 4px;
+  text-align: left;
+  font-family: "Mungyeong-Gamhong-Apple";
+}
+
+.underline {
+  position: absolute;
+  top: 0;
+  left: 0%;
+  transform: translateX(0%);
+  height: 30px;
+  z-index: 0;
+}
+
+/* 패널 레이아웃 */
+.leftPanel {
+  width: 45%;
+  border: 10px solid #000000;
+  border-radius: 0;
+  background-color: #ffffff;
+  margin-right: 5%;
+  overflow: hidden;
+}
+
+.rightPanel {
+  width: 50%;
+  border: 10px solid #000000;
+  border-radius: 0;
+  background-color: #a8d5ff;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 왼쪽 패널 스타일 */
+.panelHeader {
+  width: 100%;
+  padding: 10px 0;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+}
+
+.panelTitle {
+  background-color: #4758fc;
+  color: #ffffff;
+  font-family: "Mungyeong-Gamhong-Apple", system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 5px 20px;
+  border-radius: 20px;
+}
+
+.mainTitle {
+  color: #000000;
+  font-family: "Mungyeong-Gamhong-Apple", system-ui, sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+  text-align: center;
+  margin: 20px 0;
+  line-height: 1.3;
+  text-decoration: underline;
+  text-decoration-color: #4758fc;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 8px;
+}
+
+/* 테이블 스타일 */
+.tableContainer {
+  width: 90%;
+  margin: 30px auto;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tableHeader {
+  display: flex;
+  background-color: #e6f0ff;
+  border-bottom: 1px solid #000;
+}
+
+.columnHeader {
+  padding: 15px;
+  font-family: "Mungyeong-Gamhong-Apple", system-ui, sans-serif;
+  font-weight: bold;
+  text-align: center;
+}
+
+.columnHeader:first-child {
+  width: 30%;
+  border-right: 1px solid #000;
+}
+
+.columnHeader:last-child {
+  width: 70%;
+}
+
+.tableRow {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+}
+
+.columnItem {
+  padding: 15px;
+  font-family: "EF_jejudoldam", system-ui, sans-serif;
+  font-size: 16px;
+}
+
+.columnItem:first-child {
+  width: 30%;
+  border-right: 1px solid #ddd;
+  text-align: center;
+}
+
+.columnItem:last-child {
+  width: 70%;
+}
+
+/* 오른쪽 패널 이미지 */
+.calendarIllustration {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 모바일 햄버거 메뉴 */
+.mobileHamburger {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 60;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.line,
+.line2,
+.line3 {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #212529;
+}
+
+.iconlyLightOutline {
+  height: 35px;
+  right: 40px;
+  position: absolute;
+  top: 33px;
+  width: 43px;
+  background: #ccc;
+  border-radius: 50%;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .div {
+    width: 100%;
+    height: auto;
+    padding: 0 16px 24px;
+    flex-direction: column;
+  }
+  
+  .heroWrap {
+    margin-top: 16px;
+    padding-left: 4px;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+  }
+  
+  .hero {
+    font-size: clamp(28px, 12vw, 44px);
+    letter-spacing: 2px;
+  }
+  
+  .iconlyLightOutline {
+    right: 16px;
+  }
+  
+  .leftPanel,
+  .rightPanel {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+}

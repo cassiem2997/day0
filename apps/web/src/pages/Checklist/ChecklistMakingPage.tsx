@@ -1,24 +1,35 @@
 // src/pages/Checklist/ChecklistMakingPage.tsx
-import { useState, type FormEvent, useMemo } from "react";
+import { useState, type FormEvent, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../../components/Sidebar/Sidebar";
+
 import Header from "../../components/Header/Header";
 import styles from "./ChecklistPage.module.css";
 import formStyles from "./ChecklistMaking.module.css";
 import bg from "../../assets/checklistMaking.svg";
+import underline from "../../assets/underline.svg";
 import { createDeparture } from "../../api/departure";
 import { createUserChecklist } from "../../api/checklist";
+import { getCurrentUser } from "../../api/user";
 
 const COUNTRY_OPTIONS = ["미국", "영국", "호주", "캐나다", "일본"] as const;
 
 // 한글 → ISO2 코드 매핑 (DB의 CHAR(2)와 맞추기)
 const COUNTRY_CODE_MAP: Record<(typeof COUNTRY_OPTIONS)[number], string> = {
-  미국: "US",
+  미국: "US", 
   영국: "GB",
   호주: "AU",
   캐나다: "CA",
   일본: "JP",
 };
+
+function toInstantStringKST(dateStr: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    throw new Error("출국일 형식이 올바르지 않습니다. (YYYY-MM-DD)");
+  }
+  // KST 자정으로 고정해 서버에 Offset 포함해 전달
+  return `${dateStr}T00:00:00+09:00`;
+}
+
 
 const UNIVERSITY_BY_COUNTRY: Record<
   (typeof COUNTRY_OPTIONS)[number],
@@ -59,12 +70,22 @@ const todayLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
 
 export default function ChecklistMakingPage() {
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const toggleSidebar = () => setIsSidebarOpen((p) => !p);
 
   const [leaveDate, setLeaveDate] = useState("");
   const [country, setCountry] = useState<string>("");
   const [universityId, setUniversityId] = useState<number | "">("");
+  const [userId, setUserId] = useState<number | null>(null);
+
+  // 사용자 정보 가져오기 - localStorage에서 userId 확인
+  useEffect(() => {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedUserId) {
+      setUserId(Number(storedUserId));
+    } else {
+      // userId가 없으면 로그인 페이지로
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
 
   const uniOptions = useMemo(
     () =>
@@ -76,10 +97,25 @@ export default function ChecklistMakingPage() {
     [country]
   );
 
+
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // handleSubmit 내부 핵심 변경점
+    // const token = localStorage.getItem("accessToken");
+    // if (!token || token === "undefined" || token === "null") {
+    //   alert("로그인이 필요합니다.");
+    //   navigate("/login", { replace: true });
+    //   return;
+    // }
+    
     try {
-      const userId = Number(localStorage.getItem("userId") ?? 1); // 임시: 로그인 연동 전
+      // userId가 아직 로드되지 않았다면 대기
+      if (!userId) {
+        alert("사용자 정보를 불러오는 중입니다...");
+        return;
+      }
 
       // 출국 컨텍스트 생성
       const dep = await createDeparture({
@@ -89,7 +125,7 @@ export default function ChecklistMakingPage() {
         countryCode:
           COUNTRY_CODE_MAP[country as keyof typeof COUNTRY_CODE_MAP] ?? country,
         // 날짜는 서버에서 파싱하도록 YYYY-MM-DD 그대로 전달
-        startDate: leaveDate,
+        startDate: toInstantStringKST(leaveDate),
         endDate: null,
         status: "PLANNED",
       });
@@ -103,7 +139,7 @@ export default function ChecklistMakingPage() {
         userId,
         departureId,
         visibility: "PRIVATE",
-        title: undefined, // 필요하면 입력 필드 추가
+        title: `${country} 출국 체크리스트`, // 기본 제목 설정
         templateId: null,
       });
 
@@ -114,8 +150,8 @@ export default function ChecklistMakingPage() {
       if (!userChecklistId)
         throw new Error("userChecklistId를 확인할 수 없습니다.");
 
-      // 결과 페이지로 이동
-      navigate(`/checklist/result/${userChecklistId}`, {
+      // 편집 페이지로 이동
+      navigate(`/checklist/edit/${userChecklistId}`, {
         state: { justCreated: true },
       });
     } catch (err: any) {
@@ -126,30 +162,19 @@ export default function ChecklistMakingPage() {
 
   return (
     <div className={styles.container}>
-      <Sidebar isOpen={isSidebarOpen} toggle={toggleSidebar} />
-      <button
-        type="button"
-        className={styles.mobileHamburger}
-        onClick={toggleSidebar}
-        aria-label="메뉴 열기"
-      >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-
       <main className={styles.main}>
         <Header />
         <div className={styles.pageContent}>
           <header className={styles.heroWrap}>
-            <h1 className={styles.hero}>CHECKLIST</h1>
+            <img src={underline} alt="" className={styles.underline} />
+            <p className={styles.subtitle}>완벽한 출국준비를 위한 첫걸음</p>
+            <h1 className={styles.hero}>헤이 - 체크</h1>
           </header>
 
-          <section className={formStyles.stage}>
-            <div className={formStyles.inner}>
-              <img className={formStyles.bg} src={bg} alt="" />
+          <div className={formStyles.inner}>
+            <img className={formStyles.bg} src={bg} alt="" />
 
-              <form className={formStyles.card} onSubmit={handleSubmit}>
+            <form className={formStyles.card} onSubmit={handleSubmit}>
                 <div className={formStyles.row}>
                   <label className={formStyles.label}>예상출국일</label>
                   <div className={formStyles.inputWrap}>
@@ -230,9 +255,8 @@ export default function ChecklistMakingPage() {
                 </div>
               </form>
             </div>
-          </section>
+          </div>
+          </main>
         </div>
-      </main>
-    </div>
   );
 }

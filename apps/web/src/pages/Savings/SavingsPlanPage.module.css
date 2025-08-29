@@ -1,0 +1,359 @@
+/* ===== 공통 변수 ===== */
+:root {
+  --ctrl-h: 60px; /* 입력/라벨 높이 */
+  --label-col-w: clamp(80px, 15vw, 120px); /* 라벨 열 폭 - 반응형 */
+  --frame-pad: clamp(14px, 2.2vw, 28px);
+  --top-gap: clamp(10px, 3vh, 28px); /* 타이틀 위쪽 여백 */
+  --between-gap: clamp(14px, 4vh, 36px); /* 타이틀 ↔ 카드 간격 */
+  --bottom-gap: clamp(14px, 4vh, 40px); /* 카드 아래 여백 (안전) */
+}
+
+
+.pageContent {
+    background-color: #f3fbff;
+    height: auto;
+    position: relative;
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 40px 56px;
+    box-sizing: border-box;
+  }
+
+/* 체크리스트 정보 표시 */
+.checklistInfo {
+  background: #f0f2ff;
+  border: 2px solid #4758FC;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.checklistInfo h3 {
+  color: #4758FC;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  font-family: 'EF_jejudoldam', system-ui, sans-serif;
+}
+
+.checklistInfo p {
+  margin: 8px 0;
+  color: #333;
+  font-size: 16px;
+  font-family: 'EF_jejudoldam', system-ui, sans-serif;
+}
+
+.checklistInfo strong {
+  color: #4758FC;
+  font-weight: 600;
+}
+
+/* 메인 컨테이너: 흐름 배치 + 배경 이미지 */
+.inner {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+  max-height: 500px;
+  border: 6px solid #111;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #eaf5ff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: var(--frame-pad);
+  padding-top: calc(var(--frame-pad) + var(--top-gap));
+  padding-bottom: calc(var(--frame-pad) + var(--bottom-gap));
+}
+
+/* 체크리스트 정보 표시 */
+.checklistInfo {
+  background: #f0f2ff;
+  border: 2px solid #4758FC;
+  border-radius: 16px;
+  padding: 20px;
+  /* margin-bottom: 30px; */
+  text-align: center;
+}
+
+.checklistInfo h3 {
+  color: #4758FC;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  font-family: 'EF_jejudoldam', system-ui, sans-serif;
+}
+
+.checklistInfo p {
+  margin: 8px 0;
+  color: #333;
+  font-size: 16px;
+  font-family: 'EF_jejudoldam', system-ui, sans-serif;
+}
+
+.checklistInfo strong {
+  color: #4758FC;
+  font-weight: 600;
+}
+
+/* 카드: 흐름 배치, 중앙 정렬 */
+.card {
+  position: relative;
+  width: min(900px, 85%);
+  max-width: 1200px;
+  background: #f6fbff;
+  border: 6px solid #111;
+  border-radius: 18px;
+  padding: 30px;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+/* 행 그룹: 두 개의 행을 가로로 배치 */
+.rowGroup {
+  display: flex;
+  gap: clamp(20px, 3vw, 40px);
+  /* margin-bottom: clamp(20px, 5vh, 40px); */
+
+  width: 100%;
+  /* margin: 0 50px; */
+}
+
+/* 레이아웃: 라벨 열 고정 + 입력 열은 꽉 채움 */
+.row {
+  display: grid;
+  grid-template-columns: var(--label-col-w) minmax(0, 1fr);
+  gap: clamp(8px, 1.5vw, 16px);
+  align-items: center;
+  justify-items: stretch;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+/* 라벨 */
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--ctrl-h);
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 12px;
+  background: #fff;
+  border: 4px solid #111;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: clamp(12px, 1.6vw, 16px);
+  font-family: "EF_jejudoldam", system-ui, -apple-system, sans-serif;
+  color: #111;
+}
+
+/* 버튼 그룹 */
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  height: var(--ctrl-h);
+}
+
+.cycleButton {
+  height: 100%;
+  padding: 0 20px;
+  border: 4px solid #111;
+  border-radius: 14px;
+  background: #fff;
+  color: #111;
+  font-size: clamp(12px, 1.6vw, 16px);
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "EF_jejudoldam", system-ui, -apple-system, sans-serif;
+  flex: 1;
+}
+
+.cycleButton:hover {
+  background: #f0f2ff;
+}
+
+.cycleButton.active {
+  background: #4758FC;
+  color: #fff;
+}
+
+/* 미션 버튼 */
+.missionButton {
+  height: var(--ctrl-h);
+  padding: 0 20px;
+  background: #111;
+  color: #fff;
+  border: 4px solid #111;
+  border-radius: 14px;
+  font-size: clamp(12px, 1.6vw, 16px);
+  font-weight: 800;
+  text-align: center;
+  font-family: "EF_jejudoldam", system-ui, -apple-system, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 입력 공통 */
+.inputWrap {
+  position: relative;
+  width: 100%;
+}
+.row > * {
+  min-width: 0;
+}
+
+.control {
+  width: 100%;
+  height: var(--ctrl-h);
+  padding: 0 18px;
+  background: #fff;
+  border: 4px solid #111;
+  border-radius: 14px;
+  font-size: clamp(14px, 1.7vw, 18px);
+  font-weight: 700;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* input/date */
+input.control {
+  line-height: normal;
+  padding: 0 18px;
+}
+
+/* 에러 상태 스타일 */
+input.control.error {
+  border-color: #ff4444;
+  background-color: #fff5f5;
+  color: #ff4444;
+  animation: shake 0.5s ease-in-out;
+}
+
+/* 기간 입력 필드 에러 상태 */
+input.control.durationError {
+  border-color: #ff4444;
+  background-color: #fff5f5;
+  color: #ff4444;
+  animation: shake 0.5s ease-in-out;
+}
+
+/* 흔들리는 애니메이션 */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* select */
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 40px;
+  line-height: var(--ctrl-h);
+}
+
+.chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  pointer-events: none;
+}
+
+/* 셀렉트 화살표 */
+.chevron {
+  position: absolute;
+  right: 16px;
+  color: #4758FC;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* 라벨 하단 단위 표시 */
+.labelUnit {
+  font-size: 12px;
+  color: #888;
+  font-weight: 400;
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* 로딩 상태 */
+.loading {
+  color: #666;
+  font-size: 14px;
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
+
+/* 생성하기 버튼 */
+.createButton {
+  display: flex;
+  justify-content: center;
+  /* margin-top: clamp(20px, 3vh, 32px); */
+  /* margin-bottom: 10px; */
+}
+
+.cta {
+  padding: 16px 40px;
+  border-radius: 999px;
+  border: 4px solid #111;
+  background: #4758FC;
+  color: #fff;
+  font-weight: 900;
+  font-size: clamp(16px, 2vw, 20px);
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "EF_jejudoldam", system-ui, -apple-system, sans-serif;
+  min-width: 160px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .inner {
+    padding: clamp(10px, 2vw, 20px);
+  }
+  
+  .card {
+    width: 95%;
+    padding: clamp(16px, 3vw, 24px);
+  }
+  
+  .rowGroup {
+    flex-direction: column;
+    gap: clamp(16px, 3vh, 24px);
+  }
+  
+  .row {
+    grid-template-columns: 1fr;
+    gap: clamp(8px, 2vh, 16px);
+  }
+  
+  .label {
+    height: auto;
+    padding: clamp(8px, 2vh, 12px);
+    font-size: clamp(12px, 3vw, 16px);
+  }
+  
+  .buttonGroup {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .createButton {
+    margin-top: clamp(16px, 2vh, 24px);
+  }
+}

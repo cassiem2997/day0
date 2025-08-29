@@ -70,7 +70,7 @@ function RateChart({ data, currency }: { data: RatePoint[]; currency?: string })
   );
 }
 
-export function SmartRateChart() {
+export function SmartRateChart({ onRateChange }: { onRateChange?: (rate: number) => void }) {
   const [currency, setCurrency] = useState<string>("USD");
   const [data, setData] = useState<RatePoint[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,6 +110,12 @@ export function SmartRateChart() {
         );
 
       setData(sortedAsc);
+      
+      // 3) 최신 환율을 부모 컴포넌트로 전달
+      if (sortedAsc.length > 0 && onRateChange) {
+        const latestRate = sortedAsc[sortedAsc.length - 1].value;
+        onRateChange(latestRate);
+      }
     } catch (err) {
       console.error("차트 데이터 로드 실패:", err);
       setError("환율 데이터를 불러올 수 없습니다.");
