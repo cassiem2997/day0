@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Swal from "sweetalert2";
 import styles from "./Header.module.css";
 import { logout, me, getUserProfile, type UserProfile } from "../../api/user";
+import logoUrl from "../.././assets/logo.svg";
+
 type User = { name: string; avatarUrl?: string };
 
 const NAV = [
@@ -99,7 +101,11 @@ export default function Header() {
     <header className={styles.header}>
       <div className={styles.brand}>
         <NavLink to="/" className={styles.logoLink}>
-          <img src="/logo.svg" alt="logo" className={styles.logo}></img>
+          <img
+            src={logoUrl}
+            alt="logo"
+            className={styles.logo}
+          />
         </NavLink>
       </div>
 
