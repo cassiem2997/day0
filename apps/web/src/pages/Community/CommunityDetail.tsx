@@ -1,5 +1,5 @@
 // src/pages/Community/CommunityDetail.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
@@ -128,8 +128,7 @@ export default function CommunityDetail() {
       try {
         const res = await api.get("/auth/me", { withCredentials: true });
         const id = res?.data?.userId;
-        if (typeof id === "number" && id > 0) setUserId(id);
-        else setUserId(null);
+        setUserId(typeof id === "number" && id > 0 ? id : null);
       } catch {
         setUserId(null);
       }
@@ -202,7 +201,7 @@ export default function CommunityDetail() {
         await deleteCommunityPost(post.id, userId);
         await Swal.fire("삭제 완료", "게시글이 삭제되었습니다.", "success");
         nav("/community", { replace: true });
-      } catch (e) {
+      } catch {
         Swal.fire("오류", "삭제에 실패했습니다.", "error");
       }
     }
@@ -234,8 +233,8 @@ export default function CommunityDetail() {
     if (confirm.isConfirmed) {
       try {
         await deleteCommunityReply(replyId, userId);
-        setReplies(replies.filter((r) => r.replyId !== replyId));
-      } catch (e) {
+        setReplies((prev) => prev.filter((r) => r.replyId !== replyId));
+      } catch {
         Swal.fire("오류", "댓글 삭제 실패", "error");
       }
     }
@@ -244,7 +243,26 @@ export default function CommunityDetail() {
   /* ---------- 채택/취소 (QNA + 글 작성자 + 타인 댓글만 채택) ---------- */
   const isQna = post?.category === "QNA";
   const isPostAuthor = !!post && userId === post.authorId;
-  const hasAdopted = replies.some((r) => r.adopted === true);
+
+  // 백엔드가 isAdopted를 주고, 과거 호환을 위해 adopted로 줄 수도 있으니 둘 다 처리
+  const isAdopted = (r: Reply) =>
+    (r as any).isAdopted ?? (r as any).adopted ?? false;
+
+  const adoptedReply = useMemo(
+    () => replies.find((r) => isAdopted(r)) || null,
+    [replies]
+  );
+  const otherReplies = useMemo(
+    () =>
+      replies
+        .filter((r) => !isAdopted(r))
+        .sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        ),
+    [replies]
+  );
+  const hasAdopted = !!adoptedReply;
 
   async function onAdopt(replyId: number) {
     if (!userId || !isQna || !isPostAuthor) return;
@@ -262,7 +280,7 @@ export default function CommunityDetail() {
       await Swal.fire("채택되었습니다.", "", "success");
       const data = await getCommunityReplies(pid);
       setReplies(data.data);
-    } catch (e) {
+    } catch {
       Swal.fire("오류", "채택에 실패했습니다.", "error");
     }
   }
@@ -283,10 +301,70 @@ export default function CommunityDetail() {
       await Swal.fire("채택이 취소되었습니다.", "", "success");
       const data = await getCommunityReplies(pid);
       setReplies(data.data);
-    } catch (e) {
+    } catch {
       Swal.fire("오류", "채택 취소에 실패했습니다.", "error");
     }
   }
+
+  // 반복 렌더 함수 (채택/취소 버튼 조건 포함)
+  const renderReply = (r: Reply) => {
+    const adopted = isAdopted(r);
+    const canAdoptThis =
+      isQna && isPostAuthor && userId !== r.authorId && !adopted && !hasAdopted;
+    const canCancelThis = isQna && isPostAuthor && adopted;
+
+    return (
+      <li
+        key={r.replyId}
+        className={`${styles.commentItem} ${
+          adopted ? styles.commentItemAdopted : ""
+        }`}
+        style={{ marginBottom: "8px" }}
+      >
+        <div className={styles.commentMeta}>
+          <b>{r.authorNickname}</b>
+          <span className={styles.dot}>·</span>
+          <small>{timeAgo(r.createdAt)}</small>
+          {adopted ? <span className={styles.adoptedBadge}>채택됨</span> : null}
+        </div>
+
+        <p className={styles.commentText}>{r.body}</p>
+
+        <div className={styles.commentActions}>
+          {canCancelThis ? (
+            <button
+              type="button"
+              className={`${styles.chip} ${styles.chipPrimary}`}
+              onClick={() => onCancelAdopt(r.replyId)}
+            >
+              채택 취소
+            </button>
+          ) : null}
+
+          {canAdoptThis ? (
+            <button
+              type="button"
+              className={styles.chip}
+              onClick={() => onAdopt(r.replyId)}
+            >
+              채택
+            </button>
+          ) : null}
+
+          {/* 본인 댓글이면 삭제 가능 */}
+          {userId === r.authorId && (
+            <button
+              type="button"
+              className={styles.chip}
+              onClick={() => onDeleteReply(r.replyId)}
+            >
+              삭제
+            </button>
+          )}
+        </div>
+      </li>
+    );
+  };
 
   return (
     <div className={styles.container}>
@@ -370,8 +448,7 @@ export default function CommunityDetail() {
                     <button type="button" className={styles.chip}>
                       댓글 <b>{replies.length}</b>
                     </button>
-                    <div className={styles.rightStats}>
-                    </div>
+                    <div className={styles.rightStats}></div>
                   </div>
                 </div>
               </article>
@@ -399,81 +476,20 @@ export default function CommunityDetail() {
                   </button>
                 </div>
 
-                <ul style={{ marginTop: "12px" }}>
-                  {replies.map((r) => {
-                    const canAdoptThis =
-                      isQna &&
-                      isPostAuthor &&
-                      userId !== r.authorId &&
-                      !r.adopted;
-                    const canCancelThis = isQna && isPostAuthor && r.adopted;
+                {/* ✅ 채택된 댓글이 있으면 최상단에 별도 표시 */}
+                {adoptedReply ? (
+                  <ul style={{ marginTop: 12 }}>{renderReply(adoptedReply)}</ul>
+                ) : null}
 
-                    return (
-                      <li
-                        key={r.replyId}
-                        className={`${styles.commentItem} ${
-                          r.adopted ? styles.commentItemAdopted : ""
-                        }`}
-                        style={{ marginBottom: "8px" }}
-                      >
-                        <div className={styles.commentMeta}>
-                          <b>{r.authorNickname}</b>
-                          <span className={styles.dot}>·</span>
-                          <small>{timeAgo(r.createdAt)}</small>
-                          {r.adopted ? (
-                            <span className={styles.adoptedBadge}>채택됨</span>
-                          ) : null}
-                        </div>
-
-                        <p className={styles.commentText}>{r.body}</p>
-
-                        <div className={styles.commentActions}>
-                          {canCancelThis ? (
-                            <button
-                              type="button"
-                              className={`${styles.chip} ${styles.chipPrimary}`}
-                              onClick={() => onCancelAdopt(r.replyId)}
-                            >
-                              채택 취소
-                            </button>
-                          ) : null}
-
-                          {canAdoptThis ? (
-                            <button
-                              type="button"
-                              className={styles.chip}
-                              onClick={() => onAdopt(r.replyId)}
-                              disabled={hasAdopted}
-                              title={
-                                hasAdopted
-                                  ? "이미 채택된 댓글이 있습니다"
-                                  : undefined
-                              }
-                            >
-                              채택
-                            </button>
-                          ) : null}
-
-                          {/* 본인 댓글이면 삭제 가능 */}
-                          {userId === r.authorId && (
-                            <button
-                              type="button"
-                              className={styles.chip}
-                              onClick={() => onDeleteReply(r.replyId)}
-                            >
-                              삭제
-                            </button>
-                          )}
-                        </div>
-                      </li>
-                    );
-                  })}
+                {/* 나머지 댓글 */}
+                <ul style={{ marginTop: adoptedReply ? 12 : 12 }}>
+                  {otherReplies.map(renderReply)}
                 </ul>
               </section>
 
               {/* 작성자 전용 수정/삭제 버튼 */}
               {userId && post.authorId === userId && (
-                <div style={{ marginTop: "12px", display: "flex", gap: "8px" }}>
+                <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
                   <button
                     type="button"
                     className={styles.chip}
