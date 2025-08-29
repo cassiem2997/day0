@@ -10,7 +10,7 @@ import ExchangeRatePage from "./pages/ExchangeRate/ExchangeRatePage";
 import LoginPage from "./pages/Login/LoginPage";
 import LandingPage from "./pages/Landing/LandingPage";
 import SavingsPage from "./pages/Savings/SavingsPage";
-import { SavingPlan } from "./pages/Savings/SavingPlan";
+import SavingPlan from "./pages/Savings/SavingPlan";
 
 import CommunityPage from "./pages/Community/CommunityPage";
 import CommunityDetail from "./pages/Community/CommunityDetail";
