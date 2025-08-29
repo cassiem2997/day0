@@ -231,8 +231,8 @@ export default function CommunityBoard() {
         {[
           { key: "ALL", label: "전체" },
           { key: "CHECKLIST", label: "체크리스트" },
-          { key: "FREE", label: "자유게시판" },
           { key: "QNA", label: "Q&A" },
+          { key: "FREE", label: "자유게시판" },
         ].map((c) => (
           <button
             key={c.key}
