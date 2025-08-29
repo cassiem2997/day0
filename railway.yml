@@ -1,0 +1,8 @@
+build:
+  provider: nixpacks
+
+services:
+  web:
+    variables:
+      JAVA_OPTS: "-Xmx1g -Xms512m"
+      SPRING_PROFILES_ACTIVE: prod

@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 import styles from "./MyPageSavings.module.css";
 import MyPageSavingsDetail from "./MyPageSavingsDetail";
@@ -20,33 +21,36 @@ interface AccountRow {
 }
 
 function TypeBadge({ t }: { t: AccountType }) {
-  if (t === "SAVING")
+  if (t === "SAVING") {
     return (
       <span className={`${styles.badge} ${styles.badgeSaving}`}>적금</span>
     );
-  if (t === "DEPOSIT")
+  }
+  if (t === "DEPOSIT") {
     return (
       <span className={`${styles.badge} ${styles.badgeDeposit}`}>입출금</span>
     );
+  }
   return <span className={`${styles.badge} ${styles.badgeFx}`}>외화</span>;
 }
 
 function formatBalance(amount: number, currency: "KRW" | "USD") {
-  if (currency === "USD")
+  if (currency === "USD") {
     return `${Math.round(amount).toLocaleString("en-US")} $`;
+  }
   return `${Math.round(amount).toLocaleString("ko-KR")} KRW`;
 }
 
 export default function MyPageSavings() {
+  // 목록/선택 상태
   const [rows, setRows] = useState<AccountRow[]>([]);
+  const [selected, setSelected] = useState<AccountRow | null>(null);
+
+  // 에러/로딩
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [selected, setSelected] = useState<AccountRow | null>(null);
-  const [rows, setRows] = useState<AccountRow[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // 등록 모달
+  // 생성 모달 상태
   const [open, setOpen] = useState(false);
   const [products, setProducts] = useState<AccountProduct[]>([]);
   const [prodLoading, setProdLoading] = useState(false);
@@ -56,6 +60,7 @@ export default function MyPageSavings() {
   const [initialAmount, setInitialAmount] = useState<string>("");
   const [creating, setCreating] = useState(false);
 
+  // 더미 거래내역
   const txns = useMemo(
     () => [
       {
@@ -94,6 +99,7 @@ export default function MyPageSavings() {
     []
   );
 
+  // 계좌 목록 로드(단일 소스: fetchAccounts)
   async function loadAccounts() {
     setLoading(true);
     setErr(null);
@@ -122,6 +128,7 @@ export default function MyPageSavings() {
     loadAccounts();
   }, []);
 
+  // 생성 모달 열기 + 상품 로드
   async function openCreateModal() {
     setOpen(true);
     setProducts([]);
@@ -145,6 +152,7 @@ export default function MyPageSavings() {
     }
   }
 
+  // 생성 제출
   async function submitCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!productId) return;
@@ -166,54 +174,7 @@ export default function MyPageSavings() {
     }
   }
 
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const [plans, accounts] = await Promise.all([
-          getMySavingsPlans(),
-          getMyAccounts(),
-        ]);
-
-        if (!alive) return;
-
-        // 적금 플랜 → AccountRow
-        const savingRows: AccountRow[] = plans.map((p) => ({
-          id: `saving-${p.planId}`,
-          type: "SAVING",
-          title: `적금 플랜 #${p.planId}`,
-          number: String(p.savingAccountId),
-          balance: `${p.goalAmount.toLocaleString("ko-KR")} KRW`, // 혹은 현재 잔액 API
-        }));
-
-        // 입출금 계좌 → AccountRow
-        const depositRows: AccountRow[] = accounts.map((a, idx) => {
-          const isFx = a.currency !== "KRW";
-          return {
-            id: `acct-${idx}`,
-            type: isFx ? "FX" : "DEPOSIT",
-            title: a.accountName ?? a.accountTypeName,
-            number: a.accountNo,
-            balance: isFx
-              ? `${a.accountBalance.toLocaleString("en-US")} ${a.currency}`
-              : `${a.accountBalance.toLocaleString("ko-KR")} KRW`,
-          };
-        });
-
-        setRows([...savingRows, ...depositRows]);
-      } catch (e: any) {
-        if (!alive) return;
-        setError(e?.response?.data?.message || e?.message || "계좌 정보를 불러오지 못했습니다.");
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => { alive = false; };
-  }, []);
-
+  // 상세 화면
   if (selected) {
     const numericKRW = /KRW/.test(selected.balance)
       ? Number(selected.balance.replace(/[^0-9]/g, "")) || 0
@@ -236,7 +197,7 @@ export default function MyPageSavings() {
         balanceKRW={numericKRW}
         txns={txns}
         onBack={() => setSelected(null)}
-      />
+      ></MyPageSavingsDetail>
     );
   }
 
@@ -289,7 +250,7 @@ export default function MyPageSavings() {
                 }}
               >
                 <div className={styles.cell}>
-                  <TypeBadge t={row.type} />
+                  <TypeBadge t={row.type}></TypeBadge>
                 </div>
                 <div className={`${styles.cell} ${styles.titleCell}`}>
                   <div className={styles.itemTitle}>{row.title}</div>
@@ -307,7 +268,6 @@ export default function MyPageSavings() {
         </div>
       </div>
 
-      {/* ====== 계좌 생성 모달 ====== */}
       {open && (
         <div
           className={styles.modalOverlay}
@@ -360,11 +320,13 @@ export default function MyPageSavings() {
                           ))
                         )}
                       </select>
-                      {products.length === 0 && (
+                      {products.length === 0 ? (
                         <p className={styles.helperText}>
                           상품이 없어 계좌를 생성할 수 없습니다. 관리자에게 상품
                           등록을 요청하세요.
                         </p>
+                      ) : (
+                        <></>
                       )}
                     </div>
                   </div>
