@@ -11,9 +11,9 @@ import formStyles from "../Checklist/ChecklistMaking.module.css";
 import { getDemandDepositAccounts } from "../../api/accounts";
 import { createSavingsPlan } from "../../api/savings";
 import { useAuth } from "../../auth/useAuth";
-import { getUserChecklistItems, patchUserChecklistItem } from "../../api/checklist";
+import { getUserChecklistItems, patchUserChecklistItem, getUserChecklistsByUserId } from "../../api/checklist";
 import openChecklistAmountButton from "../../components/ChecklistAddModal/ChecklistAmountButton";
-import { getUserChecklists } from "../../api/checklist";
+
 
 // API에서 가져오는 계좌 타입 사용
 import type { DepositAccount } from "../../api/accounts";
@@ -113,16 +113,9 @@ export default function SavingsPlanPage() {
       // 사용자의 체크리스트 조회하여 departureId와 userChecklistId 가져오기
       console.log("=== 사용자 체크리스트 조회 시작 ===");
       
-      // 먼저 새로운 엔드포인트 /user/checklists 시도
-      let userChecklistsData = await getUserChecklists(user.userId);
-      console.log("/user/checklists API 응답:", userChecklistsData);
-      
-      // 새로운 API가 실패하면 기존 API 시도
-      if (!userChecklistsData) {
-        console.log("새로운 API 실패, 기존 API 시도");
-        userChecklistsData = await getUserChecklists(user.userId);
-        console.log("기존 API 응답:", userChecklistsData);
-      }
+      // 사용자의 체크리스트 조회
+      let userChecklistsData = await getUserChecklistsByUserId(user.userId);
+      console.log("/user-checklists?userId= API 응답:", userChecklistsData);
       
       console.log("사용자 체크리스트 (전체):", userChecklistsData);
       console.log("사용자 체크리스트 타입:", typeof userChecklistsData);
@@ -185,6 +178,45 @@ export default function SavingsPlanPage() {
         )
       };
 
+      console.log("=== 🚀 적금 플랜 생성 요청 데이터 상세 분석 ===");
+      console.log("📋 전체 requestData 객체:", JSON.stringify(requestData, null, 2));
+      console.log("");
+      console.log("🔍 각 필드별 상세 정보:");
+      console.log("  • userId:", requestData.userId, `(타입: ${typeof requestData.userId})`);
+      console.log("  • departureId:", requestData.departureId, `(타입: ${typeof requestData.departureId})`);
+      console.log("  • withdrawAccountId:", requestData.withdrawAccountId, `(타입: ${typeof requestData.withdrawAccountId})`);
+      console.log("  • endDate:", requestData.endDate, `(타입: ${typeof requestData.endDate})`);
+      console.log("  • frequency:", requestData.frequency, `(타입: ${typeof requestData.frequency})`);
+      console.log("  • amountPerPeriod:", requestData.amountPerPeriod, `(타입: ${typeof requestData.amountPerPeriod})`);
+      
+      if (paymentCycle === "월별") {
+        console.log("  • depositDay:", (requestData as any).depositDay, `(타입: ${typeof (requestData as any).depositDay})`);
+      } else {
+        console.log("  • depositWeekday:", (requestData as any).depositWeekday, `(타입: ${typeof (requestData as any).depositWeekday})`);
+      }
+      console.log("");
+      console.log("🔧 원본 입력값들:");
+      console.log("  • paymentCycle:", paymentCycle);
+      console.log("  • paymentDate:", paymentDate);
+      console.log("  • paymentAmount:", paymentAmount);
+      console.log("  • duration:", duration);
+      console.log("  • selectedAccount:", selectedAccount);
+      console.log("  • user.userId:", user?.userId);
+      console.log("  • departureIdValue:", departureIdValue);
+      console.log("  • accountId:", accountId);
+      console.log("  • endDate 계산:", endDate.toISOString().split('T')[0]);
+      console.log("=== 요청 데이터 분석 완료 ===");
+      console.log("");
+      
+      // API 호출 전 최종 검증
+      console.log("✅ API 호출 전 최종 검증:");
+      console.log("  • userId가 유효한가?", requestData.userId > 0);
+      console.log("  • departureId가 유효한가?", requestData.departureId > 0);
+      console.log("  • withdrawAccountId가 유효한가?", requestData.withdrawAccountId > 0);
+      console.log("  • amountPerPeriod가 유효한가?", requestData.amountPerPeriod > 0);
+      console.log("  • endDate가 유효한가?", requestData.endDate && requestData.endDate.length === 10);
+      console.log("");
+      
       console.log("=== 적금 플랜 생성 요청 데이터 ===");
       console.log("전체 requestData:", requestData);
       console.log("userId:", requestData.userId);

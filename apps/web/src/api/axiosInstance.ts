@@ -113,6 +113,17 @@ api.interceptors.response.use(
     
     console.error(`❌ API Error: ${url} - ${status}`, err.response?.data);
     
+    // 403 에러에 대한 상세 로깅
+    if (status === 403) {
+      console.error("🚫 403 Forbidden Error Details:");
+      console.error("URL:", url);
+      console.error("Error Data:", err.response?.data);
+      console.error("Headers:", err.config?.headers);
+      console.error("Authorization Header:", err.config?.headers?.Authorization);
+      console.error("Current Token:", localStorage.getItem("accessToken"));
+      console.error("Cookies:", document.cookie);
+    }
+    
     const original = err.config as any;
     const isAuthPath = /\/auth\/(login|register|refresh)(\?|$)/.test(url);
 
@@ -127,6 +138,12 @@ api.interceptors.response.use(
         // refresh 실패 -> 그대로 에러 반환
       }
     }
+    
+    // 403 에러인 경우 사용자에게 친화적인 메시지 표시
+    if (status === 403 && url.includes("/savings/plans")) {
+      console.log("💡 적금 플랜 생성 권한이 없습니다. 미션 적금을 사용해주세요.");
+    }
+    
     return Promise.reject(err);
   }
 );

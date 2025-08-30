@@ -19,6 +19,13 @@ import {
   type CountryItem,
   type UniversityItem,
 } from "../../api/university";
+import {
+  getPublicUserChecklists,
+  getUserChecklistItems,
+  collectChecklistItem,
+  type PublicChecklistItem,
+  type PublicChecklistResponse,
+} from "../../api/checklist";
 
 type BoardCategory = "ALL" | "CHECKLIST" | "FREE" | "QNA";
 
@@ -96,10 +103,63 @@ export default function CommunityBoard() {
   const [size] = useState(20);
   const [hasNext, setHasNext] = useState(false);
 
+  // 체크리스트 목록 상태
+  const [checklistItems, setChecklistItems] = useState<PublicChecklistItem[]>([]);
+  const [checklistPage, setChecklistPage] = useState(0);
+  const [checklistHasNext, setChecklistHasNext] = useState(false);
+
   // 상태
   const [loading, setLoading] = useState(false);
   const [initialLoaded, setInitialLoaded] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // 체크리스트 관련 상태 추가
+  const [selectedChecklist, setSelectedChecklist] = useState<{
+    checklist: PublicChecklistItem;
+    items: any[];
+  } | null>(null);
+  const [isChecklistExpanded, setIsChecklistExpanded] = useState(false);
+  const [isLoadingChecklist, setIsLoadingChecklist] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
+
+  // 체크리스트 클릭 핸들러
+  const handleChecklistClick = async (checklistItem: PublicChecklistItem, e: React.MouseEvent) => {
+    e.preventDefault(); // Link의 기본 동작 방지
+    
+    if (selectedChecklist?.checklist?.userChecklistId === checklistItem.userChecklistId) {
+      // 이미 선택된 체크리스트라면 토글
+      setIsChecklistExpanded(!isChecklistExpanded);
+      return;
+    }
+
+    setIsLoadingChecklist(true);
+    setSelectedItems(new Set()); // 새로운 체크리스트를 열 때 선택된 항목 초기화
+    try {
+      // 체크리스트 항목들을 가져오기
+      const itemsData = await getUserChecklistItems(checklistItem.userChecklistId);
+
+      setSelectedChecklist({
+        checklist: checklistItem,
+        items: itemsData
+      });
+      setIsChecklistExpanded(true);
+    } catch (error) {
+      console.error('체크리스트 정보를 가져오는데 실패했습니다:', error);
+    } finally {
+      setIsLoadingChecklist(false);
+    }
+  };
+
+  // 체크박스 변경 핸들러
+  const handleItemCheckboxChange = (itemId: number, checked: boolean) => {
+    const newSelectedItems = new Set(selectedItems);
+    if (checked) {
+      newSelectedItems.add(itemId);
+    } else {
+      newSelectedItems.delete(itemId);
+    }
+    setSelectedItems(newSelectedItems);
+  };
 
   // 국가 목록 최초 로드
   useEffect(() => {
@@ -133,6 +193,7 @@ export default function CommunityBoard() {
   // 카테고리/적용된 검색값 바뀌면 페이지 초기화
   useEffect(() => {
     setPage(0);
+    setChecklistPage(0);
   }, [cat, appliedCountry, appliedUniversityId]);
 
   // 적용된 검색값으로 게시글 목록 호출
@@ -176,11 +237,48 @@ export default function CommunityBoard() {
     };
   }, [page, size, appliedCountry, appliedUniversityId]);
 
+  // 체크리스트 데이터 로드 (CHECKLIST 탭 선택 시)
+  useEffect(() => {
+    if (cat !== "CHECKLIST") return;
+    
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setErrorMsg(null);
+      try {
+        const params = {
+          page: checklistPage,
+          size,
+          sort: "latest",
+          country: appliedCountry || undefined,
+          universityId: appliedUniversityId,
+        };
+        
+        const res = await getPublicUserChecklists(params);
+
+        if (!cancelled) {
+          if (checklistPage === 0) setChecklistItems(res.content || []);
+          else setChecklistItems((prev) => prev.concat(res.content || []));
+          setChecklistHasNext(res.hasNext);
+          setInitialLoaded(true);
+        }
+      } catch {
+        if (!cancelled) setErrorMsg("체크리스트를 불러오지 못했습니다.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [cat, checklistPage, size, appliedCountry, appliedUniversityId]);
+
   // 탭(카테고리) 필터
   const visible = useMemo(() => {
+    if (cat === "CHECKLIST") return checklistItems;
     if (cat === "ALL") return items;
     return items.filter((p) => normalizeCat(p.category) === cat);
-  }, [items, cat]);
+  }, [items, checklistItems, cat]);
 
   // 드롭다운 핸들러(폼 상태 갱신)
   function onChangeCountry(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -210,6 +308,38 @@ export default function CommunityBoard() {
       setPage(0);
     }
   }
+
+  // Save 버튼 클릭 핸들러 - API 호출 포함
+  const handleSaveClick = async () => {
+    if (selectedItems.size === 0) {
+      alert('저장할 항목을 선택해주세요.');
+      return;
+    }
+
+    try {
+      // 임시로 하드코딩된 체크리스트 ID 사용 (403 에러 방지)
+      // TODO: 실제 구현에서는 사용자 인증 후 체크리스트 ID를 가져와야 함
+      const myChecklistId = 1; // 임시 체크리스트 ID
+      
+      // 선택된 각 항목을 수집 API로 전송
+      const selectedItemIds = Array.from(selectedItems);
+      const promises = selectedItemIds.map(async (sourceItemId) => {
+        // userId는 현재 로그인한 사용자의 ID (임시로 1로 설정)
+        const userId = 1; // TODO: 실제 사용자 ID로 변경
+        return collectChecklistItem(myChecklistId, userId, sourceItemId);
+      });
+
+      await Promise.all(promises);
+      
+      alert(`${selectedItems.size}개의 항목이 성공적으로 저장되었습니다.`);
+      setIsChecklistExpanded(false);
+      setSelectedItems(new Set());
+      
+    } catch (error) {
+      console.error('항목 저장에 실패했습니다:', error);
+      alert('항목 저장에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
 
   return (
     <div className={styles.boardRoot}>
@@ -310,57 +440,174 @@ export default function CommunityBoard() {
       )}
 
       {initialLoaded && visible.length === 0 && !loading && !errorMsg && (
-        <div className={styles.emptyBox}>게시글이 없습니다.</div>
+        <div className={styles.emptyBox}>
+          {cat === "CHECKLIST" ? "체크리스트가 없습니다." : "게시글이 없습니다."}
+        </div>
       )}
 
       {/* 리스트 */}
       {visible.length > 0 && (
         <ul className={styles.boardList}>
           {visible.map((p) => {
-            const createdAgo = timeAgo(p.createdAt);
-            return (
-              <li key={p.postId} className={styles.boardRow}>
-                <div className={styles.rowLeft}>
-                  <div className={styles.rowBadge}>
-                    {typeof p.category === "string"
-                      ? p.category
-                      : String(p.category)}
+            if (cat === "CHECKLIST" && "userChecklistId" in p) {
+              // 체크리스트 아이템 렌더링
+              const checklistItem = p as PublicChecklistItem;
+              const createdAgo = timeAgo(checklistItem.createdAt);
+              const isSelected = selectedChecklist?.checklist?.userChecklistId === checklistItem.userChecklistId;
+              
+              return (
+                <li key={checklistItem.userChecklistId} className={styles.boardRow}>
+                  <div className={styles.rowLeft}>
+                    <div className={styles.rowBadge}>체크리스트</div>
+                    <h3 className={styles.rowTitle}>
+                      <Link
+                        to={`/checklist/${checklistItem.userChecklistId}`}
+                        className={`${styles.titleLink} ${isSelected ? styles.selectedTitle : ''}`}
+                        onClick={(e) => handleChecklistClick(checklistItem, e)}
+                      >
+                        {checklistItem.title}
+                      </Link>
+                    </h3>
+                    <div className={styles.rowMeta}>
+                      <span className={styles.metaAuthor}>
+                        {checklistItem.authorNickname}
+                      </span>
+                      <span className={styles.metaDot}>·</span>
+                      <span>{createdAgo}</span>
+                      <span className={styles.metaDot}>·</span>
+                      <span>좋아요 {checklistItem.likeCount}</span>
+                      <span className={styles.metaDot}>·</span>
+                      <span>저장 {checklistItem.saveCount}</span>
+                    </div>
                   </div>
-                  <h3 className={styles.rowTitle}>
-                    <Link
-                      to={`/community/${p.postId}`}
-                      className={styles.titleLink}
-                    >
-                      {p.title}
-                    </Link>
-                  </h3>
-                  <pre className={styles.rowSnippet}>{p.bodyPreview || ""}</pre>
-                  <div className={styles.rowMeta}>
-                    <span className={styles.metaAuthor}>
-                      {p.authorNickname}
-                    </span>
-                    <span className={styles.metaDot}>·</span>
-                    <span>{createdAgo}</span>
-                    <span className={styles.metaSep} />
-                    <span>댓글 {p.replyCount ?? 0}</span>
-                    <span className={styles.metaDot}>·</span>
-                    <span>좋아요 {p.likeCount ?? 0}</span>
+                </li>
+              );
+            } else {
+              // 일반 게시글 렌더링
+              const postItem = p as PostSummary;
+              const createdAgo = timeAgo(postItem.createdAt);
+              return (
+                <li key={postItem.postId} className={styles.boardRow}>
+                  <div className={styles.rowLeft}>
+                    <div className={styles.rowBadge}>
+                      {typeof postItem.category === "string"
+                        ? postItem.category
+                        : String(postItem.category)}
+                    </div>
+                    <h3 className={styles.rowTitle}>
+                      <Link
+                        to={`/community/${postItem.postId}`}
+                        className={styles.titleLink}
+                      >
+                        {postItem.title}
+                      </Link>
+                    </h3>
+                    <pre className={styles.rowSnippet}>{postItem.bodyPreview || ""}</pre>
+                    <div className={styles.rowMeta}>
+                      <span className={styles.metaAuthor}>
+                        {postItem.authorNickname}
+                      </span>
+                      <span className={styles.metaDot}>·</span>
+                      <span>{createdAgo}</span>
+                      <span className={styles.metaSep} />
+                      <span>댓글 {postItem.replyCount ?? 0}</span>
+                      <span className={styles.metaDot}>·</span>
+                      <span>좋아요 {postItem.likeCount ?? 0}</span>
+                    </div>
                   </div>
-                </div>
-              </li>
-            );
+                </li>
+              );
+            }
           })}
         </ul>
       )}
 
+      {/* 체크리스트 상세보기 모달 */}
+      {isChecklistExpanded && selectedChecklist && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>체크리스트 상세보기</h2>
+              <button className={styles.closeButton} onClick={() => setIsChecklistExpanded(false)}>×</button>
+            </div>
+            <div className={styles.modalBody}>
+              {isLoadingChecklist ? (
+                <div className={styles.loadingMessage}>체크리스트 정보를 불러오는 중...</div>
+              ) : (
+                <>
+                  <div className={styles.checklistInfo}>
+                    <div className={styles.checklistTitleDisplay}>
+                      <h3 className={styles.checklistTitleText}>{selectedChecklist.checklist.title}</h3>
+                      <div className={styles.privacyStatus}>
+                        공개
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 선택된 항목 정보 */}
+                  {selectedItems.size > 0 && (
+                    <div className={styles.selectedItemsInfo}>
+                      <div className={styles.selectedItemsTitle}>
+                        선택된 항목 ({selectedItems.size}개)
+                      </div>
+                      <div className={styles.selectedItemsList}>
+                        {Array.from(selectedItems).map((itemId) => {
+                          const item = selectedChecklist.items.find(i => i.uciId === itemId);
+                          return item ? (
+                            <span key={itemId} className={styles.selectedItemTag}>
+                              {item.title}
+                            </span>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className={styles.checklistItemsView}>
+                    {selectedChecklist.items.length > 0 ? (
+                      selectedChecklist.items.map((item: any) => (
+                        <div key={item.uciId} className={styles.itemRow}>
+                          <div className={styles.itemCheckbox}>
+                            <input
+                              type="checkbox"
+                              className={styles.checkbox}
+                              checked={selectedItems.has(item.uciId)}
+                              onChange={(e) => handleItemCheckboxChange(item.uciId, e.target.checked)}
+                            />
+                            <div className={styles.itemTitle}>{item.title}</div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className={styles.noItemsMessage}>체크리스트 항목이 없습니다.</div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+            <div className={styles.modalFooter}>
+              <button className={styles.modalSaveBtn} onClick={handleSaveClick}>
+                Save ({selectedItems.size})
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 더보기 */}
-      {visible.length > 0 && hasNext && (
+      {visible.length > 0 && ((cat === "CHECKLIST" && checklistHasNext) || (cat !== "CHECKLIST" && hasNext)) && (
         <div className={styles.loadMoreWrap}>
           <button
             type="button"
             className={styles.loadMoreBtn}
             disabled={loading}
-            onClick={() => setPage((prev) => prev + 1)}
+            onClick={() => {
+              if (cat === "CHECKLIST") {
+                setChecklistPage((prev) => prev + 1);
+              } else {
+                setPage((prev) => prev + 1);
+              }
+            }}
           >
             {loading ? "불러오는 중..." : "더보기"}
           </button>

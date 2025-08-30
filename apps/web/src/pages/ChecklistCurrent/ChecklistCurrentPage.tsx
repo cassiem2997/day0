@@ -15,7 +15,7 @@ import clouds from "../../assets/clouds.svg";
 import underline from "../../assets/underline.svg";
 // 대학교 이미지 추가
 import universityImg from "../../assets/university.svg";
-import { getUserChecklists, patchUserChecklistItem, getChecklistCalendar } from "../../api/checklist";
+import { getUserChecklistsByUserId, patchUserChecklistItem, getChecklistCalendar } from "../../api/checklist";
 import type { ChecklistCalendarItem } from "../../api/checklist";
 import { useAuth } from "../../auth/useAuth";
 import { getMySavingsPlans } from "../../api/savings";
@@ -345,7 +345,7 @@ export default function ChecklistCurrentPage() {
     try {
       setIsLoading(true);
       // 1. 사용자의 체크리스트 목록 가져오기
-      const checklists = await getUserChecklists(user.userId);
+      const checklists = await getUserChecklistsByUserId(user.userId);
       
       if (checklists && checklists.length > 0) {
         // 2. 가장 최근 체크리스트의 ID 가져오기 (첫 번째 항목 사용)

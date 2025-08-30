@@ -51,7 +51,7 @@ export default function CommunityPage() {
         {isMobile ? null : <Header></Header>}
 
         <div className={styles.pageContent}>
-          <h1 className={styles.communityTitle}>COMMUNITY</h1>
+          <h1 className={styles.communityTitle}>헤이 - 톡</h1>
 
           {/* 박스 바깥 우측 상단 탭(Pill) */}
           <div

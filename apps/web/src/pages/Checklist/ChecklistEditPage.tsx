@@ -5,7 +5,7 @@ import Header from "../../components/Header/Header";
 import styles from "./ChecklistPage.module.css";
 import editStyles from "./ChecklistEdit.module.css";
 import ChecklistEditor from "../../components/ChecklistEditor";
-import { getCookie, setCookie } from "../../utils/cookieUtils";
+
 import { 
   updateUserChecklist,
   getUserChecklistItems,
@@ -16,6 +16,7 @@ import {
   type AddChecklistItemResponse,
 } from "../../api/checklist";
 import { me } from "../../api/user";
+import AIChecklistModal from "../../components/ChecklistAddModal/AIChecklistModal";
 
 interface ChecklistItem {
   uciId: number;
@@ -43,6 +44,50 @@ const CATEGORY_TO_TAG: Record<string, string> = {
   기타: "ETC",
 };
 
+// AI 추천 테스트용 더미 데이터
+const DUMMY_MISSING_ITEMS = [
+  {
+    item_title: "여행자보험 가입",
+    item_description: "해외여행 시 필수 보험 가입",
+    item_tag: "INSURANCE",
+    popularity_rate: 95,
+    avg_offset_days: -7,
+    priority_score: 8.5,
+    missing_reason: "안전한 여행을 위한 보험",
+    confidence_score: 0.9
+  },
+  {
+    item_title: "환전 카드 발급",
+    item_description: "해외 사용 가능한 신용카드 준비",
+    item_tag: "EXCHANGE",
+    popularity_rate: 88,
+    avg_offset_days: -3,
+    priority_score: 7.8,
+    missing_reason: "현지 통화 사용 편의성",
+    confidence_score: 0.85
+  },
+  {
+    item_title: "여권 사본 준비",
+    item_description: "여권 정보 복사본 제작",
+    item_tag: "DOCUMENT",
+    popularity_rate: 92,
+    avg_offset_days: -5,
+    priority_score: 8.2,
+    missing_reason: "분실 시 대비",
+    confidence_score: 0.88
+  },
+  {
+    item_title: "비상금 준비",
+    item_description: "현금 및 비상용 자금 마련",
+    item_tag: "SAVING",
+    popularity_rate: 85,
+    avg_offset_days: -2,
+    priority_score: 7.5,
+    missing_reason: "긴급 상황 대비",
+    confidence_score: 0.82
+  }
+];
+
 export default function ChecklistEditPage() {
   const navigate = useNavigate();
   const { userChecklistId } = useParams<{ userChecklistId: string }>();
@@ -53,6 +98,7 @@ export default function ChecklistEditPage() {
   const [items, setItems] = useState<ChecklistItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen((p) => !p);
 
@@ -212,6 +258,69 @@ export default function ChecklistEditPage() {
     }
   };
 
+  const openAIModal = () => {
+    setIsAIModalOpen(true);
+  };
+
+  const closeAIModal = () => {
+    setIsAIModalOpen(false);
+  };
+
+  const handleAIConfirm = async () => {
+    if (!userChecklistId) return;
+    
+    setIsAIModalOpen(false);
+    setIsLoading(true);
+    
+    try {
+      // 실제 API 호출 대신 더미 데이터 사용 (테스트용)
+      // const missingItemsResponse = await getMissingItems(userChecklistId, userId);
+      
+      // 더미 데이터로 테스트
+      const missingItemsResponse = {
+        missing_items: DUMMY_MISSING_ITEMS,
+        total_missing: DUMMY_MISSING_ITEMS.length,
+        recommendation_summary: "AI가 추천하는 체크리스트 항목들입니다."
+      };
+      
+      if (missingItemsResponse.total_missing > 0) {
+        // 누락된 아이템들을 체크리스트에 추가
+        for (const item of missingItemsResponse.missing_items) {
+          const dueDate = new Date();
+          dueDate.setDate(dueDate.getDate() + Math.abs(item.avg_offset_days));
+          
+          await addUserChecklistItem(userChecklistId, {
+            title: item.item_title,
+            tag: item.item_tag as ChecklistItem["tag"],
+            linkedAmount: 0,
+            isFixed: false,
+          });
+        }
+        
+        alert(`${missingItemsResponse.total_missing}개가 추가되었습니다.`);
+        
+        // 아이템 목록 새로고침
+        const itemsData = await getUserChecklistItems(Number(userChecklistId));
+        const mapped: ChecklistItem[] = (itemsData || []).map((x: any) => ({
+          uciId: x.uciId,
+          title: x.title,
+          tag: (x.tag || "NONE") as ChecklistItem["tag"],
+          status: (x.status || "TODO") as ChecklistItem["status"],
+          dueDate: x.dueDate || null,
+          description: x.description || "",
+        }));
+        setItems(mapped);
+      } else {
+        alert("추가할 수 있는 아이템이 없습니다.");
+      }
+    } catch (error) {
+      console.error("AI 추천 처리 중 오류:", error);
+      alert("AI 추천 처리 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isLoadingData) {
     return (
       <div className={styles.container}>
@@ -288,10 +397,17 @@ export default function ChecklistEditPage() {
             updateItemName={updateItemName}
             deleteItem={deleteItem}
             handleSave={handleSave}
+            onAIRecommend={openAIModal}
           />
           </div>
         </main>
       </div>
+      
+      <AIChecklistModal
+        isOpen={isAIModalOpen}
+        onClose={closeAIModal}
+        onConfirm={handleAIConfirm}
+      />
     </div>
   );
 }
