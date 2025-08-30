@@ -29,7 +29,8 @@ export default function AccountRegisterPage() {
   const navigate = useNavigate();
   const [rightPanel, setRightPanel] = useState(true);
   const [bankProducts, setBankProducts] = useState<BankProduct[]>([]);
-  const [selectedAccount, setSelectedAccount] = useState<SelectedAccount | null>(null);
+  const [selectedAccount, setSelectedAccount] =
+    useState<SelectedAccount | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,11 +41,11 @@ export default function AccountRegisterPage() {
       try {
         setLoading(true);
         setError(null);
-        const response = await api.get('/accounts/products');
+        const response = await api.get("/accounts/products");
         setBankProducts(response.data);
       } catch (err: any) {
-        console.error('은행 상품 목록 가져오기 실패:', err);
-        setError('은행 상품 목록을 불러오지 못했습니다.');
+        console.error("은행 상품 목록 가져오기 실패:", err);
+        setError("은행 상품 목록을 불러오지 못했습니다.");
       } finally {
         setLoading(false);
       }
@@ -58,7 +59,7 @@ export default function AccountRegisterPage() {
       productId: product.productId,
       bankName: product.bankName,
       accountName: product.accountName,
-      accountDescription: product.accountDescription
+      accountDescription: product.accountDescription,
     });
   };
 
@@ -73,14 +74,16 @@ export default function AccountRegisterPage() {
     setSubmitting(true);
     try {
       // 계좌 생성 API 호출
-      const response = await api.post(`/accounts/products/${selectedAccount.productId}`, {});
-      
+      const response = await api.post(
+        `/accounts/products/${selectedAccount.productId}`,
+        {}
+      );
+
       console.log("계좌 생성 성공:", response.data);
-      
+
       // 성공 시 체크리스트 페이지로 이동
       alert("계좌가 성공적으로 생성되었습니다!");
       navigate("/checklist", { replace: true });
-      
     } catch (err: any) {
       console.error("계좌 등록 실패:", err);
       alert("계좌 등록에 실패했습니다.");
@@ -104,7 +107,9 @@ export default function AccountRegisterPage() {
 
             <div className={styles.form}>
               {loading ? (
-                <div className={accountStyles.loading}>은행 상품 목록을 불러오는 중...</div>
+                <div className={accountStyles.loading}>
+                  은행 상품 목록을 불러오는 중...
+                </div>
               ) : error ? (
                 <div className={accountStyles.error}>{error}</div>
               ) : (
@@ -114,18 +119,24 @@ export default function AccountRegisterPage() {
                       <div className={accountStyles.headerCell}>은행</div>
                       <div className={accountStyles.headerCell}>상품명</div>
                     </div>
-                    
+
                     <div className={accountStyles.accountItems}>
                       {bankProducts.map((product) => (
                         <div
                           key={product.productId}
                           className={`${accountStyles.accountItem} ${
-                            selectedAccount?.productId === product.productId ? accountStyles.selected : ""
+                            selectedAccount?.productId === product.productId
+                              ? accountStyles.selected
+                              : ""
                           }`}
                           onClick={() => handleAccountSelect(product)}
                         >
-                          <div className={accountStyles.bankName}>{product.bankName}</div>
-                          <div className={accountStyles.productName}>{product.accountName}</div>
+                          <div className={accountStyles.bankName}>
+                            {product.bankName}
+                          </div>
+                          <div className={accountStyles.productName}>
+                            {product.accountName}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -153,24 +164,18 @@ export default function AccountRegisterPage() {
 
         <div className={styles["overlay-container"]}>
           <div className={styles.overlay}>
+            {/* ✅ 왼쪽 흰 공간에 로그인 좌측 패널 추가 */}
             <div
               className={`${styles["overlay-panel"]} ${styles["overlay-left"]}`}
             >
-              {/* 이 부분은 사용되지 않지만 레이아웃을 위해 유지 */}
-            </div>
-
-            <div
-              className={`${styles["overlay-panel"]} ${styles["overlay-right"]}`}
-            >
               <h3 className={`${styles.headline} ${styles.mtTight}`}>
-                Let's Day <span className={styles.zero}>0</span>
+                Let’s Day <span className={styles.zero}>0</span>
               </h3>
               <p className={styles.subcopy}>
                 데이영에서
                 <br />
-                사용할 계좌를 등록하세요!
+                완벽한 출국 준비를 시작하세요!
               </p>
-
               <div className={styles.mascotBox}>
                 <img
                   src={Character}
@@ -178,7 +183,13 @@ export default function AccountRegisterPage() {
                   className={styles.mascotImg}
                 />
               </div>
+             
             </div>
+
+            {/* 오른쪽 오버레이는 비워둠 */}
+            <div
+              className={`${styles["overlay-panel"]} ${styles["overlay-right"]}`}
+            />
           </div>
         </div>
       </div>
