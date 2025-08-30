@@ -2,7 +2,9 @@
 import axios, { AxiosError } from "axios";
 import { getCookie } from "../utils/cookieUtils";
 
-const baseURL = "http://localhost:8080"; // 직접 백엔드 서버로 연결
+// 백엔드 서버 URL 설정
+const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+console.log("현재 설정된 API 서버 URL:", baseURL);
 
 console.log("🔧 API BaseURL:", baseURL);
 
@@ -17,26 +19,75 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
-    console.log("🍪 Cookies:", document.cookie);
+    console.log("🍪🍪🍪 Cookies:", document.cookie);
     
-    // 1. localStorage에서 JWT 토큰 확인
-    const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
-    if (token && token !== "undefined" && token !== "null" && token.trim() !== "") {
-      config.headers.Authorization = `Bearer ${token}`;
-      console.log("🔑 JWT Token added to Authorization header");
-    } else {
-      // 2. 쿠키에서 accessToken 확인
-      const cookieToken = getCookie("accessToken");
-      if (cookieToken && cookieToken !== "undefined" && cookieToken !== "null" && cookieToken.trim() !== "") {
-        config.headers.Authorization = `Bearer ${cookieToken}`;
-        console.log("🔑 JWT Token from cookie added to Authorization header");
+    // 토큰 검색 함수 - 유효한 토큰인지 확인
+    const isValidToken = (token: string | null | undefined): boolean => {
+      return !!token && token !== "undefined" && token !== "null" && token.trim() !== "";
+    };
+    
+    // 1. 쿠키에서 직접 토큰 확인 (가장 확실한 방법)
+    let tokenFromCookie = null;
+    const cookies = document.cookie.split('; ');
+    for (const cookie of cookies) {
+      if (cookie.startsWith('accessToken=')) {
+        tokenFromCookie = cookie.split('=')[1];
+        if (isValidToken(tokenFromCookie)) {
+          console.log("🍪🍪🍪 쿠키에서 직접 토큰 찾음:", tokenFromCookie.substring(0, 20) + "...");
+          // 찾은 토큰을 localStorage에도 저장
+          localStorage.setItem("accessToken", tokenFromCookie);
+          break;
+        }
       }
+    }
+    
+    // 2. getCookie 유틸리티로 쿠키 확인
+    const cookieToken = getCookie("accessToken");
+    if (isValidToken(cookieToken)) {
+      console.log("🍪 getCookie 유틸리티로 토큰 찾음:", cookieToken!.substring(0, 20) + "...");
+      // 찾은 토큰을 localStorage에도 저장
+      localStorage.setItem("accessToken", cookieToken!);
+    }
+    
+    // 3. localStorage에서 JWT 토큰 확인
+    const localToken = localStorage.getItem("accessToken");
+    const sessionToken = sessionStorage.getItem("accessToken");
+    
+    // 우선순위: 쿠키 직접 > getCookie > localStorage > sessionStorage
+    const token = tokenFromCookie || cookieToken || localToken || sessionToken;
+    
+    if (isValidToken(token)) {
+      // 토큰 형식 확인 (Bearer 접두사가 있는지)
+      if (token!.startsWith('Bearer ')) {
+        config.headers.Authorization = token;
+        console.log("🔑 JWT Token (with Bearer) added to Authorization header");
+      } else {
+        config.headers.Authorization = `Bearer ${token}`;
+        console.log("🔑 JWT Token added with Bearer prefix to Authorization header");
+      }
+      console.log("🔑 Token value:", token!.substring(0, 20) + "...");
+      
+      // 토큰을 모든 저장소에 동기화
+      if (token !== localToken && isValidToken(token)) {
+        localStorage.setItem("accessToken", token!);
+      }
+    } else {
+      // HttpOnly 쿠키는 JS에서 읽을 수 없지만 자동으로 전송됨
+      console.log("ℹ️ JavaScript에서 쿠키를 읽을 수 없지만 HttpOnly 쿠키가 자동 전송될 수 있습니다.");
+      console.log("⚠️ 어떤 방법으로도 토큰을 찾을 수 없습니다!");
+    }
+    
+    // 항상 Content-Type 설정
+    if (!config.headers["Content-Type"] && !config.headers["content-type"]) {
+      config.headers["Content-Type"] = "application/json";
+      console.log("📝 Content-Type 헤더 추가: application/json");
     }
     
     console.log("🔑 Headers:", config.headers);
     return config;
   },
   (error) => {
+    console.error("🔴 Request Interceptor Error:", error);
     return Promise.reject(error);
   }
 );

@@ -1,4 +1,3 @@
-// src/App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -21,7 +20,7 @@ import CommunityWrite from "./pages/Community/CommunityWrite";
 import MyPage from "./pages/MyPage/MyPage";
 
 import FxAlertToaster from "./components/FxAlertToaster/FxAlertToaster";
-import { me, type MeResponse } from "./api/user"; // ← api 유틸에서 가져오기
+import { me, type MeResponse } from "./api/user";
 import PublicOnlyRoute from "./routes/PublicOnlyRoute";
 import AuthDebugger from "./components/AuthDebugger";
 
@@ -29,23 +28,18 @@ export default function App() {
   const [userId, setUserId] = useState<number | null>(null);
 
   useEffect(() => {
-    // 로그인 되어 있다면 /auth/me 요청해서 userId 가져오기
     me()
       .then((res: MeResponse) => {
         if (res?.userId) setUserId(res.userId);
       })
       .catch(() => {
-        setUserId(null); // 로그인 안 된 상태
+        setUserId(null);
       });
   }, []);
 
   return (
     <BrowserRouter>
-      {/* ✅ 로그인된 경우에만 알림 팝업 */}
-      {userId && <FxAlertToaster userId={String(userId)} autoCloseMs={0}/>}
-      
-      {/* 🔍 인증 디버거 (개발용) */}
-      <AuthDebugger />
+      {userId && <FxAlertToaster userId={String(userId)} autoCloseMs={0} />}
 
       <Routes>
         {/* 공개 라우트 */}
@@ -55,11 +49,7 @@ export default function App() {
         {/* 체크리스트 */}
         <Route
           path="/checklist"
-          element={
-            <ProtectedRoute>
-              <ChecklistPage />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/checklist/current" replace />}
         />
         <Route
           path="/checklist/current"

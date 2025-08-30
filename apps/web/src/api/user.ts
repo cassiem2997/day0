@@ -79,19 +79,47 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
     console.log("❌ 응답 본문에 accessToken 없음");
   }
   
-  // 로그인 후 잠시 대기 후 쿠키 확인
-  setTimeout(() => {
-    const cookieToken = getCookie("accessToken");
-    if (cookieToken) {
-      console.log("🔑 JWT Token found in cookie:", cookieToken.substring(0, 20) + "...");
-      // localStorage에 토큰이 없는 경우 쿠키에서 가져오기
-      if (!localStorage.getItem("accessToken")) {
-        localStorage.setItem("accessToken", cookieToken);
-        console.log("🔑 Copied token from cookie to localStorage");
+  // userId도 저장
+  if (response.data.userId) {
+    localStorage.setItem("userId", response.data.userId.toString());
+    console.log("👤 UserId saved to localStorage:", response.data.userId);
+  }
+  
+  // 쿠키에서 직접 토큰 확인 (httpOnly: false인 경우)
+  const checkCookiesDirectly = () => {
+    const cookies = document.cookie.split('; ');
+    for (const cookie of cookies) {
+      if (cookie.startsWith('accessToken=')) {
+        const tokenFromCookie = cookie.split('=')[1];
+        if (tokenFromCookie && tokenFromCookie !== "undefined" && tokenFromCookie !== "null") {
+          console.log("🍪 쿠키에서 직접 토큰 찾음:", tokenFromCookie.substring(0, 20) + "...");
+          localStorage.setItem("accessToken", tokenFromCookie);
+          return true;
+        }
       }
     }
+    return false;
+  };
+  
+  // 로그인 후 잠시 대기 후 쿠키 확인 (여러 방법 시도)
+  setTimeout(() => {
     console.log("🍪 로그인 후 document.cookie:", document.cookie);
-  }, 1000);
+    
+    // 1. 직접 쿠키 파싱
+    if (checkCookiesDirectly()) {
+      console.log("✅ 직접 쿠키 파싱으로 토큰 찾음");
+    } else {
+      // 2. getCookie 유틸리티 사용
+      const cookieToken = getCookie("accessToken");
+      if (cookieToken) {
+        console.log("🔑 JWT Token found in cookie:", cookieToken.substring(0, 20) + "...");
+        localStorage.setItem("accessToken", cookieToken);
+        console.log("🔑 Copied token from cookie to localStorage");
+      } else {
+        console.log("❌ 쿠키에서 토큰을 찾을 수 없음");
+      }
+    }
+  }, 500);
   
   return response.data;
 }
@@ -246,6 +274,100 @@ export interface UserInfo {
 }
 
 export async function getCurrentUser(): Promise<UserInfo> {
-  const res = await api.get<UserInfo>("/auth/me"); // 또는 /users/me
-  return res.data;
+  console.log("🔍 getCurrentUser 호출됨");
+  
+  // JWT 토큰에서 사용자 ID 추출 시도
+  const token = localStorage.getItem("accessToken") || getCookie("accessToken");
+  if (!token) {
+    throw new Error("인증 토큰을 찾을 수 없습니다");
+  }
+  
+  try {
+    // JWT 토큰 디코드 (payload 부분만)
+    const payload = token.split('.')[1];
+    if (!payload) {
+      throw new Error("JWT 토큰 형식이 올바르지 않습니다");
+    }
+    
+    const decoded = JSON.parse(atob(payload));
+    console.log("🔍 JWT 토큰 디코드 결과:", decoded);
+    
+    if (!decoded.sub) {
+      throw new Error("JWT 토큰에 사용자 식별자가 없습니다");
+    }
+    
+    // 이메일로 사용자 정보 조회 시도 - 직접 axios 사용하여 토큰 헤더 추가
+    const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+    const axios = (await import("axios")).default;
+    
+    const res = await axios.get(`${baseURL}/users/profile`, {
+      params: { email: decoded.sub },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log("🔍 /users/profile 응답 전체:", res);
+    console.log("🔍 응답 데이터:", res.data);
+    console.log("🔍 응답 상태:", res.status);
+    
+    if (!res.data) {
+      throw new Error("응답 데이터가 없습니다");
+    }
+    
+    // 응답 데이터 구조에 맞게 매핑
+    const userData = res.data;
+    const userInfo: UserInfo = {
+      id: userData.userId || userData.id,
+      email: userData.email,
+      name: userData.name,
+      nickname: userData.nickname,
+    };
+    
+    if (!userInfo.id) {
+      throw new Error("응답 데이터에 id가 없습니다");
+    }
+    
+    console.log("✅ 사용자 정보 성공적으로 파싱됨:", userInfo);
+    return userInfo;
+    
+  } catch (error: any) {
+    console.error("❌ JWT 토큰 디코드 또는 API 호출 실패:", error);
+    
+    // 대안: localStorage에서 저장된 userId 사용
+    const savedUserId = localStorage.getItem("userId");
+    if (savedUserId) {
+      console.log("🔍 localStorage에서 userId 사용:", savedUserId);
+      const userId = parseInt(savedUserId);
+      
+      if (!isNaN(userId)) {
+        // 직접 axios 사용하여 토큰 헤더 추가
+        const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+        const axios = (await import("axios")).default;
+        const token = localStorage.getItem("accessToken") || getCookie("accessToken");
+        
+        const res = await axios.get(`${baseURL}/users/profile`, {
+          params: { userId },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const userData = res.data;
+        const userInfo: UserInfo = {
+          id: userData.userId,
+          email: userData.email,
+          name: userData.name,
+          nickname: userData.nickname,
+        };
+        
+        console.log("✅ localStorage userId로 사용자 정보 조회 성공:", userInfo);
+        return userInfo;
+      }
+    }
+    
+    throw new Error("사용자 정보를 가져올 수 없습니다: " + (error?.message || "알 수 없는 오류"));
+  }
 }
