@@ -28,7 +28,7 @@
    ========================= */
 .walkerStage {
   position: absolute;
-  left: 50%;
+  left: 49.5%;
   /* landing4 일러에서 하단 도로/테두리가 두꺼워서 약간 올림 */
   bottom: 14vh;              /* 필요하면 10~16vh 사이로 미세조정 */
   transform: translateX(-50%);
@@ -99,7 +99,7 @@
 /* CTA */
 .ctaWrap {
   position: absolute;
-  bottom: 3vh;
+  bottom: 5vh;
   left: 0;
   right: 0;
   display: grid;
