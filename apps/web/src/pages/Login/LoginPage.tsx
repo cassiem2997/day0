@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import {
   signUp,
   login,
+  me,
   type Gender,
   type SignUpPayload,
   type LoginPayload,
@@ -107,15 +108,38 @@ export default function LoginPage() {
 
       const res = await login(payload);
 
-      await Swal.fire({
-        title: "로그인 성공!",
-        text: res?.message || "환영합니다.",
-        icon: "success",
-        confirmButtonText: "확인",
-        confirmButtonColor: "#a8d5ff",
-      });
+      // 로그인 후 쿠키 확인
+      console.log("🍪 로그인 후 쿠키:", document.cookie);
+      
+      // 좌 더 기다린 후 인증 상태 확인 (2초 대기)
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-      navigate("/checklist", { replace: true });
+      // 로그인 후 인증 상태 확인
+      try {
+        console.log("🔍 인증 상태 확인 중...");
+        const userInfo = await me();
+        console.log("✅ 인증 성공:", userInfo);
+        
+        await Swal.fire({
+          title: "로그인 성공!",
+          text: res?.message || "환영합니다.",
+          icon: "success",
+          confirmButtonText: "확인",
+          confirmButtonColor: "#a8d5ff",
+        });
+
+        navigate("/checklist", { replace: true });
+      } catch (authError) {
+        console.error("❌ 인증 확인 실패:", authError);
+        console.log("🍪 현재 쿠키:", document.cookie);
+        
+        Swal.fire({
+          icon: "error",
+          title: "인증 확인 실패",
+          text: "로그인은 성공했지만 인증 확인에 실패했습니다. 다시 시도해주세요.",
+          confirmButtonColor: "#a8d5ff",
+        });
+      }
     } catch (err: any) {
       const message =
         err?.response?.data?.message ||
@@ -180,15 +204,49 @@ export default function LoginPage() {
     try {
       setSubmitting(true);
       await signUp(payload);
-      await Swal.fire({
-        title: "회원가입 완료!",
-        html: "Day0과 함께 떠나영~",
-        icon: "success",
-        confirmButtonText: "확인",
-        confirmButtonColor: "#a8d5ff",
-        background: "#f9f9f9",
-      });
-      setRightPanel(false);
+      // 회원가입 완료 후 자동 로그인 처리
+      console.log("회원가입 완료, 자동 로그인 시도...");
+      
+      try {
+        // 자동 로그인
+        const loginPayload: LoginPayload = {
+          email: signUpForm.email.trim(),
+          password: signUpForm.password,
+        };
+        
+        await login(loginPayload);
+        console.log("자동 로그인 성공");
+        
+        // 로그인 성공 후 계좌 등록 페이지로 이동
+        await Swal.fire({
+          title: "회원가입 완료!",
+          html: "Day0과 함께 떠나영~<br/>계좌 등록 페이지로 이동합니다.",
+          icon: "success",
+          confirmButtonText: "확인",
+          confirmButtonColor: "#a8d5ff",
+          background: "#f9f9f9",
+          timer: 2000,
+          timerProgressBar: true,
+        });
+        
+        navigate("/account/register", { replace: true });
+        
+      } catch (loginErr: any) {
+        console.error("자동 로그인 실패:", loginErr);
+        
+        // 자동 로그인 실패 시 로그인 페이지에 머물고 안내
+        await Swal.fire({
+          title: "회원가입 완료!",
+          html: "Day0과 함께 떠나영~<br/>로그인 후 계좌를 등록해주세요.",
+          icon: "success",
+          confirmButtonText: "확인",
+          confirmButtonColor: "#a8d5ff",
+          background: "#f9f9f9",
+        });
+        
+        // 로그인 폼으로 전환
+        setRightPanel(false);
+      }
     } catch (err: any) {
       const message =
         err?.response?.data?.message ||

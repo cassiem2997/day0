@@ -1,0 +1,124 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: #ffffff;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #000000;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #a8d5ff;
+  border-radius: 16px 16px 0 0;
+}
+
+.modalTitle {
+  margin: 0;
+  font-family: 'EF_jejudoldam', system-ui, sans-serif;
+  font-size: 24px;
+  color: #000000;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #000000;
+}
+
+.modalBody {
+  padding: 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.checklistItems {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.checklistItem {
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f5f9ff;
+  margin-bottom: 10px;
+  border-left: 4px solid #4758fc;
+}
+
+.itemTitle {
+  font-family: 'EF_jejudoldam', system-ui, sans-serif;
+  font-size: 18px;
+  margin-bottom: 5px;
+  color: #000000;
+}
+
+.itemDescription {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.itemInfo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.itemTag {
+  background-color: #e0e7ff;
+  color: #4758fc;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.itemStatus {
+  font-weight: bold;
+  font-family: 'EF_jejudoldam', system-ui, sans-serif;
+}
+
+.noItems {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+}
+
+.modalFooter {
+  padding: 15px 20px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modalFooter .closeButton {
+  background-color: #4758fc;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: 'EF_jejudoldam', system-ui, sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+}

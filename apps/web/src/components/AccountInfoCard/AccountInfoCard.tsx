@@ -12,7 +12,7 @@ export default function AccountInfoCard({ onAccountsLoaded }: { onAccountsLoaded
     const fetchAccounts = async () => {
       try {
         const accountsData = await fetchMyAccounts();
-        console.log('=== AccountInfoCard에서 받은 계좌 데이터 ===');
+        console.log('=== Accoun왜tInfoCard에서 받은 계좌 데이터 ===');
         console.log('accountsData:', accountsData);
         console.log('첫 번째 계좌:', accountsData[0]);
         console.log('두 번째 계좌:', accountsData[1]);
@@ -94,7 +94,7 @@ export default function AccountInfoCard({ onAccountsLoaded }: { onAccountsLoaded
           >
             {accounts.map((account) => (
               <option key={account.id} value={account.id}>
-                {account.productName} - {account.number}
+                {account.bankName} - {account.number}
               </option>
             ))}
           </select>
@@ -112,7 +112,7 @@ export default function AccountInfoCard({ onAccountsLoaded }: { onAccountsLoaded
           >
             {accounts.map((account) => (
               <option key={account.id} value={account.id}>
-                {account.productName} - {account.number}
+                {account.bankName} - {account.number}
               </option>
             ))}
           </select>

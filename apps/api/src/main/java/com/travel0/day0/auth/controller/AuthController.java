@@ -184,7 +184,7 @@ public class AuthController {
 
             // 방법 2: 직접 헤더 설정 (백업용)
             response.addHeader("Set-Cookie",
-                    String.format("accessToken=%s; Path=/; HttpOnly; Max-Age=86400; SameSite=Lax", accessToken));
+                    String.format("accessToken=%s; Path=/; Max-Age=86400; SameSite=Lax", accessToken));
             response.addHeader("Set-Cookie",
                     String.format("refreshToken=%s; Path=/; HttpOnly; Max-Age=1209600; SameSite=Lax", refreshToken));
             System.out.println("직접 헤더 설정 완료");
@@ -198,13 +198,12 @@ public class AuthController {
     private void setAccessTokenCookie(HttpServletResponse response, String accessToken) {
         try {
             Cookie accessCookie = new Cookie("accessToken", accessToken);
-            accessCookie.setHttpOnly(true);
+            accessCookie.setHttpOnly(false); // JS에서 읽을 수 있도록 변경
             accessCookie.setSecure(false); // 개발 환경
             accessCookie.setPath("/");
             accessCookie.setMaxAge(24 * 60 * 60); // 24시간
-            // SameSite 설정 제거 (문제 가능성)
             response.addCookie(accessCookie);
-            System.out.println("Access Token 쿠키 설정됨");
+            System.out.println("Access Token 쿠키 설정됨 (HttpOnly=false)");
         } catch (Exception e) {
             System.out.println("Access Token 쿠키 설정 실패: " + e.getMessage());
         }
@@ -213,11 +212,10 @@ public class AuthController {
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         try {
             Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-            refreshCookie.setHttpOnly(true);
+            refreshCookie.setHttpOnly(true); // 리프레시 토큰은 보안상 HttpOnly 유지
             refreshCookie.setSecure(false); // 개발 환경
             refreshCookie.setPath("/");
             refreshCookie.setMaxAge(14 * 24 * 60 * 60); // 14일
-            // SameSite 설정 제거 (일관성 위해)
             response.addCookie(refreshCookie);
             System.out.println("Refresh Token 쿠키 설정됨");
         } catch (Exception e) {
@@ -227,7 +225,7 @@ public class AuthController {
 
     private void clearTokenCookies(HttpServletResponse response) {
         Cookie accessCookie = new Cookie("accessToken", null);
-        accessCookie.setHttpOnly(true);
+        accessCookie.setHttpOnly(false);
         accessCookie.setPath("/");
         accessCookie.setMaxAge(0);
         response.addCookie(accessCookie);

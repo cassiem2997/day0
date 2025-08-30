@@ -11,10 +11,9 @@ import formStyles from "../Checklist/ChecklistMaking.module.css";
 import { getDemandDepositAccounts } from "../../api/accounts";
 import { createSavingsPlan } from "../../api/savings";
 import { useAuth } from "../../auth/useAuth";
-import openChecklistAddModal from "../../components/ChecklistAddModal/ChecklistAddModal";
-import { updateChecklistLinkedAmount, getUserChecklistItems, patchUserChecklistItem } from "../../api/checklist";
+import { getUserChecklistItems, patchUserChecklistItem } from "../../api/checklist";
 import openChecklistAmountButton from "../../components/ChecklistAddModal/ChecklistAmountButton";
-import { getUserChecklists, getUserChecklistsNew } from "../../api/checklist";
+import { getUserChecklists } from "../../api/checklist";
 
 // API에서 가져오는 계좌 타입 사용
 import type { DepositAccount } from "../../api/accounts";
@@ -29,7 +28,7 @@ export default function SavingsPlanPage() {
   const [paymentDate, setPaymentDate] = useState("15");
   const [paymentAmount, setPaymentAmount] = useState("100000");
   const [duration, setDuration] = useState("12");
-  const [missionAmount, setMissionAmount] = useState("100000");
+
   const [isDateError, setIsDateError] = useState(false);
   const [isDurationError, setIsDurationError] = useState(false);
   const [accounts, setAccounts] = useState<DepositAccount[]>([]);
@@ -115,7 +114,7 @@ export default function SavingsPlanPage() {
       console.log("=== 사용자 체크리스트 조회 시작 ===");
       
       // 먼저 새로운 엔드포인트 /user/checklists 시도
-      let userChecklistsData = await getUserChecklistsNew(user.userId);
+      let userChecklistsData = await getUserChecklists(user.userId);
       console.log("/user/checklists API 응답:", userChecklistsData);
       
       // 새로운 API가 실패하면 기존 API 시도

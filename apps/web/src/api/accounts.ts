@@ -2,7 +2,7 @@ import api from "./axiosInstance";
 
 // 입출금 계좌
 export interface DepositAccount {
-  accountId: number;      
+  accountId: number;
   bankCode: string;
   bankName: string;
   userName: string;
@@ -74,7 +74,40 @@ export async function tryGetAccountById(accountId: number | string): Promise<Dep
 
 // 계좌 번호로 accountId 조회
 export async function getAccountIdByAccountNo(accountNo: string): Promise<number> {
-  const path = `/accounts/accounts/${encodeURIComponent(accountNo)}/find`; 
+  const path = `/accounts/accounts/${encodeURIComponent(accountNo)}/find`;
   const { data } = await api.get(path);
-  return Number(data); 
+  return Number(data);
+}
+
+
+// 입출금 계좌에서 출금하기
+export interface WithdrawRequest {
+  amount: number;
+  description?: string;
+}
+
+export interface WithdrawResponse {
+  transactionId: string;
+  status: string;
+  amount: number;
+  timestamp: string;
+  accountNo: string;
+}
+
+export async function withdrawFromAccount(
+  accountNo: string,
+  amount: number,
+  description: string = "체크리스트 항목 완료"
+): Promise<WithdrawResponse> {
+  const payload: WithdrawRequest = {
+    amount,
+    description
+  };
+
+  const { data } = await api.post(
+    `/banks/demand-deposit/accounts/${accountNo}/withdraw`,
+    payload
+  );
+
+  return data;
 }

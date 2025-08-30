@@ -150,7 +150,9 @@ const ExchangeHistory = forwardRef<ExchangeHistoryRef>((props, ref) => {
     return pages;
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
+  const formatCurrency = (amount: number | undefined, currency: string) => {
+    if (amount === undefined || amount === null) return "-";
+    
     if (currency === 'USD') {
       return `$${amount.toFixed(2)}`;
     } else if (currency === 'EUR') {
@@ -163,7 +165,8 @@ const ExchangeHistory = forwardRef<ExchangeHistoryRef>((props, ref) => {
     return `${amount}`;
   };
 
-  const formatExchangeRate = (rate: number) => {
+  const formatExchangeRate = (rate: number | undefined) => {
+    if (rate === undefined || rate === null) return "-";
     return `${rate.toFixed(2)}원`;
   };
 
@@ -254,7 +257,7 @@ const ExchangeHistory = forwardRef<ExchangeHistoryRef>((props, ref) => {
               
               <div className={styles.tableBody}>
                 {getCurrentPageData().map((transaction, index) => {
-                  const { date, time } = formatDateTime(transaction.created);
+                  const { date, time } = formatDateTime(transaction.created || transaction.at || new Date().toISOString());
                   return (
                     <div key={index} className={styles.tableRow}>
                       <div className={styles.dateCell}>
@@ -262,13 +265,13 @@ const ExchangeHistory = forwardRef<ExchangeHistoryRef>((props, ref) => {
                         <div className={styles.time}>{time}</div>
                       </div>
                       <div className={styles.rateCell}>
-                        {formatExchangeRate(transaction.exchangeRate)}
+                        {formatExchangeRate(transaction.exchangeRate || transaction.rateKrwPerUsd)}
                       </div>
                       <div className={styles.amountCell}>
-                        {formatCurrency(transaction.exchangeAmount, transaction.exchangeCurrency)}
+                        {formatCurrency(transaction.exchangeAmount || transaction.usdAmount, transaction.exchangeCurrency || 'USD')}
                       </div>
                       <div className={styles.withdrawalCell}>
-                        {formatCurrency(transaction.amount, transaction.currency)}
+                        {formatCurrency(transaction.amount || transaction.withdrawKrw, transaction.currency || 'KRW')}
                       </div>
                     </div>
                   );

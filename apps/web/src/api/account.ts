@@ -49,6 +49,13 @@ function normalizeOne(item: any, idx: number): AccountNormalized {
     type = "FX";
   }
 
+  console.log("=== normalizeOne 함수에서 title 설정 ===");
+  console.log("입력된 item:", item);
+  console.log("item?.title:", item?.title);
+  console.log("item?.name:", item?.name);
+  console.log("item?.accountName:", item?.accountName);
+  console.log("item?.productName:", item?.productName);
+  
   const title = s(
     item?.title ??
       item?.name ??
@@ -56,6 +63,9 @@ function normalizeOne(item: any, idx: number): AccountNormalized {
       item?.productName ??
       "계좌"
   );
+  
+  console.log("최종 설정된 title:", title);
+  console.log("=== normalizeOne title 설정 완료 ===");
 
   const accountNo = s(
     item?.accountNo ?? item?.accountNumber ?? item?.number ?? ""
@@ -142,6 +152,7 @@ export type AccountSummary = {
   id: string;
   number: string; // 계좌번호
   productName: string; // 표기용 이름(상품/계좌명)
+  bankName: string; // 은행명
   type: AccountType;
   currency: "KRW" | "USD";
   balance?: number;
@@ -159,22 +170,44 @@ export async function fetchMyAccounts(args?: {
     params: args?.userId ? { userId: args.userId } : undefined,
   });
 
+  console.log("=== fetchMyAccounts API 응답 ===");
+  console.log("전체 응답:", data);
+  console.log("응답 데이터 타입:", typeof data);
+  console.log("응답이 배열인가?", Array.isArray(data));
+
   const arr = Array.isArray((data as any)?.data)
     ? (data as Wrapped<any[]>).data
     : Array.isArray(data)
     ? (data as any[])
     : [];
 
-  const normalized = arr.map(normalizeOne);
+  console.log("처리할 배열:", arr);
+  if (arr.length > 0) {
+    console.log("첫 번째 계좌 원본 데이터:", arr[0]);
+    console.log("첫 번째 계좌의 title:", arr[0]?.title);
+    console.log("첫 번째 계좌의 name:", arr[0]?.name);
+    console.log("첫 번째 계좌의 accountName:", arr[0]?.accountName);
+    console.log("첫 번째 계좌의 productName:", arr[0]?.productName);
+    console.log("첫 번째 계좌의 bankName:", arr[0]?.bankName);
+  }
 
-  return normalized.map((a) => ({
+  const normalized = arr.map(normalizeOne);
+  console.log("정규화된 데이터:", normalized);
+
+  const result = normalized.map((a, i) => ({
     id: a.id,
     number: a.accountNo,
     productName: a.title,
+    bankName: arr[i]?.bankName || "은행",
     type: a.type,
     currency: a.currency,
     balance: Number.isFinite(a.balanceAmount) ? a.balanceAmount : undefined,
   }));
+
+  console.log("최종 반환 데이터:", result);
+  console.log("=== fetchMyAccounts 완료 ===");
+
+  return result;
 }
 
 /** 계좌번호로 계좌 ID 찾기 */
