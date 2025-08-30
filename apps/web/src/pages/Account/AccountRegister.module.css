@@ -1,0 +1,197 @@
+/* 페이지 전체 스타일 */
+.pageContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+  padding: 20px;
+}
+
+.pageTitle {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: #111;
+  margin: 20px 0 30px 0;
+  font-family: "SBAggroB", sans-serif;
+}
+
+/* 계좌 등록 페이지 전용 스타일 */
+.accountList {
+  width: 100%;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin: 20px 0;
+}
+
+.accountHeader {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 0;
+}
+
+.headerCell {
+  padding: 20px 16px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  font-size: 15px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.accountItems {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.accountItem {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  padding: 0;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.accountItem:hover {
+  background: #f8f9fa;
+}
+
+.accountItem.selected {
+  background: #fff;
+  border: 2px solid #4f46e5;
+  border-radius: 12px;
+  margin: 8px;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
+}
+
+.accountItem.selected .bankName {
+  background: #4f46e5;
+  color: #fff;
+  border-radius: 10px 0 0 10px;
+}
+
+.accountItem:last-child {
+  border-bottom: none;
+}
+
+.bankName {
+  font-weight: 600;
+  color: #666;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+  background: #f8f9fa;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.productName {
+  color: #333;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1.4;
+  padding: 20px 16px;
+  background: #fff;
+  font-weight: 500;
+}
+
+/* 시작 버튼 스타일 */
+.startButton {
+  width: 100%;
+  height: 56px;
+  border: none;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+}
+
+.startButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+}
+
+.startButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 로딩 및 에러 상태 */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 16px;
+}
+
+.error {
+  text-align: center;
+  padding: 40px;
+  color: #dc3545;
+  font-size: 16px;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+}
+
+/* 스크롤바 스타일링 */
+.accountItems::-webkit-scrollbar {
+  width: 6px;
+}
+
+.accountItems::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.accountItems::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.accountItems::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .accountHeader,
+  .accountItem {
+    grid-template-columns: 1fr 1.5fr;
+  }
+  
+  .headerCell,
+  .accountItem {
+    padding: 12px;
+  }
+  
+  .bankName,
+  .productName {
+    font-size: 13px;
+  }
+  
+  .pageTitle {
+    font-size: 24px;
+    margin: 15px 0 25px 0;
+  }
+  
+  .pageContainer {
+    padding: 15px;
+  }
+}

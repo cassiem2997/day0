@@ -8,9 +8,10 @@ export interface AddChecklistItemData {
   isFixed?: boolean;
 }
 
-export default function openChecklistAddModal(): Promise<AddChecklistItemData | null> {
+export default function openChecklistAddModal(selectedDate?: string): Promise<AddChecklistItemData | null> {
   return new Promise((resolve) => {
-    const today = new Date().toISOString().split('T')[0];
+    // 선택된 날짜가 있으면 사용하고, 없으면 오늘 날짜 사용
+    const defaultDate = selectedDate || new Date().toISOString().split('T')[0];
     
     Swal.fire({
       width: 560,
@@ -41,7 +42,7 @@ export default function openChecklistAddModal(): Promise<AddChecklistItemData | 
     <!-- Row: 기한 -->
     <div style="display:flex; align-items:center; gap:16px; margin-bottom:14px;">
       <div style="min-width:92px; text-align:center; background:#4758FC; color:#fff; border:4px solid #111; border-radius:24px; padding:10px 14px; font-weight:900; font-size:18px;">기한</div>
-      <input id="due-date" type="date" value="${today}" style="flex:1; height:56px; border:4px solid #111; border-radius:18px; background:#fff; padding:0 16px; font-weight:900; font-size:16px; outline:none;" />
+      <input id="due-date" type="date" value="${defaultDate}" style="flex:1; height:56px; border:4px solid #111; border-radius:18px; background:#fff; padding:0 16px; font-weight:900; font-size:16px; outline:none;" />
     </div>
 
     <!-- Row: 항목 -->

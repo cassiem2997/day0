@@ -69,7 +69,7 @@
 /* 날짜 타일 */
 .wrapper :global(.react-calendar__tile) {
   max-width: 100%;
-  padding: 15px 6px;
+  padding: 15px 6px; /* 패딩 높이 조정 */
   background: none;
   text-align: center;
   line-height: 1;
@@ -105,14 +105,104 @@
   color: #ccc;
 }
 
+/* 커스텀 달력 스타일 */
+.customCalendar {
+  width: 100%;
+  background-color: #f3fbff;
+  padding: 10px;
+  font-family: 'EF_jejudoldam', system-ui, -apple-system, sans-serif;
+}
+
+/* 달력 헤더 */
+.calendarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  margin-bottom: 20px;
+}
+
+.calendarHeader button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #333;
+  padding: 5px 10px;
+}
+
+.calendarHeader button:hover {
+  background-color: #4758FC;
+  color: white;
+}
+
+.currentMonth {
+  font-size: 24px;
+  font-weight: bold;
+  color: #111;
+}
+
+/* 주 컨테이너 */
+.calendarWeeks {
+  display: flex;
+  flex-direction: column;
+  gap: 30px; /* 주간 간격 */
+}
+
+/* 각 주 */
+.calendarWeek {
+  display: flex;
+  width: 100%;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 15px;
+}
+
+/* 마지막 주는 구분선 제거 */
+.calendarWeek:last-child {
+  border-bottom: none;
+}
+
+/* 날짜 셀 */
+.calendarDay {
+  flex: 1;
+  text-align: center;
+  padding: 15px 0;
+  font-size: 20px;
+  cursor: pointer; /* 모든 날짜를 클릭 가능하게 */
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.calendarDay:hover {
+  background-color: #4758FC;
+  color: white;
+}
+
+/* eventDot이 있는 날짜는 특별한 스타일 */
+.hasEvent {
+  /* eventDot이 있는 날짜는 특별한 스타일 */
+}
+
+/* 다른 달 날짜 */
+.otherMonth {
+  color: #ccc;
+}
+
+/* 선택된 날짜 */
+.selected {
+  background-color: #333;
+  color: white;
+  /* border-radius: 50%; */
+}
+
 /* 이벤트 표시 */
 .eventDot {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   background-color: #FF8A00;
   border-radius: 50%;
   position: absolute;
-  bottom: 2px;
+  bottom: 4px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
@@ -149,7 +239,7 @@
 }
 
 .compact :global(.react-calendar__tile) {
-  padding: 8px 2px;
+  padding: 12px 2px; /* 패딩 높이 증가 */
   font-size: 12px;
 }
 

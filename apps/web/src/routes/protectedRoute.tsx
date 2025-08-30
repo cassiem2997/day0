@@ -1,4 +1,3 @@
-// src/routes/ProtectedRoute.tsx
 import { useEffect, useState, type ReactElement } from "react";
 import { Navigate } from "react-router-dom";
 import { me } from "../api/user";
@@ -10,19 +9,30 @@ export default function ProtectedRoute({ children }: Props) {
 
   useEffect(() => {
     let mounted = true;
+    console.log("[ProtectedRoute] checking session via /auth/me ...");
     me()
-      .then(() => {
-        if (mounted) setOk(true);
+      .then((res) => {
+        if (!mounted) return;
+        console.log("[ProtectedRoute] /auth/me OK:", res);
+        setOk(true);
       })
-      .catch(() => {
-        if (mounted) setOk(false);
+      .catch((err) => {
+        if (!mounted) return;
+        console.warn("[ProtectedRoute] /auth/me FAIL:", err);
+        setOk(false);
       });
     return () => {
       mounted = false;
     };
   }, []);
 
-  if (ok === null) return null; // 필요하면 스피너 표시
-  if (!ok) return <Navigate to="/login" replace />;
+  if (ok === null) {
+    // 로딩 동안은 children을 막고 깜빡임 방지
+    return null;
+  }
+  if (!ok) {
+    console.warn("[ProtectedRoute] not authed → /login");
+    return <Navigate to="/login" replace />;
+  }
   return children;
 }
