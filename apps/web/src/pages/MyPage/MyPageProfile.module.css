@@ -84,7 +84,7 @@
   color: #000;
 }
 
-.userDept, .userUniv {
+.userDept, .user {
   font-size: 14px;
   color: #666;
   font-weight: 500;
@@ -94,7 +94,7 @@
 .simpleEditBtn {
   padding: 8px 16px;
   border: 2px solid #121212;
-  border-radius: 8px;
+  border-radis: 8px;
   background: #fff;
   font-weight: 900;
   font-size: 14px;
@@ -110,7 +110,7 @@
 }
 
 .ddayBadge {
-  background: #4A5AFF;
+  background: #4758fc;
   color: #fff;
   padding: 15px 25px;
   border-radius: 25px;
@@ -213,8 +213,8 @@
 
 .nick {
   margin: 0;
-  font-size: 56px;
-  font-weight: 900;
+  font-size: 30px;
+  font-weight: 500;
 }
 
 .subInfo {

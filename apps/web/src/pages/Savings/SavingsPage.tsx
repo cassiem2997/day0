@@ -6,8 +6,9 @@ import Header from "../../components/Header/Header";
 import styles from "./SavingsPage.module.css";
 import SavingsMission, { type Mission as MissionType } from "./SavingsMission";
 import SavingsDetail from "./SavingsDetail";
-import NoSavings from "./Nosavings"; 
+import NoSavings from "./Nosavings";
 import savingDetailSvg from "../../assets/savingDetail.svg";
+import underline from "../../assets/underline.svg";
 import {
   getSavingsPlan,
   getMySavingsPlans,
@@ -39,7 +40,7 @@ function formatAmount(n: number) {
 
 export default function SavingsPage() {
   const { planId: planIdParam } = useParams<{ planId?: string }>();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const checklistId = 1;
   const isMobile = useIsMobile(768);
@@ -47,7 +48,7 @@ export default function SavingsPage() {
   const [activeTab, setActiveTab] = useState<"mission" | "detail">("mission");
 
   const [plan, setPlan] = useState<SavingsPlanDetail | null>(null);
-  const [hasPlan, setHasPlan] = useState<boolean | null>(null); 
+  const [hasPlan, setHasPlan] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -88,7 +89,7 @@ export default function SavingsPage() {
         if (!targetPlanId) {
           if (!alive) return;
           setPlan(null);
-          setHasPlan(false); 
+          setHasPlan(false);
           return;
         }
 
@@ -96,7 +97,7 @@ export default function SavingsPage() {
         if (!alive) return;
 
         setPlan(data);
-        setHasPlan(true); 
+        setHasPlan(true);
         setCurrentAmount(Math.max(0, data?.savingAccount?.accountBalance ?? 0));
       } catch (e: any) {
         if (!alive) return;
@@ -176,7 +177,11 @@ export default function SavingsPage() {
         {!isMobile ? <Header /> : null}
 
         <div className={styles.pageContent}>
-          <h1 className={styles.title}>SAVINGS</h1>
+          <header className={styles.heroWrap}>
+            <p className={styles.subtitle}>출국 준비의 기본! 적금 플랜!</p>
+            <img src={underline} alt="" className={styles.underline} />
+            <h1 className={styles.hero}>D - 적금</h1>
+          </header>
 
           {/* 상태 메시지 (헤더 아래에 노출) */}
           {loading && <p>불러오는 중…</p>}
