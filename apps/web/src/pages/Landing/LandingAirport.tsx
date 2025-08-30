@@ -1,7 +1,6 @@
 import styles from "./LandingAirport.module.css";
 
 import bg from "../../assets/landing2.svg";
-import clouds from "../../assets/clouds.svg";
 import walkingLeft from "../../assets/walkingLeft.svg";
 import walkingRight from "../../assets/walkingRight.svg";
 import airplane from "../../assets/landingAirplane.svg";
@@ -14,9 +13,6 @@ export default function LandingAirport({ isActive = false }: Props) {
       {/* 배경 */}
       <img className={styles.bg} src={bg} alt="" />
 
-      {/* 구름 */}
-      <img className={`${styles.cloud} ${styles.cloudA}`} src={clouds} alt="" />
-      <img className={`${styles.cloud} ${styles.cloudB}`} src={clouds} alt="" />
 
       {/* 캐릭터: 제자리 앞걸음 */}
       <div className={styles.walkerWrap}>

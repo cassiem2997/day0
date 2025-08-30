@@ -3,11 +3,12 @@ import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import styles from "./ExchangeRatePage.module.css";
 import underline from "../../assets/underline.svg";
-import cloud from "../../assets/cloud.svg";
-import clouds from "../../assets/clouds.svg";
+
 import Swal from "sweetalert2";
 import FxAlertButton from "../../components/FxAlertButton/FxAlertButton";
-import FxConvertCard, { type FxConvertCardRef } from "../../components/FxConvertCard/FxConvertCard";
+import FxConvertCard, {
+  type FxConvertCardRef,
+} from "../../components/FxConvertCard/FxConvertCard";
 import AccountInfoCard from "../../components/AccountInfoCard";
 import ExchangeHistory, { type ExchangeHistoryRef } from "./ExchangeHistory";
 import ExchangeAlerts, { type ExchangeAlertsRef } from "./ExchangeAlerts";
@@ -15,9 +16,7 @@ import { createFxExchange } from "../../api/fx";
 import { getMyAccounts } from "../../api/accounts";
 import { useAuth } from "../../auth/useAuth";
 
-
 import { SmartRateChart } from "../../components/RateChart/RateChart"; // SmartRateChart로 변경
-
 
 /* 반응형 판별 훅 */
 function useIsMobile(breakpoint = 768) {
@@ -58,11 +57,11 @@ export default function ExchangeRatePage() {
 
   // 디버깅용 로그
   useEffect(() => {
-    console.log('ExchangeRatePage - isLoading changed:', isLoading);
+    console.log("ExchangeRatePage - isLoading changed:", isLoading);
   }, [isLoading]);
 
   useEffect(() => {
-    console.log('ExchangeRatePage - exchangeInfo changed:', exchangeInfo);
+    console.log("ExchangeRatePage - exchangeInfo changed:", exchangeInfo);
   }, [exchangeInfo]);
 
   // 인증 상태 모니터링
@@ -82,7 +81,9 @@ export default function ExchangeRatePage() {
 
   const handleExchangeRequest = () => {
     if (!hasAccounts) {
-      alert("계좌를 먼저 등록해주세요. 마이페이지 > 계좌관리에서 계좌을 생성할 수 있습니다.");
+      alert(
+        "계좌를 먼저 등록해주세요. 마이페이지 > 계좌관리에서 계좌을 생성할 수 있습니다."
+      );
       return;
     }
     setShowExchangeForm(true);
@@ -114,6 +115,9 @@ export default function ExchangeRatePage() {
         title: "로그인 필요",
         text: "환전신청을 위해 로그인이 필요합니다.",
         confirmButtonText: "확인",
+        customClass: {
+          popup: "my-swal-font",
+        },
       });
       return;
     }
@@ -127,20 +131,26 @@ export default function ExchangeRatePage() {
           title: "환전 정보 없음",
           text: "환전 정보를 가져올 수 없습니다.",
           confirmButtonText: "확인",
+          customClass: {
+            popup: "my-swal-font",
+          },
         });
         return;
       }
 
       // 계좌 정보 가져오기
       const accounts = await getMyAccounts();
-      const krwAccount = accounts.find(acc => acc.currency === "KRW");
-      
+      const krwAccount = accounts.find((acc) => acc.currency === "KRW");
+
       if (!krwAccount) {
         await Swal.fire({
           icon: "error",
           title: "계좌 없음",
-          text: "KRW 계좌를 찾을 수 없습니다.",
+          text: "계좌를 찾을 수 없습니다.",
           confirmButtonText: "확인",
+          customClass: {
+            popup: "my-swal-font",
+          },
         });
         return;
       }
@@ -163,7 +173,9 @@ export default function ExchangeRatePage() {
         ${exchangeInfo.toCurrency}
       </div>
       <div style="flex:1; border:4px solid #111; border-radius:24px; background:#fff; padding:10px 16px; display:flex; align-items:center; justify-content:center;">
-        <span style="font-weight:900; font-size:26px; color:#4758fc;">${exchangeInfo.toAmount}</span>
+        <span style="font-weight:900; font-size:26px; color:#4758fc;">${
+          exchangeInfo.toAmount
+        }</span>
       </div>
     </div>
 
@@ -175,7 +187,9 @@ export default function ExchangeRatePage() {
         KRW
       </span>
       <div style="flex:1; border:4px solid #111; border-radius:24px; background:#f0f0f0; padding:10px 16px; display:flex; align-items:center; justify-content:flex-end;">
-        <span style="font-weight:900; font-size:26px; color:#666;">${exchangeInfo.fromAmount.toLocaleString("ko-KR")}</span>
+        <span style="font-weight:900; font-size:26px; color:#666;">${exchangeInfo.fromAmount.toLocaleString(
+          "ko-KR"
+        )}</span>
       </div>
     </div>
 
@@ -212,8 +226,12 @@ export default function ExchangeRatePage() {
 </div>
         `,
         didOpen: () => {
-          const cancelEl = document.getElementById("exchange-cancel") as HTMLButtonElement;
-          const submitEl = document.getElementById("exchange-submit") as HTMLButtonElement;
+          const cancelEl = document.getElementById(
+            "exchange-cancel"
+          ) as HTMLButtonElement;
+          const submitEl = document.getElementById(
+            "exchange-submit"
+          ) as HTMLButtonElement;
 
           // 취소 버튼
           cancelEl.addEventListener("click", () => {
@@ -237,7 +255,7 @@ export default function ExchangeRatePage() {
               };
 
               const response = await createFxExchange(exchangeData);
-              
+
               if (response.success) {
                 await Swal.fire({
                   icon: "success",
@@ -245,16 +263,24 @@ export default function ExchangeRatePage() {
                   text: "환전신청이 성공적으로 처리되었습니다.",
                   confirmButtonText: "확인",
                   confirmButtonColor: "#4758FC",
+                  customClass: {
+                    popup: "my-swal-font",
+                  },
                 });
-                
+
                 // 모달 닫기
                 setShowExchangeForm(false);
-                
+
                 // 환전 내역 새로고침
                 if (exchangeHistoryRef.current) {
                   await exchangeHistoryRef.current.refreshTransactions();
                 }
-                
+
+
+                // 알림 내역 새로고침
+                if (exchangeAlertsRef.current) {
+                  await exchangeAlertsRef.current.refreshAlerts();
+                }
 
               } else {
                 throw new Error(response.message || "환전신청 실패");
@@ -264,9 +290,12 @@ export default function ExchangeRatePage() {
               await Swal.fire({
                 icon: "error",
                 title: "환전신청 실패",
-                text: error?.message || "환전신청 중 오류가 발생했습니다.",
+                text:  "환전신청 중 오류가 발생했습니다.",
                 confirmButtonText: "확인",
                 confirmButtonColor: "#ff4444",
+                customClass: {
+                  popup: "my-swal-font",
+                },
               });
             } finally {
               // 버튼 상태 복구
@@ -284,8 +313,11 @@ export default function ExchangeRatePage() {
       await Swal.fire({
         icon: "error",
         title: "환전신청 실패",
-        text: error?.message || "환전신청 중 오류가 발생했습니다.",
+        text: "환전신청 중 오류가 발생했습니다.",
         confirmButtonText: "확인",
+        customClass: {
+          popup: "my-swal-font",
+        },
       });
     }
   };
@@ -312,12 +344,6 @@ export default function ExchangeRatePage() {
         {isMobile ? null : <Header></Header>}
 
         <div className={styles.pageContent}>
-          {/* 구름 배경 */}
-          <div className={styles.cloudBackground}>
-            <img src={cloud} alt="" className={styles.cloudLeft} />
-            <img src={clouds} alt="" className={styles.cloudRight} />
-          </div>
-          
           <header className={styles.heroWrap}>
             <p className={styles.subtitle}>원하는 환율! 완벽한 환전!</p>
             <img src={underline} alt="" className={styles.underline} />
@@ -337,7 +363,9 @@ export default function ExchangeRatePage() {
             <div className={styles.exchangeButtonSection}>
               <button
                 type="button"
-                className={`${styles.exchangeRequestBtn} ${!hasAccounts ? styles.disabled : ''}`}
+                className={`${styles.exchangeRequestBtn} ${
+                  !hasAccounts ? styles.disabled : ""
+                }`}
                 onClick={handleExchangeRequest}
                 disabled={!hasAccounts}
               >
@@ -353,8 +381,14 @@ export default function ExchangeRatePage() {
 
           {/* 환전 폼 모달 */}
           {showExchangeForm && (
-            <div className={styles.modalOverlay} onClick={() => setShowExchangeForm(false)}>
-              <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div
+              className={styles.modalOverlay}
+              onClick={() => setShowExchangeForm(false)}
+            >
+              <div
+                className={styles.modalContent}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className={styles.modalHeader}>
                   <h2 className={styles.modalTitle}>환전 신청</h2>
                   <button
@@ -367,9 +401,13 @@ export default function ExchangeRatePage() {
                   </button>
                 </div>
                 <div className={styles.modalBody}>
-                  <AccountInfoCard onAccountsLoaded={(hasAccounts) => setHasAccounts(hasAccounts)} />
-                  <FxConvertCard 
-                    ref={fxConvertCardRef} 
+                  <AccountInfoCard
+                    onAccountsLoaded={(hasAccounts) =>
+                      setHasAccounts(hasAccounts)
+                    }
+                  />
+                  <FxConvertCard
+                    ref={fxConvertCardRef}
                     rate={latest ?? 1398}
                     onLoadingChange={setIsLoading}
                     onExchangeInfoChange={setExchangeInfo}
@@ -398,7 +436,6 @@ export default function ExchangeRatePage() {
 
           {/* 환전 내역 */}
           <ExchangeHistory ref={exchangeHistoryRef} />
-          
         </div>
       </main>
     </div>

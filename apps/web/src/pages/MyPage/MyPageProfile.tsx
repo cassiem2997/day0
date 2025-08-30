@@ -330,7 +330,7 @@ export default function MyPageProfile() {
           </div>
 
           <div className={styles.fieldGroup}>
-            <div className={styles.fieldKey}>국가/도착지</div>
+            <div className={styles.fieldKey}>예정 학교</div>
             <div className={styles.fieldVal}>
               <span className={styles.valText}>{pf.destinationLabel}</span>
             </div>
