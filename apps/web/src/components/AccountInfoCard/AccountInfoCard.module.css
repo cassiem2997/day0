@@ -1,9 +1,10 @@
 .accountCard {
-  background: #EAF4FF;
+  background: #eaf4ff;
   border: 4px solid #111;
   border-radius: 18px;
   padding: 24px;
-  font-family: 'EF_jejudoldam', system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+  font-family: "EF_jejudoldam", system-ui, -apple-system, Segoe UI, Roboto,
+    "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
 }
 
 .accountRow {
@@ -49,7 +50,7 @@
   background: transparent;
   font-weight: 900;
   font-size: 18px;
-  color: #4758FC;
+  color: #4758fc;
   outline: none;
   cursor: pointer;
   font-family: inherit;
@@ -87,7 +88,7 @@
 }
 
 .accountSelect option:checked {
-  background: #4758FC;
+  background: #4758fc;
   color: #fff;
 }
 
@@ -111,6 +112,7 @@
   font-weight: 400;
   color: #666;
   line-height: 1.4;
+  font-family: "SBAggroB";
 }
 
 /* 반응형 디자인 */
@@ -119,24 +121,24 @@
     padding: 20px;
     margin-bottom: 20px;
   }
-  
+
   .accountRow {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
   }
-  
+
   .accountLabel {
     align-self: flex-start;
     min-width: auto;
   }
-  
+
   .accountField {
     width: 100%;
     min-width: auto;
     padding: 0px auto;
   }
-  
+
   .accountSelect {
     padding-right: 50px;
     font-size: 16px;

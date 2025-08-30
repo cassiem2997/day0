@@ -29,3 +29,9 @@
   font-weight: normal;
   font-style: normal;
 }
+.my-swal-font,
+.my-swal-font .swal2-title,
+.my-swal-font .swal2-html-container,
+.my-swal-font .swal2-actions button {
+  font-family: "ONE-Mobile-POP", sans-serif !important;
+}

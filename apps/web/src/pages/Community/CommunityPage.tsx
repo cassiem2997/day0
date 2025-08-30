@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import styles from "./CommunityPage.module.css";
-
+import underline from "../../assets/underline.svg";
 import CommunityBest from "./CommunityBest";
 import CommunityBoard from "./CommunityBoard";
 
@@ -51,8 +51,11 @@ export default function CommunityPage() {
         {isMobile ? null : <Header></Header>}
 
         <div className={styles.pageContent}>
-          <h1 className={styles.communityTitle}>COMMUNITY</h1>
-
+          <header className={styles.heroWrap}>
+            <p className={styles.subtitle}>나의 동지들을 찾아서</p>
+            <img src={underline} alt="" className={styles.underline} />
+            <h1 className={styles.hero}>헤이 - 톡</h1>
+          </header>
           {/* 박스 바깥 우측 상단 탭(Pill) */}
           <div
             className={styles.pillTabs}

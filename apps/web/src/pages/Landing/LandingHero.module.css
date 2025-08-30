@@ -156,7 +156,7 @@
 /* CTA */
 .ctaWrap {
   position: absolute;
-  bottom: 3vh;
+  bottom: 5vh;
   left: 0;
   right: 0;
   display: grid;

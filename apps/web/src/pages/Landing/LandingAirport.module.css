@@ -120,7 +120,7 @@
 /* 기본 상태: 숨김 */
 .plane {
   position: absolute;
-  bottom: 22vh; /* 시작 Y (필요시 미세조정) */
+  bottom: 19vh; /* 시작 Y (필요시 미세조정) */
   left: 68vw; /* 시작 X */
   width: 24vw;
   z-index: 4;
