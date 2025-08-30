@@ -1,4 +1,5 @@
 import api from "./axiosInstance";
+import { getCookie } from "../utils/cookieUtils";
 
 /* =======================
  * 공통 타입
@@ -50,10 +51,49 @@ export interface LoginResponse {
   message: string;
   email?: string;
   userId?: number;
+  accessToken?: string; // JWT 토큰 추가
 }
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
-  const { data } = await api.post<LoginResponse>("/auth/login", payload);
-  return data;
+  const response = await api.post<LoginResponse>("/auth/login", payload);
+  
+  console.log("🔍 로그인 응답 전체:", response);
+  console.log("🔍 응답 헤더:", response.headers);
+  console.log("🔍 응답 데이터:", response.data);
+  console.log("🔍 Set-Cookie 헤더:", response.headers['set-cookie']);
+  
+  // 응답 헤더에서 Authorization 토큰 확인
+  const authHeader = response.headers.authorization || response.headers.Authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    localStorage.setItem("accessToken", token);
+    console.log("🔑 JWT Token saved from Authorization header:", token.substring(0, 20) + "...");
+  } else {
+    console.log("❌ Authorization 헤더에 토큰 없음");
+  }
+  
+  // 응답 본문에서 토큰 확인
+  if (response.data.accessToken) {
+    localStorage.setItem("accessToken", response.data.accessToken);
+    console.log("🔑 JWT Token saved from response body:", response.data.accessToken.substring(0, 20) + "...");
+  } else {
+    console.log("❌ 응답 본문에 accessToken 없음");
+  }
+  
+  // 로그인 후 잠시 대기 후 쿠키 확인
+  setTimeout(() => {
+    const cookieToken = getCookie("accessToken");
+    if (cookieToken) {
+      console.log("🔑 JWT Token found in cookie:", cookieToken.substring(0, 20) + "...");
+      // localStorage에 토큰이 없는 경우 쿠키에서 가져오기
+      if (!localStorage.getItem("accessToken")) {
+        localStorage.setItem("accessToken", cookieToken);
+        console.log("🔑 Copied token from cookie to localStorage");
+      }
+    }
+    console.log("🍪 로그인 후 document.cookie:", document.cookie);
+  }, 1000);
+  
+  return response.data;
 }
 
 /* =======================
@@ -66,6 +106,12 @@ export interface LogoutResponse {
 }
 export async function logout(): Promise<LogoutResponse> {
   const { data } = await api.post<LogoutResponse>("/auth/logout");
+  
+  // 로컬 스토리지에서 JWT 토큰 제거
+  localStorage.removeItem("accessToken");
+  sessionStorage.removeItem("accessToken");
+  console.log("🔑 JWT Token removed from storage");
+  
   return data;
 }
 

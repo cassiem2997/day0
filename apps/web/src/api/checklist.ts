@@ -388,3 +388,22 @@ export async function collectChecklistItem({
   );
   return data;
 }
+
+// 체크리스트 캘린더 항목 인터페이스
+export interface ChecklistCalendarItem {
+  category: string;
+  title: string;
+  dueDate: string;
+  dDay: number;
+}
+
+// 체크리스트 캘린더 데이터 가져오기
+export async function getChecklistCalendar(checklistId: number | string): Promise<ChecklistCalendarItem[]> {
+  try {
+    const { data } = await api.get(`/user-checklists/${checklistId}/calendar`);
+    return data;
+  } catch (error) {
+    console.error('체크리스트 캘린더 데이터 가져오기 실패:', error);
+    return [];
+  }
+}

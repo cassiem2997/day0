@@ -38,3 +38,35 @@ export async function tryGetAccountById(accountId: number | string): Promise<Dep
     return null;
   }
 }
+
+// 입출금 계좌에서 출금하기
+export interface WithdrawRequest {
+  amount: number;
+  description?: string;
+}
+
+export interface WithdrawResponse {
+  transactionId: string;
+  status: string;
+  amount: number;
+  timestamp: string;
+  accountNo: string;
+}
+
+export async function withdrawFromAccount(
+  accountNo: string, 
+  amount: number, 
+  description: string = "체크리스트 항목 완료"
+): Promise<WithdrawResponse> {
+  const payload: WithdrawRequest = {
+    amount,
+    description
+  };
+  
+  const { data } = await api.post(
+    `/banks/demand-deposit/accounts/${accountNo}/withdraw`,
+    payload
+  );
+  
+  return data;
+}

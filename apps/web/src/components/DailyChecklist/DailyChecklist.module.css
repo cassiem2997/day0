@@ -165,11 +165,12 @@
   border: 2px solid #000;
   background-color: #F3FCFF;
   border-radius: 4px;
-  gap: 15px;
+  gap: 10px;
   width: 90%;
   height: 70px;
   justify-content: center;
   margin: 10px auto;
+  padding: 0 10px;
 }
 
 .checkbox {
@@ -182,7 +183,7 @@
   appearance: none;
   -webkit-appearance: none;
   background-color: white;
-  margin-left: 20px;
+  margin: 0 10px;
 }
 
 .checkbox:checked {
@@ -190,12 +191,23 @@
   border-color: #1e3a8a;
 }
 
+.checkbox:disabled {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.checkbox:disabled:checked {
+  background-color: #9ca3af;
+  border-color: #6b7280;
+}
+
 .itemText {
   background-color: transparent;
   border: none;
   padding: 5px 10px;
-  flex-grow: 1;
-  font-size: clamp(18px, 4vw, 24px);
+  font-size: clamp(18px, 3vw, 22px);
   color: #000;
   cursor: pointer;
   text-align: center;
@@ -205,6 +217,27 @@
   justify-content: center;
   font-family: "EF_jejudoldam", system-ui, sans-serif;
   font-weight: 100;
+  flex: 1;
+}
+
+.dDayContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  margin-left: 10px;
+}
+
+.dDay {
+  font-size: 22px;
+  font-weight: 900;
+  color: #4758FC;
+  font-family: "EF_jejudoldam", system-ui, sans-serif;
+  background-color: #fff;
+  border: 2px solid #111;
+  border-radius: 10px;
+  padding: 3px 8px;
+  text-align: center;
 }
 
 .itemText:hover {

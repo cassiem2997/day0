@@ -23,6 +23,7 @@ import MyPage from "./pages/MyPage/MyPage";
 import FxAlertToaster from "./components/FxAlertToaster/FxAlertToaster";
 import { me, type MeResponse } from "./api/user"; // ← api 유틸에서 가져오기
 import PublicOnlyRoute from "./routes/PublicOnlyRoute";
+import AuthDebugger from "./components/AuthDebugger";
 
 export default function App() {
   const [userId, setUserId] = useState<number | null>(null);
@@ -42,6 +43,9 @@ export default function App() {
     <BrowserRouter>
       {/* ✅ 로그인된 경우에만 알림 팝업 */}
       {userId && <FxAlertToaster userId={String(userId)} autoCloseMs={0}/>}
+      
+      {/* 🔍 인증 디버거 (개발용) */}
+      <AuthDebugger />
 
       <Routes>
         {/* 공개 라우트 */}

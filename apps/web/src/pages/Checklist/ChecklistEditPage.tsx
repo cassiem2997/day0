@@ -5,6 +5,7 @@ import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header";
 import styles from "./ChecklistPage.module.css";
 import editStyles from "./ChecklistEdit.module.css";
+import ChecklistEditor from "../../components/ChecklistEditor";
 import { 
   getUserChecklistByDepartureId, 
   updateUserChecklist,
@@ -307,128 +308,18 @@ export default function ChecklistEditPage() {
             <h1 className={styles.hero}>헤이 - 체크</h1>
           </header>
 
-          <div className={editStyles.container}>
-            {/* <button className={editStyles.aiButton}>AI 추천 받기</button> */}
-            <div className={editStyles.header}>
-              <button 
-                className={`${editStyles.privacyButton} ${isPrivate ? editStyles.private : editStyles.public}`}
-                onClick={togglePrivacy}
-                type="button"
-              >
-                {isPrivate ? "Private" : "Public"}
-              </button>
-              <input
-                type="text"
-                value={title}
-                onChange={handleTitleChange}
-                className={editStyles.titleInput}
-                placeholder="체크리스트 제목을 입력하세요"
-              />
-              {/* 상단의 추가 버튼은 제거하고 하단으로 이동 */}
-            </div>
-
-            <div className={editStyles.content}>
-              <div className={editStyles.tableHeader}>
-                <div className={editStyles.categoryColumn}>구분</div>
-                <div className={editStyles.nameColumn}>항목명</div>
-                <div className={editStyles.statusColumn}>삭제</div>
-              </div>
-
-              {Object.keys(groupedItems).length === 0 ? (
-                <div className={editStyles.categorySection}>
-                  <div className={editStyles.categoryHeader}>
-                    <div className={editStyles.categoryCell}>
-                              <span className={editStyles.categoryLabel}>기타</span>
-        <button
-          className={editStyles.addCategoryButton}
-          onClick={() => addNewItem("기타")}
-          type="button"
-          title="기타에 새 항목 추가"
-        >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                  <div style={{
-                    padding: '40px 20px',
-                    textAlign: 'center' as const,
-                    color: '#999',
-                    fontSize: '16px'
-                  }}>
-                    체크리스트 항목이 없습니다. 위의 + 버튼을 눌러 항목을 추가해보세요.
-                  </div>
-                </div>
-              ) : (
-                Object.entries(groupedItems).map(([category, categoryItems]) => (
-                  <div key={category} className={editStyles.categorySection}>
-                    <div className={editStyles.categoryHeader}>
-                      <div className={editStyles.categoryCell}>
-                        <span className={editStyles.categoryLabel}>{category}</span>
-                        {/* <button
-                          className={editStyles.addCategoryButton}
-                          onClick={() => addNewItem(category)}
-                          type="button"
-                          title={`${category}에 새 항목 추가`}
-                        >
-                          +
-                        </button> */}
-                      </div>
-                    </div>
-                    {categoryItems.map((item) => (
-                      <div key={item.uciId} className={editStyles.itemRow}>
-                        <div className={editStyles.nameCell}>
-                          <input
-                            key={`item-${item.uciId}`}
-                            type="text"
-                            value={item.title}
-                            onChange={(e) => updateItemName(item.uciId, e.target.value)}
-                            className={editStyles.nameInput}
-                          />
-                        </div>
-                        <div className={editStyles.statusCell}>
-                          <button
-                            className={editStyles.deleteItemButton}
-                            onClick={() => deleteItem(item.uciId)}
-                            type="button"
-                            title="항목 삭제"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div className={editStyles.actions}>
-              {/* <button
-                type="button"
-                className={editStyles.cancelButton}
-                onClick={handleCancel}
-                disabled={isLoading}
-              >
-                취소
-              </button> */}
-              <button
-                type="button"
-                className={editStyles.saveButton}
-                onClick={handleSave}
-                disabled={isLoading}
-              >
-                {isLoading ? "저장 중..." : "저장하기"}
-              </button>
-              <button
-                type="button"
-                className={editStyles.addBottomButton}
-                onClick={() => addNewItem()}
-                title="새 항목 추가"
-              >
-                추가
-              </button>
-            </div>
-          </div>
+          <ChecklistEditor
+            isPrivate={isPrivate}
+            title={title}
+            groupedItems={groupedItems}
+            isLoading={isLoading}
+            togglePrivacy={togglePrivacy}
+            handleTitleChange={handleTitleChange}
+            addNewItem={addNewItem}
+            updateItemName={updateItemName}
+            deleteItem={deleteItem}
+            handleSave={handleSave}
+          />
           </div>
         </main>
       </div>
