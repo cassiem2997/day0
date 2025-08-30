@@ -78,7 +78,10 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request,
                                               HttpServletResponse response) {
         try {
+            System.out.println("로그인 시작: " + request.getEmail());
+
             AuthResponse authResponse = authService.login(request);
+            System.out.println("인증 서비스 완료");
 
             User user = userService.findByEmail(request.getEmail())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
@@ -86,13 +89,27 @@ public class AuthController {
             if(user.getUserKey() == null || user.getUserKey().isEmpty()){
                 userKeyService.saveUserKey(user.getUserId(), finOpenApiProperties.getApiKey());
             }
+
+            System.out.println("토큰 생성 시작");
             String accessToken = tokenService.createToken(request.getEmail());
             String refreshToken = tokenService.createRefreshToken(request.getEmail());
 
+            System.out.println("생성된 토큰 확인:");
+            System.out.println("Access Token: " + (accessToken != null ? "생성됨 (길이: " + accessToken.length() + ")" : "NULL"));
+            System.out.println("Refresh Token: " + (refreshToken != null ? "생성됨 (길이: " + refreshToken.length() + ")" : "NULL"));
+
+            if (accessToken == null || refreshToken == null) {
+                throw new RuntimeException("토큰 생성에 실패했습니다");
+            }
+
+            System.out.println("쿠키 설정 시작");
             setTokenCookies(response, accessToken, refreshToken);
+            System.out.println("쿠키 설정 완료");
 
             return ResponseEntity.ok(authResponse);
         } catch (Exception e) {
+            System.out.println("로그인 예외 발생: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(401)
                     .body(new AuthResponse("로그인 실패: " + e.getMessage()));
         }
@@ -157,28 +174,55 @@ public class AuthController {
     }
 
     private void setTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
-        setAccessTokenCookie(response, accessToken);
-        setRefreshTokenCookie(response, refreshToken);
+        System.out.println("setTokenCookies 메서드 진입");
+
+        try {
+            // 방법 1: 기존 Cookie 객체 사용
+            setAccessTokenCookie(response, accessToken);
+            setRefreshTokenCookie(response, refreshToken);
+            System.out.println("Cookie 객체로 설정 완료");
+
+            // 방법 2: 직접 헤더 설정 (백업용)
+            response.addHeader("Set-Cookie",
+                    String.format("accessToken=%s; Path=/; HttpOnly; Max-Age=86400; SameSite=Lax", accessToken));
+            response.addHeader("Set-Cookie",
+                    String.format("refreshToken=%s; Path=/; HttpOnly; Max-Age=1209600; SameSite=Lax", refreshToken));
+            System.out.println("직접 헤더 설정 완료");
+
+        } catch (Exception e) {
+            System.out.println("쿠키 설정 중 예외: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void setAccessTokenCookie(HttpServletResponse response, String accessToken) {
-        Cookie accessCookie = new Cookie("accessToken", accessToken);
-        accessCookie.setHttpOnly(false); // 배포: false, 개발: true
-        accessCookie.setSecure(true); // 배포: true, 개발: false
-        accessCookie.setAttribute("SameSite", "None"); // 배포 - 크로스 도메인 허용
-        accessCookie.setPath("/");
-        accessCookie.setMaxAge(24 * 60 * 60); // 24시간
-        response.addCookie(accessCookie);
+        try {
+            Cookie accessCookie = new Cookie("accessToken", accessToken);
+            accessCookie.setHttpOnly(true);
+            accessCookie.setSecure(false); // 개발 환경
+            accessCookie.setPath("/");
+            accessCookie.setMaxAge(24 * 60 * 60); // 24시간
+            // SameSite 설정 제거 (문제 가능성)
+            response.addCookie(accessCookie);
+            System.out.println("Access Token 쿠키 설정됨");
+        } catch (Exception e) {
+            System.out.println("Access Token 쿠키 설정 실패: " + e.getMessage());
+        }
     }
 
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-        refreshCookie.setHttpOnly(false); // 배포: false, 개발: true
-        refreshCookie.setSecure(true); // 배포: true, 개발: false
-        refreshCookie.setAttribute("SameSite", "None"); // 배포 - 크로스 도메인 허용
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(14 * 24 * 60 * 60); // 14일
-        response.addCookie(refreshCookie);
+        try {
+            Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+            refreshCookie.setHttpOnly(true);
+            refreshCookie.setSecure(false); // 개발 환경
+            refreshCookie.setPath("/");
+            refreshCookie.setMaxAge(14 * 24 * 60 * 60); // 14일
+            // SameSite 설정 제거 (일관성 위해)
+            response.addCookie(refreshCookie);
+            System.out.println("Refresh Token 쿠키 설정됨");
+        } catch (Exception e) {
+            System.out.println("Refresh Token 쿠키 설정 실패: " + e.getMessage());
+        }
     }
 
     private void clearTokenCookies(HttpServletResponse response) {
