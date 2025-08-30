@@ -51,8 +51,8 @@ form {
 }
 
 .panelTitle {
-  font-family: "SBAggroB";
-  font-weight: 800;
+  font-family: "Mungyeong-Gamhong-Apple";
+  font-weight: 500;
   font-size: 40px;
   margin: 30px 0 8px;
   color: #111;
@@ -95,6 +95,7 @@ form {
   padding: 0 18px;
   background: #f1f2f3;
   color: #111;
+  font-family: "ONE-Mobile-POP";
 }
 .input::placeholder {
   color: rgba(0, 0, 0, 0.55);
@@ -209,7 +210,7 @@ form {
 }
 
 .zero {
-  color: tomato;
+  color: #4758fc;
   font-size: 64px;
 }
 
@@ -272,8 +273,8 @@ input[type="date"].input {
 
 /* 달력 전체 */
 .react-datepicker {
-  border-radius: 16px;   /* 모서리 둥글게 */
-  overflow: hidden;      /* border-radius 적용될 때 넘치는 부분 잘림 */
+  border-radius: 16px; /* 모서리 둥글게 */
+  overflow: hidden; /* border-radius 적용될 때 넘치는 부분 잘림 */
   border: 1px solid #e5e7eb;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
@@ -294,7 +295,7 @@ input[type="date"].input {
 
 /* 날짜 셀 */
 .react-datepicker__day {
-  border-radius: 12px;    /* 각 날짜 셀 둥글게 */
+  border-radius: 12px; /* 각 날짜 셀 둥글게 */
   transition: background 0.2s;
 }
 
@@ -310,5 +311,11 @@ input[type="date"].input {
   color: #fff;
   border-radius: 12px;
 }
-
-
+input[type="password"].input {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  /* WebKit 브라우저에서 혹시 모를 폰트 이슈 대비 */
+  -webkit-text-security: disc;
+}
+.my-swal-font {
+  font-family: "ONE-Mobile-POP", sans-serif;
+}

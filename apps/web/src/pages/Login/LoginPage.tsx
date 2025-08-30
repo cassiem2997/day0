@@ -94,6 +94,9 @@ export default function LoginPage() {
         icon: "warning",
         title: "이메일과 비밀번호를 입력해주세요.",
         confirmButtonColor: "#a8d5ff",
+        customClass: {
+          popup: "my-swal-font",
+        },
       });
     }
 
@@ -109,10 +112,13 @@ export default function LoginPage() {
 
       await Swal.fire({
         title: "로그인 성공!",
-        text: res?.message || "환영합니다.",
+        text:  "환영합니다!",
         icon: "success",
         confirmButtonText: "확인",
         confirmButtonColor: "#a8d5ff",
+        customClass: {
+          popup: "my-swal-font",
+        },
       });
 
       navigate("/checklist", { replace: true });
@@ -124,8 +130,11 @@ export default function LoginPage() {
       Swal.fire({
         icon: "error",
         title: "로그인 실패",
-        text: message,
+        text: "아이디/비밀번호를 확인해주세요",
         confirmButtonColor: "#a8d5ff",
+        customClass: {
+          popup: "my-swal-font",
+        },
       });
     } finally {
       setSubmitting(false);
@@ -146,7 +155,11 @@ export default function LoginPage() {
       return Swal.fire({
         icon: "warning",
         title: "필수 항목을 모두 입력해주세요.",
+
         confirmButtonColor: "#a8d5ff",
+        customClass: {
+          popup: "my-swal-font",
+        },
       });
     }
     if (signUpForm.password !== signUpForm.password2) {
@@ -154,6 +167,9 @@ export default function LoginPage() {
         icon: "error",
         title: "비밀번호가 일치하지 않습니다.",
         confirmButtonColor: "#a8d5ff",
+        customClass: {
+          popup: "my-swal-font",
+        },
       });
     }
     if (
@@ -164,6 +180,9 @@ export default function LoginPage() {
         icon: "warning",
         title: "재학중인 대학교를 선택해주세요.",
         confirmButtonColor: "#a8d5ff",
+        customClass: {
+          popup: "my-swal-font",
+        },
       });
     }
 
@@ -187,6 +206,9 @@ export default function LoginPage() {
         confirmButtonText: "확인",
         confirmButtonColor: "#a8d5ff",
         background: "#f9f9f9",
+        customClass: {
+          popup: "my-swal-font",
+        },
       });
       setRightPanel(false);
     } catch (err: any) {
@@ -199,6 +221,9 @@ export default function LoginPage() {
         title: "회원가입 실패",
         text: message,
         confirmButtonColor: "#a8d5ff",
+        customClass: {
+          popup: "my-swal-font",
+        },
       });
     } finally {
       setSubmitting(false);
@@ -254,7 +279,7 @@ export default function LoginPage() {
                   value={signUpForm.birth}
                   onChange={handleChange}
                   placeholder="생년월일"
-                  max={new Date().toISOString().split("T")[0]} 
+                  max={new Date().toISOString().split("T")[0]}
                 />
               </div>
 
