@@ -18,7 +18,6 @@ export interface CreateUserChecklistResult {
   raw: any;
 }
 
-<<<<<<< Updated upstream
 export async function createUserChecklist(
   payload: CreateUserChecklistPayload
 ): Promise<CreateUserChecklistResult> {
@@ -60,58 +59,6 @@ export async function createUserChecklist(
   }
 
   return { userChecklistId: id, raw: res.data };
-=======
-export async function createUserChecklist(payload: CreateUserChecklistPayload) {
-  console.log("체크리스트 생성 요청 데이터:", payload);
-  
-  // 토큰 확인 및 디버깅
-  const token = localStorage.getItem("accessToken");
-  console.log("🔑 현재 localStorage의 토큰:", token ? `${token.substring(0, 20)}...` : "없음");
-  
-  // 쿠키에서 직접 토큰 확인
-  const cookies = document.cookie.split('; ');
-  let tokenFromCookie = null;
-  for (const cookie of cookies) {
-    if (cookie.startsWith('accessToken=')) {
-      tokenFromCookie = cookie.split('=')[1];
-      console.log("🍪 쿠키에서 토큰 찾음:", tokenFromCookie ? `${tokenFromCookie.substring(0, 20)}...` : "없음");
-      break;
-    }
-  }
-  
-  // 토큰 직접 지정하여 요청
-  const headers: Record<string, string> = {};
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  } else if (tokenFromCookie) {
-    headers['Authorization'] = `Bearer ${tokenFromCookie}`;
-    // 토큰을 localStorage에도 저장
-    localStorage.setItem("accessToken", tokenFromCookie);
-  }
-  
-  try {
-    const res = await api.post("/user-checklists", payload, { headers });
-    console.log("createUserChecklist 응답:", res.data);
-    return res.data; // { userChecklistId, ... } 가정
-  } catch (error: any) {
-    console.error("createUserChecklist 오류:", error);
-    
-    // 토큰 문제인 경우 쿠키에서 다시 시도
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      if (tokenFromCookie && (!token || token !== tokenFromCookie)) {
-        console.log("🔄 쿠키의 토큰으로 재시도");
-        localStorage.setItem("accessToken", tokenFromCookie);
-        const retryRes = await api.post("/user-checklists", payload, {
-          headers: { 'Authorization': `Bearer ${tokenFromCookie}` }
-        });
-        console.log("재시도 응답:", retryRes.data);
-        return retryRes.data;
-      }
-    }
-    
-    throw error;
-  }
->>>>>>> Stashed changes
 }
 
 /* =======================

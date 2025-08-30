@@ -5,6 +5,7 @@ export default function showWithdrawSuccessModal(
   itemTitle: string,
   amount: number
 ): Promise<void> {
+  console.log('출금 성공 모달 표시:', { itemTitle, amount });
   return new Promise((resolve) => {
     // 금액 포맷팅 (3자리마다 콤마 추가)
     const formattedAmount = amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");

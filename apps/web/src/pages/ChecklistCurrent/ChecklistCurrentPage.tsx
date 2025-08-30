@@ -20,7 +20,6 @@ import type { ChecklistCalendarItem } from "../../api/checklist";
 import { useAuth } from "../../auth/useAuth";
 import { getMySavingsPlans } from "../../api/savings";
 import { tryGetAccountById } from "../../api/accounts";
-import { withdrawFromAccount } from "../../api/accounts";
 import api from "../../api/axiosInstance";
 import showWithdrawSuccessModal from "../../components/ChecklistAddModal/WithdrawSuccessModal";
 
@@ -83,7 +82,7 @@ export default function ChecklistCurrentPage() {
   const { user } = useAuth();
 
   const [items] = useState(sampleChecklistItems);
-  const leaveDate = "2025-03-20";
+  const [leaveDate, setLeaveDate] = useState<string>("");
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [checklistItems, setChecklistItems] = useState<{ title: string; dueDate?: string; dDay?: number }[]>([]);
   const [checklistItemsData, setChecklistItemsData] = useState<UserChecklistItem[]>([]);
@@ -155,7 +154,13 @@ export default function ChecklistCurrentPage() {
   
   // 체크리스트 항목 클릭 시 완료 확인 모달 열기
   const handleItemClick = (item: any) => {
+    console.log('체크리스트 항목 클릭:', item);
     if (item.status === 'TODO') {
+      console.log('체크리스트 항목 완료 확인 모달 표시:', {
+        title: item.title,
+        uciId: item.uciId,
+        linkedAmount: item.linkedAmount
+      });
       setSelectedCompletionItem(item);
       setIsCompletionModalOpen(true);
     }
@@ -168,9 +173,18 @@ export default function ChecklistCurrentPage() {
   };
   
   // 체크리스트 항목 완료 처리 및 미션적금 출금 (통합 함수)
-  const handleCompleteItem = async (item?: UserChecklistItem) => {
-    const targetItem = item || selectedCompletionItem;
-    if (!targetItem || !latestChecklistId) return;
+  const handleCompleteItem = async () => {
+    const targetItem = selectedCompletionItem;
+    if (!targetItem || !latestChecklistId) {
+      console.error('체크리스트 항목이 선택되지 않았거나 체크리스트 ID가 없습니다.');
+      return;
+    }
+    
+    console.log('체크리스트 항목 완료 처리 시작:', {
+      uciId: targetItem.uciId,
+      title: targetItem.title,
+      status: targetItem.status
+    });
     
     // 이미 완료된 항목인지 확인
     if (targetItem.status === 'DONE') {
@@ -186,30 +200,63 @@ export default function ChecklistCurrentPage() {
         status: 'DONE'
       });
       
-      // 2. 연결된 금액이 있는 경우 출금 처리
+      // 2. 연결된 금액이 있는 경우 출금 및 입금 처리
       if (targetItem.linkedAmount && targetItem.linkedAmount > 0) {
         try {
-          // 출금 계좌 정보 가져오기 (첫 번째 계좌 사용)
-          const { data: accounts } = await api.get('/accounts');
-          if (accounts && accounts.length > 0) {
-            const withdrawAccount = accounts[0];
+          // 저축 계획 정보 가져오기
+          const savingsPlans = await getMySavingsPlans();
+          if (savingsPlans && savingsPlans.length > 0) {
+            const plan = savingsPlans[0]; // 첫 번째 저축 계획 사용
             
-            // 미션적금 출금
-            const withdrawResult = await withdrawFromAccount(
-              withdrawAccount.id,
-              targetItem.linkedAmount,
-              `체크리스트 완료: ${targetItem.title}`
-            );
+            // 출금 계좌 정보 가져오기
+            const withdrawAccount = await tryGetAccountById(plan.withdrawAccountId);
+            const savingsAccount = await tryGetAccountById(plan.savingAccountId);
             
-            // 출금 성공 모달 표시
-            await showWithdrawSuccessModal(
-              targetItem.title,
-              targetItem.linkedAmount
-            );
+            if (withdrawAccount && savingsAccount) {
+              // 출금 계좌 번호 가져오기
+              const withdrawAccountDetails = await api.get(`/accounts/${plan.withdrawAccountId}`);
+              const withdrawAccountNo = withdrawAccountDetails.data.accountNo;
+              
+              // 입금 계좌 번호 가져오기
+              const savingsAccountDetails = await api.get(`/accounts/${plan.savingAccountId}`);
+              const savingsAccountNo = savingsAccountDetails.data.accountNo;
+              
+              // 1. 출금 처리
+              await api.post(
+                `/banks/demand-deposit/accounts/${withdrawAccountNo}/withdraw`,
+                {
+                  amount: targetItem.linkedAmount,
+                  description: `체크리스트 완료: ${targetItem.title}`
+                }
+              );
+              
+              // 2. 입금 처리
+              await api.post(
+                `/banks/demand-deposit/accounts/${savingsAccountNo}/deposit`,
+                {
+                  amount: targetItem.linkedAmount,
+                  description: `체크리스트 완료 적립: ${targetItem.title}`
+                }
+              );
+              
+              // 출금 성공 모달 표시
+              console.log('출금/입금 처리 완료, 성공 모달 표시 예정:', {
+                title: targetItem.title,
+                amount: targetItem.linkedAmount
+              });
+              await showWithdrawSuccessModal(
+                targetItem.title,
+                targetItem.linkedAmount
+              );
+            } else {
+              throw new Error("계좌 정보를 가져올 수 없습니다.");
+            }
+          } else {
+            throw new Error("저축 계획을 찾을 수 없습니다.");
           }
         } catch (withdrawError) {
-          console.error('미션적금 출금 실패:', withdrawError);
-          alert('체크리스트는 완료되었지만 미션적금 출금에 실패했습니다.');
+          console.error('미션적금 출금/입금 실패:', withdrawError);
+          alert('체크리스트는 완료되었지만 미션적금 출금/입금에 실패했습니다.');
         }
       }
       
@@ -221,8 +268,7 @@ export default function ChecklistCurrentPage() {
         closeCompletionModal();
       }
       
-      // 5. 성공 메시지
-      alert('체크리스트 항목이 완료되었습니다!');
+      // 5. 성공 메시지는 출금 성공 모달에서 표시됨
       
     } catch (error) {
       console.error('체크리스트 항목 완료 처리 실패:', error);
@@ -309,21 +355,22 @@ export default function ChecklistCurrentPage() {
         setChecklistTitle(latestChecklist.title || "체크리스트");
         setIsPrivate(latestChecklist.visibility === "PRIVATE");
         
-        // 3. 캘린더 데이터 가져오기 (먼저 실행하여 calendarItems 설정)
+        // 4. 캘린더 데이터 가져오기 (먼저 실행하여 calendarItems 설정)
         await fetchCalendarData(checklistId);
         
-        // 4. 진행률 계산
+        // 5. 진행률 계산
         await fetchChecklistProgress(checklistId);
         
-        // 4. 해당 체크리스트의 아이템 가져오기 (모든 상태의 항목을 가져와서 달력에 표시)
+        // 6. 해당 체크리스트의 아이템 가져오기 (모든 상태의 항목을 가져와서 달력에 표시)
         const { data: items } = await api.get(`/user-checklists/${checklistId}/items`, {
           params: {
             todoOnly: false
           }
         });
+        console.log('체크리스트 아이템 데이터:', items);
         setChecklistItemsData(items);
         
-        // 5. TODO 상태인 항목만 필터링하여 최대 3개 선택
+        // 7. TODO 상태인 항목만 필터링하여 최대 3개 선택
         const todoItems = items.filter((item: UserChecklistItem) => item.status === 'TODO');
         const processedItems = todoItems.slice(0, 3).map((item: UserChecklistItem) => {
           // D-day 계산
@@ -339,75 +386,113 @@ export default function ChecklistCurrentPage() {
             title: item.title,
             dueDate: item.dueDate,
             dDay: dDay,
-            status: item.status
+            status: item.status,
+            uciId: item.uciId  // uciId 추가
           };
         });
         
-        // 6. 체크리스트 아이템 설정
+        // 8. 체크리스트 아이템 설정
         setChecklistItems(processedItems);
         
-        // 7. 남은 체크리스트 항목 설정 (아래쪽 테이블용, TODO 상태인 항목만)
-        const remainingTodoItems = todoItems.slice(3);
-        if (remainingTodoItems.length > 0) {
-          const remainingItems = remainingTodoItems.map((item: UserChecklistItem) => {
-            // D-day 계산
-            let dDay = 0;
-            if (item.dueDate) {
-              const today = new Date();
-              const dueDate = new Date(item.dueDate);
-              const timeDiff = dueDate.getTime() - today.getTime();
-              dDay = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            }
-            
-            // 태그를 한글로 변환
-            let koreanCategory = '기타';
-            switch(item.tag) {
-              case 'SAVING': koreanCategory = '저축'; break;
-              case 'EXCHANGE': koreanCategory = '환전'; break;
-              case 'INSURANCE': koreanCategory = '보험'; break;
-              case 'DOCUMENT': koreanCategory = '서류'; break;
-              case 'VISA': koreanCategory = '비자'; break;
-              case 'FLIGHT': koreanCategory = '항공'; break;
-              case 'ACCOMMODATION': koreanCategory = '숙소'; break;
-              case 'ETC': koreanCategory = '기타'; break;
-              default: koreanCategory = '기타';
-            }
-            
-            // 날짜 형식을 YYYY-MM-DD로 변환
-            let formattedDate = '-';
-            if (item.dueDate) {
-              const date = new Date(item.dueDate);
-              formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-            }
-            
-            return {
-              category: koreanCategory,
-              title: item.title,
-              dueDate: formattedDate,
-              dDay: dDay
-            };
-          });
-          setRemainingChecklistItems(remainingItems);
-        } else {
-          setRemainingChecklistItems([]);
-        }
+        // 더 이상 남은 체크리스트 항목을 별도로 설정할 필요가 없음
+        // 전체 TODO 항목을 직접 렌더링하므로 이 부분은 생략
+      } else {
+        // 체크리스트가 없습니다. NoChecklistPage로 리다이렉트
+        console.log('체크리스트가 없습니다. NoChecklistPage로 이동합니다.');
+        navigate("/checklist/no-checklist", { replace: true });
+        return;
       }
     } catch (error) {
       console.error('체크리스트 아이템을 가져오는 중 오류 발생:', error);
+      // 오류 발생 시에도 체크리스트가 없는 것으로 간주하고 NoChecklistPage로 이동
+      navigate("/checklist/no-checklist", { replace: true });
+      return;
     } finally {
       setIsLoading(false);
     }
   };
   
+  // 출국일 정보 가져오기
+  const fetchDepartureInfo = async () => {
+    if (!user?.userId) return;
+    
+    try {
+      console.log('출국일 API 호출 시작:', `/departures`);
+      console.log('요청 데이터:', { userId: user.userId });
+      console.log('현재 인증 상태 확인:', document.cookie);
+      
+      const departureResponse = await api.get(`/departures`, {
+        params: { userId: user.userId }
+      });
+      console.log('출국일 API 전체 응답:', departureResponse);
+      console.log('출국일 API 응답 데이터:', departureResponse.data);
+      console.log('출국일 API 응답 상태:', departureResponse.status);
+      console.log('출국일 API 응답 헤더:', departureResponse.headers);
+      
+      if (departureResponse.data && departureResponse.data.length > 0) {
+        console.log('출국일 데이터 발견:', departureResponse.data);
+        console.log('데이터 타입:', typeof departureResponse.data);
+        console.log('데이터 길이:', departureResponse.data.length);
+        
+        const latestDeparture = departureResponse.data[0]; // 가장 최근 출국 정보
+        console.log('가장 최근 출국 정보:', latestDeparture);
+        console.log('latestDeparture 타입:', typeof latestDeparture);
+        console.log('latestDeparture 키들:', Object.keys(latestDeparture));
+        
+        if (latestDeparture.startDate) {
+          console.log('startDate 발견:', latestDeparture.startDate);
+          console.log('startDate 타입:', typeof latestDeparture.startDate);
+          
+          // startDate는 "2025-09-12 15:00:00.000" 형태이므로 시간 정보 제거
+          const startDate = new Date(latestDeparture.startDate);
+          console.log('startDate 파싱 결과:', startDate);
+          console.log('startDate 유효성:', !isNaN(startDate.getTime()));
+          
+          // YYYY-MM-DD 형식으로 변환 (시간 정보 제거)
+          const formattedDate = startDate.toISOString().split('T')[0];
+          setLeaveDate(formattedDate);
+          console.log('출국일 설정 완료:', { 
+            original: latestDeparture.startDate, 
+            formatted: formattedDate,
+            startDate: startDate.toISOString(),
+            leaveDate: formattedDate
+          });
+        } else {
+          console.log('startDate가 없습니다. latestDeparture 전체:', latestDeparture);
+          console.log('startDate 필드 확인:', 'startDate' in latestDeparture);
+          console.log('가능한 날짜 필드들:', Object.keys(latestDeparture).filter(key => key.toLowerCase().includes('date')));
+        }
+      } else {
+        console.log('출국일 데이터가 없습니다. 전체 응답:', departureResponse);
+        console.log('departureResponse.data 타입:', typeof departureResponse.data);
+        console.log('departureResponse.data 길이:', departureResponse.data?.length);
+        console.log('departureResponse.data 내용:', departureResponse.data);
+      }
+    } catch (departureError: any) {
+      console.error('출국일 정보 가져오기 실패:', departureError);
+      console.error('에러 상세:', departureError.response?.data);
+      console.error('에러 상태:', departureError.response?.status);
+      console.error('에러 메시지:', departureError.message);
+    }
+  };
+
   // 컴포넌트 마운트 시 체크리스트 아이템 가져오기
   useEffect(() => {
     fetchChecklistItems();
   }, [user?.userId]);
   
+  // 체크리스트 로드 완료 후 출국일 정보 가져오기
+  useEffect(() => {
+    if (!isLoading && latestChecklistId) {
+      console.log('체크리스트 로드 완료, 출국일 정보 가져오기 시작');
+      fetchDepartureInfo();
+    }
+  }, [isLoading, latestChecklistId, user?.userId]);
+  
   // 체크리스트 항목 체크 처리 및 출금 기능 (상단 체크박스용)
-  const handleChecklistItemChange = async (index: number, checked: boolean) => {
+  const handleChecklistItemChange = async (uciId: number, checked: boolean) => {
     try {
-      if (!checked || !latestChecklistId || index >= checklistItemsData.length) {
+      if (!checked || !latestChecklistId) {
         return;
       }
       
@@ -419,59 +504,24 @@ export default function ChecklistCurrentPage() {
       }
       
       // 체크된 항목 정보 가져오기
-      const checkedItem = checklistItemsData[index];
+      console.log('체크리스트 항목 데이터:', checklistItemsData);
+      const checkedItem = checklistItemsData.find(item => item.uciId === uciId);
+      console.log('체크된 항목:', { uciId, checkedItem });
+      
+      if (!checkedItem) {
+        console.error('체크된 항목을 찾을 수 없음:', uciId);
+        return;
+      }
       
       // 이미 완료된 항목인지 확인
       if (checkedItem.status === 'DONE') {
         return;
       }
       
-      // 처리 중 상태로 설정하여 중복 호출 방지
-      checkedItem.status = 'PROCESSING';
-      
-      // 1. 체크리스트 항목 상태를 DONE으로 변경
-      console.log('체크리스트 항목 상태 변경 시도:', {
-        uciId: checkedItem.uciId,
-        userId: user.userId,
-        checklistId: latestChecklistId
-      });
-      
-      await patchUserChecklistItem(checkedItem.uciId, {
-        status: 'DONE'
-      });
-      
-      // 2. 연결된 금액이 있는 경우 출금 처리
-      if (checkedItem.linkedAmount && checkedItem.linkedAmount > 0) {
-        try {
-          // 출금 계좌 정보 가져오기 (첫 번째 계좌 사용)
-          const { data: accounts } = await api.get('/accounts');
-          if (accounts && accounts.length > 0) {
-            const withdrawAccount = accounts[0];
-            
-            // 미션적금 출금
-            const withdrawResult = await withdrawFromAccount(
-              withdrawAccount.id,
-              checkedItem.linkedAmount,
-              `체크리스트 완료: ${checkedItem.title}`
-            );
-            
-            // 출금 성공 모달 표시
-            await showWithdrawSuccessModal(
-              checkedItem.title,
-              checkedItem.linkedAmount
-            );
-          }
-        } catch (withdrawError) {
-          console.error('미션적금 출금 실패:', withdrawError);
-          alert('체크리스트는 완료되었지만 미션적금 출금에 실패했습니다.');
-        }
-      }
-      
-      // 3. 체크리스트 항목 목록 새로고침
-      await fetchChecklistItems();
-      
-      // 4. 성공 메시지
-      alert('체크리스트 항목이 완료되었습니다!');
+      // 완료 확인 모달 표시
+      setSelectedCompletionItem(checkedItem);
+      setIsCompletionModalOpen(true);
+      return;
       
     } catch (error) {
       console.error('체크리스트 항목 처리 중 오류 발생:', error);
@@ -563,7 +613,7 @@ export default function ChecklistCurrentPage() {
             
             // 새로운 항목을 API로 추가
             if (latestChecklistId) {
-              const addResponse = await api.post(`/user-checklists/${latestChecklistId}/items`, {
+              await api.post(`/user-checklists/${latestChecklistId}/items`, {
                 title: newItemData.title,
                 tag: newItemData.tag,
                 dueDate: newItemData.dueDate,
@@ -705,8 +755,28 @@ export default function ChecklistCurrentPage() {
 
   // Calculate days remaining
   const today = new Date();
-  const targetDate = new Date(leaveDate);
-  const daysRemaining = Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  let daysRemaining = 0;
+  
+  if (leaveDate) {
+    // start_date는 "2025-09-12 15:00:00.000" 형태이므로 시간 정보 제거하고 날짜만 비교
+    const targetDate = new Date(leaveDate);
+    if (!isNaN(targetDate.getTime())) {
+      // 오늘 날짜를 00:00:00으로 설정하여 시간 차이 제거
+      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      // 출국일을 00:00:00으로 설정하여 시간 차이 제거
+      const targetDateStart = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+      
+      // 오늘 - 출국일 (양수면 출국일이 과거, 음수면 출국일이 미래)
+      daysRemaining = Math.ceil((todayStart.getTime() - targetDateStart.getTime()) / (1000 * 60 * 60 * 24));
+    }
+  }
+  
+  console.log('D-day 계산:', { 
+    leaveDate, 
+    daysRemaining, 
+    today: today.toISOString(),
+    todayStart: new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString()
+  });
 
   return (
     <div className={styles.divWrapper}>
@@ -754,24 +824,7 @@ export default function ChecklistCurrentPage() {
             </div>
           </div>
 
-          {/* 디버그 정보 */}
-          {import.meta.env.DEV && (
-            <div style={{ 
-              background: '#f0f0f0', 
-              padding: '10px', 
-              margin: '10px', 
-              borderRadius: '5px',
-              fontSize: '12px',
-              border: '1px solid #ccc'
-            }}>
-              <strong>🔍 디버그 정보:</strong><br/>
-              인증 상태: {user ? '✅ 로그인됨' : '❌ 로그인 안됨'}<br/>
-              사용자 ID: {user?.userId || '없음'}<br/>
-              체크리스트 ID: {latestChecklistId || '없음'}<br/>
-              체크리스트 항목 수: {checklistItemsData.length}<br/>
-              로딩 상태: {isLoading ? '로딩 중' : '완료'}
-            </div>
-          )}
+
 
 
 
@@ -789,7 +842,9 @@ export default function ChecklistCurrentPage() {
             <div className={styles.rectangle14} />
             <p className={styles.d}>
               <span className={styles.textWrapper3}>D </span>
-              <span className={styles.textWrapper4}>{daysRemaining}</span>
+              <span className={styles.textWrapper4}>
+                {leaveDate ? daysRemaining : '-'}
+              </span>
             </p>
 
             {/* 95% 섹션 */}
@@ -810,7 +865,7 @@ export default function ChecklistCurrentPage() {
           <div className={styles.rectangleWrapper}>
             <div 
               className={styles.rectangle15}
-              style={{ width: `${(completionPercentage / 100) * 500}px` }}
+              style={{ width: `${(completionPercentage / 100) * 100}%` }}
             />
           </div>
           {/* <img src={clouds} alt="" className={styles.union3} /> */}
@@ -836,12 +891,16 @@ export default function ChecklistCurrentPage() {
         {/* 오늘의 체크리스트 - 페이지 맨 아래 */}
         <div className={styles.dailyChecklistWrapper}>
           <DailyChecklist
-            date="2025. 08. 25"
+            date={new Date().toLocaleDateString('ko-KR', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            }).replace(/\. /g, '. ').replace(/\.$/, '')}
             checklistItems={
               isLoading 
                 ? [{ title: "로딩 중..." }] 
                 : checklistItems.length > 0 
-                  ? checklistItems 
+                  ? checklistItems
                   : [
                       { title: "비자 신청" },
                       { title: "항공권 예약" },
@@ -912,7 +971,7 @@ export default function ChecklistCurrentPage() {
               </div>
               
               <div className={styles.historyTable} style={{ marginTop: '40px' }}>
-                <h3 className={styles.additionalTitle}>추가 체크리스트</h3>
+                <h3 className={styles.additionalTitle}>전체 체크리스트 (미완료 항목)</h3>
                 <div className={styles.tableHeader}>
                   <div className={styles.headerCell}>구분</div>
                   <div className={styles.headerCell}>항목명</div>
@@ -920,23 +979,56 @@ export default function ChecklistCurrentPage() {
                 </div>
                 
                 <div className={styles.tableBody} style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                  {remainingChecklistItems.length > 0 ? (
-                    remainingChecklistItems.map((item, index) => (
-                      <div key={`remaining-checklist-item-${index}`} className={styles.tableRow}>
-                        <div className={styles.categoryCell}>{item.category}</div>
-                        <div className={styles.itemCell}>
-                          {item.title}
+                  {checklistItemsData.filter(item => item.status === 'TODO').length > 0 ? (
+                    checklistItemsData.filter(item => item.status === 'TODO').map((item, index) => {
+                      // D-day 계산
+                      let dDay = 0;
+                      if (item.dueDate) {
+                        const today = new Date();
+                        const dueDate = new Date(item.dueDate);
+                        const timeDiff = dueDate.getTime() - today.getTime();
+                        dDay = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                      }
+                      
+                      // 태그를 한글로 변환
+                      let category = '기타';
+                      switch(item.tag) {
+                        case 'SAVING': category = '저축'; break;
+                        case 'EXCHANGE': category = '환전'; break;
+                        case 'INSURANCE': category = '보험'; break;
+                        case 'DOCUMENT': category = '서류'; break;
+                        case 'VISA': category = '비자'; break;
+                        case 'FLIGHT': category = '항공'; break;
+                        case 'ACCOMMODATION': category = '숙소'; break;
+                        case 'ETC': category = '기타'; break;
+                      }
+                      
+                      // 날짜 형식 변환
+                      const formattedDate = item.dueDate 
+                        ? new Date(item.dueDate).toLocaleDateString('ko-KR')
+                        : '-';
+                      
+                      return (
+                        <div 
+                          key={`todo-checklist-item-${index}`} 
+                          className={`${styles.tableRow} ${styles.clickableRow}`}
+                          onClick={() => handleItemClick(item)}
+                        >
+                          <div className={styles.categoryCell}>{category}</div>
+                          <div className={styles.itemCell}>
+                            {item.title}
+                          </div>
+                          <div className={styles.dateCell}>
+                            <div className={styles.date}>{formattedDate}</div>
+                            <div className={styles.time}>D-{dDay}</div>
+                          </div>
                         </div>
-                        <div className={styles.dateCell}>
-                          <div className={styles.date}>{item.dueDate}</div>
-                          <div className={styles.time}>D-{item.dDay}</div>
-                        </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <div className={styles.tableRow}>
                       <div className={styles.categoryCell}>-</div>
-                      <div className={styles.itemCell}>추가 데이터가 없습니다</div>
+                      <div className={styles.itemCell}>미완료 항목이 없습니다</div>
                       <div className={styles.dateCell}>
                         <div className={styles.date}>-</div>
                         <div className={styles.time}>-</div>
@@ -979,7 +1071,17 @@ export default function ChecklistCurrentPage() {
                       >
                         <div className={styles.itemTitle}>{item.title}</div>
                         <div className={styles.itemStatus}>
-                          {item.status === 'TODO' && <span className={styles.statusTodo}>미완료</span>}
+                          {item.status === 'TODO' && (
+                            <span 
+                              className={`${styles.statusTodo} ${styles.clickableStatus}`} 
+                              onClick={(e) => {
+                                e.stopPropagation(); // 이벤트 버블링 방지
+                                handleItemClick(item);
+                              }}
+                            >
+                              미완료
+                            </span>
+                          )}
                           {item.status === 'DOING' && <span className={styles.statusDoing}>진행중</span>}
                           {item.status === 'DONE' && <span className={styles.statusDone}>완료</span>}
                           {item.status === 'SKIP' && <span className={styles.statusSkip}>건너뜀</span>}
@@ -1011,6 +1113,7 @@ export default function ChecklistCurrentPage() {
         onConfirm={handleCompleteItem}
         itemTitle={selectedCompletionItem?.title || ''}
         linkedAmount={selectedCompletionItem?.linkedAmount || 0}
+        uciId={selectedCompletionItem?.uciId}
       />
     </div>
   );

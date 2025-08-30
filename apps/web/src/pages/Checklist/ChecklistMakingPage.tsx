@@ -31,10 +31,10 @@ const UNIVERSITY_BY_COUNTRY: Record<
   { id: number; name: string }[]
 > = {
   미국: [
-    { id: 1, name: "하버드 대학교" },
-    { id: 2, name: "MIT" },
-    { id: 3, name: "스탠퍼드 대학교" },
-    { id: 4, name: "UC 버클리" },
+    { id: 2, name: "하버드 대학교" },
+    { id: 3, name: "MIT" },
+    { id: 4, name: "스탠퍼드 대학교" },
+    { id: 5, name: "UC 버클리" },
   ],
   영국: [
     { id: 5, name: "옥스퍼드 대학교" },

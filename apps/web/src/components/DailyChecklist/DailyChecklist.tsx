@@ -32,18 +32,26 @@ const DailyChecklist: React.FC<DailyChecklistProps> = ({
   }, [checklistItems]);
 
   const handleCheckboxChange = (index: number, checked: boolean) => {
-    console.log('DailyChecklist 체크박스 클릭:', { index, checked, item: checklistItems[index] });
+    const item = checklistItems[index];
+    console.log('DailyChecklist 체크박스 클릭:', { 
+      index, 
+      checked, 
+      item,
+      uciId: item.uciId,
+      title: item.title,
+      status: item.status 
+    });
     
     // 체크박스 상태 업데이트
     const newCheckedItems = [...checkedItems];
     newCheckedItems[index] = checked;
     setCheckedItems(newCheckedItems);
     
-    if (onItemChange && checklistItems[index].uciId) {
-      console.log('onItemChange 호출:', checklistItems[index].uciId, checked);
-      onItemChange(checklistItems[index].uciId, checked);
+    if (onItemChange && item.uciId) {
+      console.log('onItemChange 호출:', item.uciId, checked);
+      onItemChange(item.uciId, checked);
     } else {
-      console.warn('uciId가 없어서 체크리스트 항목을 처리할 수 없습니다:', checklistItems[index]);
+      console.warn('uciId가 없어서 체크리스트 항목을 처리할 수 없습니다:', item);
     }
   };
 

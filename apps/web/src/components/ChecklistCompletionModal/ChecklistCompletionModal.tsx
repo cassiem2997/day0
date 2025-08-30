@@ -7,6 +7,7 @@ interface ChecklistCompletionModalProps {
   onConfirm: () => void;
   itemTitle: string;
   linkedAmount?: number;
+  uciId?: number;
 }
 
 const ChecklistCompletionModal: React.FC<ChecklistCompletionModalProps> = ({
@@ -14,7 +15,8 @@ const ChecklistCompletionModal: React.FC<ChecklistCompletionModalProps> = ({
   onClose,
   onConfirm,
   itemTitle,
-  linkedAmount = 0
+  linkedAmount = 0,
+  uciId
 }) => {
   if (!isOpen) return null;
 
@@ -44,7 +46,13 @@ const ChecklistCompletionModal: React.FC<ChecklistCompletionModalProps> = ({
           <button className={styles.cancelButton} onClick={onClose}>
             취소
           </button>
-          <button className={styles.confirmButton} onClick={onConfirm}>
+          <button 
+            className={styles.confirmButton} 
+            onClick={() => {
+              console.log('완료 처리 클릭, uciId:', uciId);
+              onConfirm();
+            }}
+          >
             완료 처리
           </button>
         </div>

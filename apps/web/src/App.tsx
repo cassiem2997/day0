@@ -6,7 +6,9 @@ import ChecklistPage from "./pages/Checklist/ChecklistPage";
 import ChecklistMakingPage from "./pages/Checklist/ChecklistMakingPage";
 import ChecklistEditPage from "./pages/Checklist/ChecklistEditPage";
 import ChecklistResultPage from "./pages/Checklist/ChecklistResultPage";
+import NoChecklistPage from "./pages/Checklist/NoChecklistPage";
 import ChecklistCurrentPage from "./pages/ChecklistCurrent/ChecklistCurrentPage";
+import AccountRegisterPage from "./pages/Account/AccountRegisterPage";
 import CalendarPage from "./pages/Calendar/CalendarPage";
 import ExchangeRatePage from "./pages/ExchangeRate/ExchangeRatePage";
 import LoginPage from "./pages/Login/LoginPage";
@@ -60,10 +62,26 @@ export default function App() {
           }
         />
         <Route
+          path="/checklist/no-checklist"
+          element={
+            <ProtectedRoute>
+              <NoChecklistPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/checklist/new"
           element={
             <ProtectedRoute>
               <ChecklistMakingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/account/register"
+          element={
+            <ProtectedRoute>
+              <AccountRegisterPage />
             </ProtectedRoute>
           }
         />

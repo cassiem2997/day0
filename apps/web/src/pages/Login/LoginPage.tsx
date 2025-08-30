@@ -204,15 +204,49 @@ export default function LoginPage() {
     try {
       setSubmitting(true);
       await signUp(payload);
-      await Swal.fire({
-        title: "회원가입 완료!",
-        html: "Day0과 함께 떠나영~",
-        icon: "success",
-        confirmButtonText: "확인",
-        confirmButtonColor: "#a8d5ff",
-        background: "#f9f9f9",
-      });
-      setRightPanel(false);
+      // 회원가입 완료 후 자동 로그인 처리
+      console.log("회원가입 완료, 자동 로그인 시도...");
+      
+      try {
+        // 자동 로그인
+        const loginPayload: LoginPayload = {
+          email: signUpForm.email.trim(),
+          password: signUpForm.password,
+        };
+        
+        await login(loginPayload);
+        console.log("자동 로그인 성공");
+        
+        // 로그인 성공 후 계좌 등록 페이지로 이동
+        await Swal.fire({
+          title: "회원가입 완료!",
+          html: "Day0과 함께 떠나영~<br/>계좌 등록 페이지로 이동합니다.",
+          icon: "success",
+          confirmButtonText: "확인",
+          confirmButtonColor: "#a8d5ff",
+          background: "#f9f9f9",
+          timer: 2000,
+          timerProgressBar: true,
+        });
+        
+        navigate("/account/register", { replace: true });
+        
+      } catch (loginErr: any) {
+        console.error("자동 로그인 실패:", loginErr);
+        
+        // 자동 로그인 실패 시 로그인 페이지에 머물고 안내
+        await Swal.fire({
+          title: "회원가입 완료!",
+          html: "Day0과 함께 떠나영~<br/>로그인 후 계좌를 등록해주세요.",
+          icon: "success",
+          confirmButtonText: "확인",
+          confirmButtonColor: "#a8d5ff",
+          background: "#f9f9f9",
+        });
+        
+        // 로그인 폼으로 전환
+        setRightPanel(false);
+      }
     } catch (err: any) {
       const message =
         err?.response?.data?.message ||
