@@ -38,7 +38,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const menuRef = useRef<HTMLDivElement | null>(null); 
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
 
   useEffect(function () {
@@ -98,6 +98,9 @@ export default function Header() {
       title: "로그아웃 되었습니다.",
       confirmButtonText: "확인",
       confirmButtonColor: "#a8d5ff",
+      customClass: {
+        popup: "my-swal-font",
+      },
     });
 
     setUser(null); // 추가
@@ -108,11 +111,7 @@ export default function Header() {
     <header className={styles.header}>
       <div className={styles.brand}>
         <NavLink to="/" className={styles.logoLink}>
-          <img
-            src={logoUrl}
-            alt="logo"
-            className={styles.logo}
-          />
+          <img src={logoUrl} alt="logo" className={styles.logo} />
         </NavLink>
       </div>
 
