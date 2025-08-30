@@ -14,7 +14,7 @@ import { useAuth } from "../../auth/useAuth";
 import openChecklistAddModal from "../../components/ChecklistAddModal/ChecklistAddModal";
 import { updateChecklistLinkedAmount, getUserChecklistItems, patchUserChecklistItem } from "../../api/checklist";
 import openChecklistAmountButton from "../../components/ChecklistAddModal/ChecklistAmountButton";
-import { getUserChecklists, getUserChecklistsNew } from "../../api/checklist";
+import { getUserChecklists } from "../../api/checklist";
 
 // API에서 가져오는 계좌 타입 사용
 import type { DepositAccount } from "../../api/accounts";
@@ -115,7 +115,7 @@ export default function SavingsPlanPage() {
       console.log("=== 사용자 체크리스트 조회 시작 ===");
       
       // 먼저 새로운 엔드포인트 /user/checklists 시도
-      let userChecklistsData = await getUserChecklistsNew(user.userId);
+      let userChecklistsData = await getUserChecklists(user.userId);
       console.log("/user/checklists API 응답:", userChecklistsData);
       
       // 새로운 API가 실패하면 기존 API 시도

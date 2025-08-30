@@ -1,4 +1,3 @@
-// pages/Checklist/ChecklistPage.tsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar/Sidebar";
@@ -15,6 +14,7 @@ import type { Tip } from "../../data/tips";
 import styles from "./ChecklistPage.module.css";
 import { getDeparturesByUserId } from "../../api/departure";
 import { getUserChecklistByDepartureId } from "../../api/checklist";
+import { me } from "../../api/user";
 
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState<boolean>(() => {
@@ -37,7 +37,8 @@ export default function ChecklistPage() {
 
   const [items, setItems] = useState<ChecklistItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [shouldShowNoChecklist, setShouldShowNoChecklist] = useState<boolean>(false);
+  const [shouldShowNoChecklist, setShouldShowNoChecklist] =
+    useState<boolean>(false);
   const leaveDate = "2026-02-20";
 
   const [tip, setTip] = useState<Tip | null>(null);
@@ -52,42 +53,58 @@ export default function ChecklistPage() {
     let isCancelled = false;
     async function bootstrap() {
       try {
-        const storedUserId = localStorage.getItem("userId");
-        const userId = storedUserId ? Number(storedUserId) : null;
-        
-        if (!userId || Number.isNaN(userId)) {
+        console.log("[ChecklistPage] bootstrap start");
+        const meRes = await me();
+        const userId = meRes?.userId;
+        console.log("[ChecklistPage] me:", meRes);
+
+        if (!userId) {
+          console.warn("[ChecklistPage] no userId → show NoChecklist");
           if (!isCancelled) {
             setShouldShowNoChecklist(true);
             setIsLoading(false);
           }
           return;
         }
-        
+
         const departures = await getDeparturesByUserId(userId);
-        if (!departures || departures.length === 0) {
+        console.log("[ChecklistPage] departures:", departures);
+
+        if (!Array.isArray(departures) || departures.length === 0) {
+          console.warn("[ChecklistPage] no departures");
           if (!isCancelled) {
             setShouldShowNoChecklist(true);
             setIsLoading(false);
           }
           return;
         }
-        
+
         const departureId = departures[0].departureId;
         const userChecklist = await getUserChecklistByDepartureId(departureId);
-        if (!userChecklist) {
+        console.log("[ChecklistPage] checklists by departure:", userChecklist);
+
+        const exists =
+          !!userChecklist &&
+          ((Array.isArray(userChecklist) && userChecklist.length > 0) ||
+            (!Array.isArray(userChecklist) && userChecklist.userChecklistId));
+
+        if (!exists) {
+          console.warn(
+            "[ChecklistPage] checklist not found → show NoChecklist"
+          );
           if (!isCancelled) {
             setShouldShowNoChecklist(true);
             setIsLoading(false);
           }
           return;
         }
-        
-        // 모든 조건을 만족하는 경우에만 /checklist/current로 이동
+
         if (!isCancelled) {
+          console.log("[ChecklistPage] checklist exists → /checklist/current");
           navigate("/checklist/current", { replace: true });
         }
       } catch (error) {
-        console.error('체크리스트 로딩 중 오류:', error);
+        console.error("[ChecklistPage] bootstrap error:", error);
         if (!isCancelled) {
           setShouldShowNoChecklist(true);
           setIsLoading(false);
@@ -123,8 +140,8 @@ export default function ChecklistPage() {
 
         <div className={styles.pageContent}>
           <header className={styles.heroWrap}>
-              <p className={styles.subtitle}>완벽한 출국준비를 위한 첫걸음</p>
-              <h1 className={styles.hero}>헤이 - 체크</h1>
+            <p className={styles.subtitle}>완벽한 출국준비를 위한 첫걸음</p>
+            <h1 className={styles.hero}>헤이 - 체크</h1>
           </header>
 
           {isLoading ? (
