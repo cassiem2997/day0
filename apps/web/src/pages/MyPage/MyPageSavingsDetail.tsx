@@ -31,7 +31,7 @@ export default function MyPageSavingsDetail({
   return (
     <section className={styles.wrap} aria-label="계좌 상세">
       <div className={styles.headerRow}>
-        <h2 className={styles.pageTitle}>계좌명</h2>
+        <h2 className={styles.pageTitle}>거래 내역</h2>
         {onBack ? (
           <button type="button" className={styles.backBtn} onClick={onBack}>
             이전으로

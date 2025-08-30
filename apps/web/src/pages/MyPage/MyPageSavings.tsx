@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./MyPageSavings.module.css";
 import MyPageSavingsDetail from "./MyPageSavingsDetail";
 import {
@@ -9,8 +9,15 @@ import {
   type AccountNormalized,
   type AccountProduct,
 } from "../../api/account";
-import { getMySavingsPlans, type SavingsPlanSummary } from "../../api/savings";
-import { getMyAccounts, tryGetAccountById, type DepositAccount } from "../../api/accounts";
+import { getMyAccounts, tryGetAccountById, type DepositAccount, fetchAccountTransactions, getAccountIdByAccountNo } from "../../api/accounts";
+import {
+  getMySavingsPlans,
+  listTransactions,
+  getSavingsPlan,
+  type SavingsPlanSummary,
+  type SavingsTxn as ApiSavingsTxn,
+} from "../../api/savings";
+import type { SavingsTxn as UiTxn } from "./MyPageSavingsDetail";
 
 type AccountType = "SAVING" | "DEPOSIT" | "FX";
 
@@ -20,6 +27,11 @@ interface AccountRow {
   title: string;
   number: string;
   balance: string;
+  // 적금
+  planId?: number;  
+  savingAccountId?: number;  
+  // 입출금
+  accountId?: number;
 }
 
 export interface SavingsPlanWithAccount extends SavingsPlanSummary {
@@ -66,44 +78,123 @@ export default function MyPageSavings() {
   const [initialAmount, setInitialAmount] = useState<string>("");
   const [creating, setCreating] = useState(false);
 
-  // 더미 거래내역
-  const txns = useMemo(
-    () => [
-      {
-        id: 1,
-        date: "2025.08.23",
-        time: "18:30:43",
-        title: "체크리스트 항목",
-        amount: 15000,
-        runningBalance: 55000,
-      },
-      {
-        id: 2,
-        date: "2025.08.22",
-        time: "18:30:43",
-        title: "체크리스트 항목",
-        amount: 15000,
-        runningBalance: 40000,
-      },
-      {
-        id: 3,
-        date: "2025.08.21",
-        time: "18:30:43",
-        title: "체크리스트 항목",
-        amount: 15000,
-        runningBalance: 25000,
-      },
-      {
-        id: 4,
-        date: "2025.08.20",
-        time: "18:30:43",
-        title: "1회차 정기 적금",
-        amount: 10000,
-        runningBalance: 10000,
-      },
-    ],
-    []
-  );
+  // 상세(적금) 데이터
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailErr, setDetailErr] = useState<string | null>(null);
+  const [detailTxns, setDetailTxns] = useState<UiTxn[]>([]);
+  const [detailTitle, setDetailTitle] = useState<string>("");
+  const [detailMaskedNum, setDetailMaskedNum] = useState<string>("");
+  const [detailBalanceKRW, setDetailBalanceKRW] = useState<number>(0);
+  const [detailIsKRW, setDetailIsKRW] = useState<boolean>(true);
+
+  // 날짜/시간 포맷 (KST 기준 표기)
+const pad2 = (n: number) => String(n).padStart(2, "0");
+function formatDateTime(iso?: string) {
+  if (!iso) return { date: "", time: "" };
+  const d = new Date(iso);
+  const yyyy = d.getFullYear();
+  const mm = pad2(d.getMonth() + 1);
+  const dd = pad2(d.getDate());
+  const HH = pad2(d.getHours());
+  const MM = pad2(d.getMinutes());
+  const SS = pad2(d.getSeconds());
+  return { date: `${yyyy}.${mm}.${dd}`, time: `${HH}:${MM}:${SS}` };
+}
+
+const toYYYYMMDD = (d: Date) =>
+  `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}`;
+function formatKSTDateTimeFromYmdHms(ymd: string, hms: string) {
+  // ymd='20250830', hms='025537' → '2025.08.30', '02:55:37'
+  const date = `${ymd.slice(0,4)}.${ymd.slice(4,6)}.${ymd.slice(6,8)}`;
+  const time = `${hms.slice(0,2)}:${hms.slice(2,4)}:${hms.slice(4,6)}`;
+  return { date, time };
+}
+
+// 타이틀 규칙
+function resolveTitle(tx: ApiSavingsTxn) {
+  const base =
+    tx.txnType === "MISSION"
+      ? "미션 적립"
+      : tx.txnType === "REGULAR"
+      ? "정기 적립"
+      : "적립";
+  switch (tx.status) {
+    case "POSTED":
+      return base;
+    case "PROCESSING":
+      return `${base} (처리중)`;
+    case "RECEIVED":
+      return `${base} (접수)`;
+    case "FAILED":
+      return `${base} 실패`;
+    default:
+      return `${base} (${tx.status})`;
+  }
+}
+
+// 금액 사인: 실패는 0 처리, 나머지는 + 가정
+function resolveSignedAmount(tx: ApiSavingsTxn) {
+  if (tx.status === "FAILED") return 0;
+  return tx.amount ?? 0;
+}
+
+// API Txn → 화면 Txn + 누적잔액
+function mapAndAccumulate(apiTxns: ApiSavingsTxn[]): UiTxn[] {
+  // 누적을 위해 시간 오름차순 정렬
+  const asc = [...apiTxns].sort((a, b) => {
+    const ta = a.processedAt || a.requestedAt || "";
+    const tb = b.processedAt || b.requestedAt || "";
+    return new Date(ta).getTime() - new Date(tb).getTime();
+  });
+
+  let running = 0;
+  const built: UiTxn[] = asc.map((tx) => {
+    const when = tx.processedAt || tx.requestedAt;
+    const { date, time } = formatDateTime(when);
+    const signed = resolveSignedAmount(tx);
+    running += signed;
+    return {
+      id: tx.txnId,
+      date,
+      time,
+      title: resolveTitle(tx),
+      amount: signed,
+      runningBalance: running,
+    };
+  });
+
+  // 화면은 최신순
+  return built.sort((a, b) => {
+    const ad = a.date + " " + a.time;
+    const bd = b.date + " " + b.time;
+    return ad < bd ? 1 : ad > bd ? -1 : 0;
+  });
+}
+
+function mapDepositTxnsToUi(list: any[]): UiTxn[] {
+  return list.map((t) => {
+    const { date, time } = formatKSTDateTimeFromYmdHms(
+      t.transactionDate,
+      t.transactionTime
+    );
+
+    // 금액 부호: 1=입금(+) / 2=출금(-) 가정
+    // 정확한 규칙은 백엔드 스펙에 따르세요. (uncertain fact)
+    const sign = t.transactionType === "2" || t.transactionTypeName === "출금" ? -1 : 1;
+    const amount = sign * (t.transactionBalance ?? 0);
+
+    return {
+      id: t.transactionUniqueNo,
+      date,
+      time,
+      title: t.transactionSummary || t.transactionTypeName || "거래",
+      amount, // +/- 금액
+      runningBalance: t.transactionAfterBalance ?? 0, // 서버 제공 잔액 사용
+    };
+  })
+  // 최신순으로 정렬 
+  .sort((a, b) => (a.date + a.time < b.date + b.time ? 1 : -1));
+}
 
   // 계좌 목록 로드(단일 소스: fetchAccounts)
   async function loadAccounts() {
@@ -130,9 +221,107 @@ export default function MyPageSavings() {
     }
   }
 
+ useEffect(() => {
+  let alive = true;
+  (async () => {
+
+    if (!selected) {
+      setDetailTxns([]); setDetailErr(null);
+      return;
+    }
+
+    try {
+      setDetailLoading(true);
+      setDetailErr(null);
+
+      if (selected.type === "SAVING" && selected.planId) {
+
+        const [plan, page] = await Promise.all([
+          getSavingsPlan(selected.planId),
+          listTransactions({
+            planId: selected.planId,
+            page: 0, size: 50, sort: "processedAt,desc",
+          }),
+        ]);
+
+        if (!alive) return;
+        const uiTxns = mapAndAccumulate(page.content);
+        const bank = plan.savingAccount.bankName || "은행";
+        const no = plan.savingAccount.accountNo || "";
+        const masked = no.replace(/^(\d{3})-(\d{3})-(\d+)/, "$1-***-$3");
+        setDetailTitle(`${bank} 적금`);
+        setDetailMaskedNum(`${bank} ${masked || no}`);
+        setDetailBalanceKRW(plan.savingAccount.accountBalance ?? 0);
+        setDetailTxns(uiTxns);
+        setDetailIsKRW(plan.savingAccount.currency === "KRW");
+
+      } else if ((selected.type === "DEPOSIT" || selected.type === "FX")) {
+        let accId = Number(selected.accountId);
+        if (!accId || Number.isNaN(accId)) {
+          try {
+            accId = await getAccountIdByAccountNo(selected.number);
+          } catch (e) {
+            setDetailErr("계좌 ID 조회 실패");
+            return;
+          }
+        }
+        if (!accId || Number.isNaN(accId)) {
+          setDetailErr("계좌 ID를 찾을 수 없어 거래내역을 조회할 수 없습니다.");
+          return;
+        }     
+
+        const today = new Date();
+        const start = new Date(today);
+        start.setDate(today.getDate() - 30);
+        const startDate = toYYYYMMDD(start);
+        const endDate   = toYYYYMMDD(today);
+
+        const resp = await fetchAccountTransactions({
+          accountId: accId,
+          startDate,
+          endDate,
+          transactionType: "A",
+          orderByType: "DESC",
+        });
+
+        if (!alive) return;
+
+        const rawList = resp?.REC?.list ?? [];
+        const uiTxns = mapDepositTxnsToUi(rawList);
+
+        const bank = selected.title || "은행";
+        const no = selected.number || "";
+        const masked = no.replace(/^(\d{3})-(\d{3})-(\d+)/, "$1-***-$3");
+        setDetailTitle(bank);
+        setDetailMaskedNum(`${bank} ${masked || no}`);
+        const numeric = Number((selected.balance || "").replace(/[^0-9]/g, "")) || 0;
+        setDetailBalanceKRW(numeric);
+        setDetailTxns(uiTxns);
+        setDetailIsKRW(/KRW/.test(selected.balance));
+
+      } else {
+        setDetailTxns([]);
+        setDetailTitle(selected.title);
+        setDetailMaskedNum(selected.number);
+        setDetailBalanceKRW(0);
+        setDetailIsKRW(true);
+      }
+    } catch (e: any) {
+      if (!alive) return;
+      setDetailErr(e?.response?.data?.message || e?.message || "계좌 상세 로드 실패");
+    } finally {
+      if (alive) setDetailLoading(false);
+    }
+  })();
+  return () => { alive = false; };
+}, [selected]);
+
+
+
   useEffect(() => {
     let alive = true;
     (async () => {
+      
       try {
         setLoading(true);
         setErr(null);
@@ -169,6 +358,8 @@ export default function MyPageSavings() {
             title: acc ? acc.bankName : "",
             number: acc ? acc.accountNo : "",
             balance: acc ? acc.accountBalance + "원" : "",
+            planId: p.planId,
+            savingAccountId: p.savingAccountId,
           };
         });
 
@@ -183,6 +374,7 @@ export default function MyPageSavings() {
             balance: isFx
               ? `${a.accountBalance.toLocaleString("en-US")} ${a.currency}`
               : `${a.accountBalance.toLocaleString("ko-KR")}원`,
+              accountId: a.accountId, 
           };
         });
 
@@ -245,30 +437,26 @@ export default function MyPageSavings() {
 
   // 상세 화면
   if (selected) {
-    const numericKRW = /KRW/.test(selected.balance)
-      ? Number(selected.balance.replace(/[^0-9]/g, "")) || 0
-      : 0;
+     const badge =
+      selected.type === "SAVING" ? "적금" : selected.type === "DEPOSIT" ? "입출금" : "외화";
 
+    if (detailLoading) return <div className={styles.empty}>불러오는 중…</div>;
+    if (detailErr) return <div className={styles.empty} style={{ color: "#c0392b", fontWeight: 800 }}>{detailErr}</div>;
+  
     return (
       <MyPageSavingsDetail
-        badge={
-          selected.type === "SAVING"
-            ? "적금"
-            : selected.type === "DEPOSIT"
-            ? "입출금"
-            : "외화"
+        badge={badge}
+        accountTitle={detailTitle || selected.title}
+        maskedNumber={
+          detailMaskedNum ||
+          `${selected.title} ${selected.number.replace(/^(\d{3})-(\d{3})-(\d+)/, "$1-***-$3")}`
         }
-        accountTitle={selected.title}
-        maskedNumber={`신한 ${selected.number.replace(
-          /^(\d{3})-(\d{3})-(\d+)/,
-          "$1-***-$3"
-        )}`}
-        balanceKRW={numericKRW}
-        txns={txns}
+        balanceKRW={detailBalanceKRW}
+        txns={detailTxns}
         onBack={() => setSelected(null)}
-      ></MyPageSavingsDetail>
+      />
     );
-  }
+   }
 
   return (
     <section className={styles.wrap} aria-label="계좌 조회">
