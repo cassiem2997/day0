@@ -26,13 +26,19 @@ type ProfileVM = {
 
 function dday(target?: string) {
   if (!target || target === "-") return "-";
-  const tgt = new Date(target + "T00:00:00");
+
+  const iso = target.includes("T") ? target : `${target}T00:00:00`;
+  const tgt = new Date(iso);
+
+  if (isNaN(tgt.getTime())) return "-"; // 혹시라도 잘못된 값 들어오면 방어
+
   const today = new Date();
-  const diff = Math.ceil(
-    (tgt.getTime() - today.setHours(0, 0, 0, 0)) / (1000 * 60 * 60 * 24)
-  );
+  today.setHours(0, 0, 0, 0);
+
+  const diff = Math.ceil((tgt.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   return diff >= 0 ? `D - ${diff}` : `D + ${Math.abs(diff)}`;
 }
+
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 const todayLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
@@ -99,7 +105,8 @@ export default function MyPageProfile() {
           (u as any).destUniv ??
           (u.destUnivId != null ? `#${u.destUnivId}` : "-");
 
-        const storedDate = localStorage.getItem(lsKey(userId)) || "-";
+        const departureDate = (u as any).departureDate ??
+        (u.departureDate != null ? `#${u.departureDate}` : "-");
 
         const mileage = toNum(
           (u as any).mileage ?? (u as any).miles ?? (u as any).points,
@@ -109,7 +116,7 @@ export default function MyPageProfile() {
         const vm: ProfileVM = {
           nickname: u.nickname || u.name || "사용자",
           homeUniversity: homeLabel,
-          departureDate: storedDate === "-" ? "-" : storedDate,
+          departureDate: departureDate === "-" ? "-" : departureDate,
           destinationLabel: destLabel,
           profileImage: absUrlMaybe(u.profileImage),
           mileage,
@@ -317,7 +324,7 @@ export default function MyPageProfile() {
               <span className={styles.valText}>
                 {pf.departureDate === "-"
                   ? "-"
-                  : pf.departureDate.replaceAll("-", ".") + "(일)"}
+                  : pf.departureDate.slice(0, 10).replaceAll("-", ".") }
               </span>
             </div>
           </div>

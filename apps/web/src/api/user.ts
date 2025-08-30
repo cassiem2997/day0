@@ -98,6 +98,7 @@ export interface UserProfile {
   mileage?: number;
   homeUnivId?: number;
   destUnivId?: number;
+  departureDate?: string;
 }
 
 /** 서버가 래핑해서 줄 수도 있고(success/data), 바로 UserProfile을 줄 수도 있음 */

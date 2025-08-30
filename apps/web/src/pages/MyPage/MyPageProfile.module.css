@@ -1,7 +1,178 @@
 .wrap {
   margin-top: 18px;
+  padding: 0 20px;
 }
 
+/* Header Styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.menuIcon, .userIcon {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.pageTitle {
+  font-size: 32px;
+  font-weight: 900;
+  margin: 0;
+  color: #000;
+}
+
+/* Simple Profile Card */
+.simpleProfileCard {
+  display: grid;
+  grid-template-columns: 200px 1fr 300px;
+  gap: 20px;
+  align-items: center;
+  background: #fff;
+  border: 3px solid #121212;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.profileImageSection {
+  display: flex;
+  justify-content: center;
+}
+
+.simpleAvatarBox {
+  width: 150px;
+  height: 150px;
+  background: #B8D4FF;
+  border: 3px solid #121212;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profileImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.avatarPlaceholder {
+  font-weight: 900;
+  font-size: 16px;
+  color: #111;
+}
+
+.profileInfoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.userName {
+  font-size: 28px;
+  font-weight: 900;
+  margin: 0;
+  color: #000;
+}
+
+.userDept, .userUniv {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+  margin: 0;
+}
+
+.simpleEditBtn {
+  padding: 8px 16px;
+  border: 2px solid #121212;
+  border-radius: 8px;
+  background: #fff;
+  font-weight: 900;
+  font-size: 14px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.ddaySection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 15px;
+}
+
+.ddayBadge {
+  background: #4A5AFF;
+  color: #fff;
+  padding: 15px 25px;
+  border-radius: 25px;
+  border: 3px solid #121212;
+  display: inline-block;
+}
+
+.ddayText {
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.infoLabel {
+  background: #E8F0FF;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 2px solid #121212;
+  font-size: 12px;
+  font-weight: 900;
+  min-width: 60px;
+  text-align: center;
+}
+
+.infoValue {
+  background: #fff;
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: 2px solid #121212;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+/* Points and Checklist Sections */
+.pointsSection {
+  margin-bottom: 30px;
+}
+
+.pointsTitle {
+  font-size: 18px;
+  font-weight: 900;
+  color: #666;
+  margin: 0;
+}
+
+.checklistSection {
+  margin-bottom: 30px;
+}
+
+.checklistTitle {
+  font-size: 32px;
+  font-weight: 900;
+  margin: 0;
+  color: #4A5AFF;
+}
+
+/* Legacy styles for backward compatibility */
 .profileCard {
   position: relative;
   display: grid;
@@ -227,6 +398,14 @@
   }
   .activityGrid {
     grid-template-columns: 1fr;
+  }
+  .simpleProfileCard {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    text-align: center;
+  }
+  .ddaySection {
+    align-items: center;
   }
 }
 
