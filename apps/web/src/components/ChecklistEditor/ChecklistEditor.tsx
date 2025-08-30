@@ -21,6 +21,7 @@ interface ChecklistEditorProps {
   updateItemName: (uciId: number, newName: string) => void;
   deleteItem: (uciId: number) => void;
   handleSave: () => void;
+  onAIRecommend: () => void;
 }
 
 const ChecklistEditor: React.FC<ChecklistEditorProps> = ({
@@ -33,7 +34,8 @@ const ChecklistEditor: React.FC<ChecklistEditorProps> = ({
   addNewItem,
   updateItemName,
   deleteItem,
-  handleSave
+  handleSave,
+  onAIRecommend
 }) => {
   return (
     <div className={styles.container}>
@@ -129,6 +131,15 @@ const ChecklistEditor: React.FC<ChecklistEditorProps> = ({
           disabled={isLoading}
         >
           {isLoading ? "저장 중..." : "저장하기"}
+        </button>
+        <button
+          type="button"
+          className={styles.aiRecommendButton}
+          onClick={onAIRecommend}
+          disabled={isLoading}
+          title="AI 추천 받기"
+        >
+          AI 추천
         </button>
         <button
           type="button"

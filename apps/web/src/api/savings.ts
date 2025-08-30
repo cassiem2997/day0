@@ -126,3 +126,31 @@ export async function createSavingsPlan(payload: CreateSavingsPlanPayload) {
   const { data } = await api.post("/savings/plans", payload);
   return data; // { planId, ... }
 }
+
+// 적금 플랜 생성 권한 확인
+export async function checkSavingsPlanPermission(): Promise<{ canCreate: boolean; reason?: string }> {
+  try {
+    const { data } = await api.get("/savings/permissions");
+    return { canCreate: true };
+  } catch (error: any) {
+    if (error?.response?.status === 403) {
+      return { 
+        canCreate: false, 
+        reason: "일반 적금 플랜 생성 권한이 없습니다. 미션 적금을 사용해주세요." 
+      };
+    }
+    return { 
+      canCreate: false, 
+      reason: "권한 확인 중 오류가 발생했습니다." 
+    };
+  }
+}
+
+// 미션 적금 플랜 생성 (체크리스트 기반)
+export async function createMissionSavingsPlan(payload: CreateSavingsPlanPayload & { 
+  checklistId: number;
+  missionType: string;
+}) {
+  const { data } = await api.post("/savings/mission-plans", payload);
+  return data;
+}

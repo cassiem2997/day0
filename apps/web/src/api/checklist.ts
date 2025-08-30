@@ -273,19 +273,91 @@ export async function getUserChecklistByDepartureId(departureId: number) {
   return res.data;
 }
 
-/* =======================
- * Get User's Checklists
- * ======================= */
-export async function getUserChecklists(userId: number) {
+// 사용자의 체크리스트 목록 가져오기
+export const getUserChecklists = async (): Promise<any[]> => {
   try {
-    console.log("[API] GET /user-checklists?userId=", userId);
-    const res = await api.get(`/user-checklists`, { params: { userId } });
-    return res.data;
+    const response = await api.get('/user/checklists');
+    return response.data;
   } catch (error) {
-    console.error("[API] getUserChecklists FAIL:", error);
-    return null;
+    console.error('사용자 체크리스트를 가져오는데 실패했습니다:', error);
+    throw error;
   }
+};
+
+// 사용자의 모든 체크리스트 가져오기 (userId 기반)
+export const getUserChecklistsByUserId = async (userId: number): Promise<any[]> => {
+  try {
+    const response = await api.get(`/user-checklists?userId=${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('사용자 체크리스트를 가져오는데 실패했습니다:', error);
+    throw error;
+  }
+};
+
+// 체크리스트 항목 수집
+export const collectChecklistItem = async (
+  myChecklistId: number, 
+  userId: number, 
+  sourceItemId: number
+): Promise<any> => {
+  try {
+    const response = await api.post(`/user-checklists/${myChecklistId}/collect-item?userId=${userId}&sourceItemId=${sourceItemId}`);
+    return response.data;
+  } catch (error) {
+    console.error('체크리스트 항목 수집에 실패했습니다:', error);
+    throw error;
+  }
+};
+
+/* =======================
+ * Get Public User Checklists
+ * ======================= */
+export interface PublicChecklistParams {
+  page?: number;
+  size?: number;
+  sort?: string;
+  country?: string;
+  universityId?: number;
 }
+
+export interface PublicChecklistItem {
+  userChecklistId: number;
+  title: string;
+  authorNickname: string;
+  authorProfileImage?: string | null;
+  countryCode?: string;
+  countryName?: string;
+  universityName?: string;
+  programTypeName?: string;
+  likeCount: number;
+  saveCount: number;
+  totalItemCount: number;
+  doneItemCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PublicChecklistResponse {
+  content: PublicChecklistItem[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  hasNext: boolean;
+}
+
+export async function getPublicUserChecklists(
+  params: PublicChecklistParams = {}
+): Promise<PublicChecklistResponse> {
+  console.log("[API] GET /user-checklists/public", params);
+  const { data } = await api.get<PublicChecklistResponse>(
+    "/user-checklists/public",
+    { params }
+  );
+  return data;
+}
+
 // =======================
 // Popular Top (인기 체크리스트 TOP)
 // =======================
@@ -345,33 +417,31 @@ export async function fetchPopularTop(
     : [];
 }
 
-// =======================
-// Collect Item (다른 사용자의 항목을 내 체크리스트로 가져오기)
-// POST /user-checklists/{myChecklistId}/collect-item?userId=&sourceItemId=
-// =======================
-export interface CollectItemParams {
-  myChecklistId: number | string;
-  userId: number | string; // 원본 항목의 사용자 ID
-  sourceItemId: number | string; // 가져올 항목 ID
+/** AI 추천 누락 아이템 조회 */
+export interface MissingItem {
+  item_title: string;
+  item_description: string;
+  item_tag: string;
+  popularity_rate: number;
+  avg_offset_days: number;
+  priority_score: number;
+  missing_reason: string;
+  confidence_score: number;
 }
 
-export interface CollectItemResponse {
-  // 서버 스키마에 맞춰 필요 시 구체화하세요.
-  // 예: { newItemId: number, ... }
-  [key: string]: any;
+export interface MissingItemsResponse {
+  missing_items: MissingItem[];
+  total_missing: number;
+  recommendation_summary: string;
 }
 
-export async function collectChecklistItem({
-  myChecklistId,
-  userId,
-  sourceItemId,
-}: CollectItemParams): Promise<CollectItemResponse> {
-  const { data } = await api.post(
-    `/user-checklists/${myChecklistId}/collect-item`,
-    null, // 바디 없음
-    { params: { userId, sourceItemId } } // 쿼리 파라미터
-  );
-  return data;
+export async function getMissingItems(
+  userChecklistId: number | string,
+  userId: number
+): Promise<MissingItemsResponse> {
+  console.log("[API] GET /ai/recommendations/missing-items/:id", userChecklistId, userId);
+  const res = await api.get(`/ai/recommendations/missing-items/${userChecklistId}?userId=${userId}`);
+  return res.data;
 }
 
 // 체크리스트 캘린더 항목 인터페이스
